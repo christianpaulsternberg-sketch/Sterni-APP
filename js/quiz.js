@@ -373,7 +373,7 @@ window.STERNI_QUIZ = (() => {
       window.STERNI_APP?.toast("Bitte ein zweites Mitglied als Gegner hinzufügen oder Solo spielen.");
       return;
     }
-    if (mode !== "solo" && p1Name === p2Name) {
+    if (mode !== "solo" && mode !== "online-duel" && p1Name === p2Name) {
       window.STERNI_APP?.toast("Bitte zwei verschiedene Mitglieder für das Duell wählen.");
       return;
     }
@@ -408,6 +408,7 @@ window.STERNI_QUIZ = (() => {
       opponentSkill: opponent?.skill || 0.7,
       targetScore: typeof override?.targetScore === "number" ? override.targetScore : null,
       inviteId: override?.inviteId || null,
+      onlineDuelId: override?.onlineDuelId || null,
       questions,
       index: 0,
       scores: [0, typeof override?.targetScore === "number" ? override.targetScore : 0],
@@ -424,13 +425,17 @@ window.STERNI_QUIZ = (() => {
     boardEl.hidden = mode === "solo";
     document.getElementById("quiz-board-p1-name").textContent = p1Name;
     document.getElementById("quiz-board-p2-name").textContent = p2Name;
+    for (const id of ["quiz-retry-btn", "quiz-send-challenge-btn", "quiz-share-btn"]) {
+      document.getElementById(id).hidden = mode === "online-duel";
+    }
 
     renderQuestion();
   }
 
   function updateScoreboard(activePlayerIdx) {
     document.getElementById("quiz-board-p1-pts").textContent = `${state.scores[0]} Pkt`;
-    document.getElementById("quiz-board-p2-pts").textContent = `${state.scores[1]} Pkt`;
+    document.getElementById("quiz-board-p2-pts").textContent =
+      state.mode === "online-duel" ? "Spielt separat" : `${state.scores[1]} Pkt`;
     const p1Box = document.getElementById("quiz-board-p1");
     const p2Box = document.getElementById("quiz-board-p2");
     if (state.mode === "local-duel") {
@@ -542,7 +547,11 @@ window.STERNI_QUIZ = (() => {
     const headlineEl = document.getElementById("quiz-result-headline");
     const rankEl = document.getElementById("quiz-result-rank");
 
-    if (state.mode === "solo") {
+    if (state.mode === "online-duel") {
+      headlineEl.textContent = "Online-Runde beendet";
+      summaryEl.textContent = `${state.correctCounts[0]} von ${state.questions.length} richtig · ${state.scores[0]} Punkte`;
+      window.STERNI_QUIZ_ONLINE.finish(state.onlineDuelId, state.scores[0], rankEl);
+    } else if (state.mode === "solo") {
       const correct = state.correctCounts[0];
       const total = state.questions.length;
       const pct = Math.round((correct / total) * 100);
@@ -597,12 +606,13 @@ window.STERNI_QUIZ = (() => {
         const card = document.createElement("div");
         card.className = "entry-card";
         card.innerHTML = `
-          <div class="entry-card-head"><strong></strong><span class="pill-tag">${m.player}</span></div>
+          <div class="entry-card-head"><strong></strong><span class="pill-tag"></span></div>
           <p class="small-meta muted" style="margin:0.2rem 0"></p>
           <p class="small-meta" style="margin:0.2rem 0;color:#8ce9b1"></p>
           <p class="small-meta muted" style="margin:0.25rem 0 0"></p>
         `;
         card.querySelector("strong").textContent = m.question;
+        card.querySelector(".pill-tag").textContent = m.player;
         const ps = card.querySelectorAll("p");
         ps[0].textContent = `Deine Antwort: ${m.chosen}`;
         ps[1].textContent = `Richtig: ${m.correct}`;
@@ -758,6 +768,13 @@ window.STERNI_QUIZ = (() => {
 
   return {
     init,
+    showSetup,
+    startOnlineRound(duel, me) {
+      startQuiz({
+        mode: "online-duel", catId: duel.category, seed: duel.seed,
+        p1Name: me.name, p2Name: duel.opponent_name, onlineDuelId: duel.id
+      });
+    },
     addMember,
     populateSelectors,
     openDuelWith,
