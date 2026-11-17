@@ -80,6 +80,16 @@ window.STERNI_APP = (() => {
 
   function handleHash() {
     const hash = (location.hash || "#start").replace("#", "").split("?")[0];
+    if (hash === "anglertreff") {
+      location.replace(new URL("./anglertreff.html", location.href));
+      return;
+    }
+    if (hash === "anglertreff-lokal") {
+      navigateTo("anglertreff");
+      const select = document.getElementById("quick-nav-select");
+      if (select) select.value = hash;
+      return;
+    }
     navigateTo(hash || "start");
   }
 
