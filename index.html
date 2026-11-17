@@ -89,7 +89,36 @@
         </article>
 
         <!-- Übersichtlich gruppierte Bereiche -->
-        <p class="tile-group-title">1. Vor der Tour · Wetter, Spots &amp; Checklisten</p>
+        <p class="tile-group-title">1. Freunde &amp; Quiz</p>
+        <div class="quick-links" role="navigation" aria-label="Freunde und Quiz">
+          <!-- Wissens-Quiz -->
+          <a href="#quiz" class="quick-link" data-route="quiz">
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="24" cy="24" r="18"/>
+                <path d="M18.5 18.5a5.5 5.5 0 0 1 10.6 2c0 3.7-5.1 4.5-5.1 8"/>
+                <circle cx="24" cy="34.5" r="1.4" fill="currentColor" stroke="none"/>
+              </svg>
+              <span class="tile-badge">20 THEMEN</span>
+            </div>
+            <span class="quick-label">WISSENS-QUIZ</span>
+            <span class="quick-sub">Freundeskreis &amp; Duell spielen</span>
+          </a>
+
+          <!-- Anglertreff -->
+          <a href="./anglertreff.html" class="quick-link">
+            <div class="tile-top">
+              <svg class="tile-icon tile-icon-blue" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 24c7-10 20-12 30-5l8-5-3 10 3 10-8-5c-10 7-23 5-30-5Z"/>
+                <circle cx="15" cy="22.5" r="1.8" fill="currentColor" stroke="none"/>
+              </svg>
+            </div>
+            <span class="quick-label">ANGLERTREFF</span>
+            <span class="quick-sub">Fangorte, Bilder &amp; Statusmeldungen</span>
+          </a>
+        </div>
+
+        <p class="tile-group-title">2. Vor der Tour · Wetter, Spots &amp; Checklisten</p>
         <div class="quick-links" role="navigation" aria-label="Vor der Tour">
           <!-- Wetter & Fisch -->
           <div class="quick-link quick-link-interactive">
@@ -153,7 +182,7 @@
           </a>
         </div>
 
-        <p class="tile-group-title">2. Auf dem Wasser, Tagebuch &amp; Wissen</p>
+        <p class="tile-group-title">3. Auf dem Wasser, Tagebuch &amp; Wissen</p>
         <div class="quick-links" role="navigation" aria-label="Auf dem Wasser und danach">
           <!-- Bootsposition & Fahrt -->
           <div class="quick-link quick-link-interactive">
@@ -209,44 +238,22 @@
           </a>
         </div>
 
-        <p class="tile-group-title">3. Freunde &amp; Quiz</p>
-        <div class="quick-links" role="navigation" aria-label="Freunde und Quiz">
-          <!-- Wissens-Quiz -->
-          <a href="#quiz" class="quick-link" data-route="quiz">
-            <div class="tile-top">
-              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="24" cy="24" r="18"/>
-                <path d="M18.5 18.5a5.5 5.5 0 0 1 10.6 2c0 3.7-5.1 4.5-5.1 8"/>
-                <circle cx="24" cy="34.5" r="1.4" fill="currentColor" stroke="none"/>
-              </svg>
-              <span class="tile-badge">20 THEMEN</span>
-            </div>
-            <span class="quick-label">WISSENS-QUIZ</span>
-            <span class="quick-sub">Freundeskreis &amp; Duell spielen</span>
-          </a>
-
-          <!-- Anglertreff -->
-          <a href="./anglertreff.html" class="quick-link">
-            <div class="tile-top">
-              <svg class="tile-icon tile-icon-blue" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M6 24c7-10 20-12 30-5l8-5-3 10 3 10-8-5c-10 7-23 5-30-5Z"/>
-                <circle cx="15" cy="22.5" r="1.8" fill="currentColor" stroke="none"/>
-              </svg>
-            </div>
-            <span class="quick-label">ANGLERTREFF</span>
-            <span class="quick-sub">Fangorte, Bilder &amp; Statusmeldungen</span>
-          </a>
-        </div>
-
         <!-- Collapsible Install & Backup -->
         <details class="app-install">
           <summary>Sterni-App installieren · Offline &amp; Sicherung</summary>
           <div class="details-body">
-            <p>Alle Checklisten, Angelspots, Tagebucheinträge, Wartungsdaten und Quiz-Rekorde werden lokal in deinem Browser (<code>localStorage</code>) gespeichert.</p>
-            <ul>
-              <li><strong>Smartphone (iOS / Android):</strong> Im Browser-Menü „Zum Startbildschirm hinzufügen“ wählen, um die App wie eine native App zu starten.</li>
-              <li><strong>Datensicherung:</strong> Im <a href="#journal">Fangtagebuch</a> kannst du jederzeit eine vollständige JSON-Sicherung deiner gesamten App-Daten herunterladen und wieder einlesen.</li>
-            </ul>
+            <h3>Auf dem iPhone installieren</h3>
+            <ol>
+              <li>Öffne die Sterni-App in <strong>Safari</strong>.</li>
+              <li>Tippe auf <strong>Teilen</strong>. Je nach Safari-Ansicht findest du die Taste im Menü der Seite.</li>
+              <li>Wähle <strong>Zu Home-Bildschirm hinzufügen</strong>. Fehlt der Eintrag, tippe unten auf <strong>Aktionen bearbeiten</strong>.</li>
+              <li>Aktiviere <strong>Als Web-App öffnen</strong>, falls der Schalter angezeigt wird, und tippe auf <strong>Hinzufügen</strong>.</li>
+            </ol>
+            <p>Danach kannst du die Sterni-App über ihr Symbol auf dem Home-Bildschirm öffnen. <a href="https://support.apple.com/de-de/guide/iphone/iphea86e5236/ios">Apple-Anleitung ansehen</a></p>
+            <p><strong>Android:</strong> Öffne das Browser-Menü und wähle „Zum Startbildschirm hinzufügen“.</p>
+            <h3>Sicherung auf dem iPhone</h3>
+            <p>Öffne das <a href="#journal">Fangtagebuch</a> in der App-Ansicht, in der deine Einträge sichtbar sind. Tippe auf <strong>Sicherung herunterladen</strong> und speichere die JSON-Datei in <strong>Dateien</strong>, etwa unter „Downloads“ oder in iCloud Drive. Zum Wiederherstellen tippe in der gewünschten App-Ansicht auf <strong>Sicherung einlesen</strong> und wähle die Datei aus. Einlesen kann vorhandene lokale Einträge ersetzen.</p>
+            <p><strong>Offline:</strong> Für den privaten Anglertreff und aktuelle Online-Daten wie Wetter und Pegel brauchst du Internet. Mitglieder, Beiträge und Fotos des privaten Anglertreffs sind von der lokalen JSON-Sicherung getrennt.</p>
           </div>
         </details>
       </section>
