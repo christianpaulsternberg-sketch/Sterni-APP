@@ -1100,6 +1100,9 @@ details[open] > summary::after {
   color: var(--muted);
 }
 .knot-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
   margin: 0.55rem 0 0;
   font-size: 0.88rem;
 }
