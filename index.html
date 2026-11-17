@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0d0d10">
+  <title>Sterni-App · Petri Heil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="maenner-app">
+  <a class="skip-link" href="#main-content">Zum Hauptinhalt springen</a>
+
+  <div class="app-shell">
+    <!-- Top Brand Bar -->
+    <header class="top-bar">
+      <div class="top-bar-inner">
+        <a href="#start" class="brand" id="brand-home-link">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 36 24" width="32" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12c5-7 14-9 22-4l7-4-2 8 2 8-7-4c-8 5-17 3-22-4Z"/>
+              <circle cx="10" cy="11" r="1.4" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>
+          <span><b>STERNI-APP</b> <small>PETRI HEIL</small></span>
+        </a>
+        <div class="top-actions">
+          <button type="button" class="btn-outline btn-sm" id="share-app-btn">
+            Sterni-App weiterempfehlen
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="main-container">
+      <!-- ==================== #START VIEW ==================== -->
+      <section id="view-start" class="app-view active" aria-labelledby="hero-title">
+        <!-- Hero Banner SVG -->
+        <div class="hero-banner">
+          <svg class="hero-svg" viewBox="0 0 1200 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="heroSky" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#17171d"/>
+                <stop offset="65%" stop-color="#121216"/>
+                <stop offset="100%" stop-color="#2c1216"/>
+              </linearGradient>
+              <radialGradient id="heroSun" cx="84%" cy="28%" r="34%">
+                <stop offset="0%" stop-color="#ff4549" stop-opacity="0.85"/>
+                <stop offset="45%" stop-color="#ff4549" stop-opacity="0.22"/>
+                <stop offset="100%" stop-color="#ff4549" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect width="1200" height="320" fill="url(#heroSky)"/>
+            <rect width="1200" height="320" fill="url(#heroSun)"/>
+            <circle cx="1010" cy="86" r="46" fill="#ff4549" opacity="0.9"/>
+            <!-- Mountains -->
+            <path d="M0 245 L140 155 L260 210 L420 120 L585 215 L730 140 L900 220 L1065 148 L1200 205 L1200 320 L0 320 Z" fill="#1e1e26"/>
+            <path d="M0 265 L190 215 L360 250 L540 195 L760 255 L970 200 L1200 250 L1200 320 L0 320 Z" fill="#141419"/>
+            <!-- Water ripples -->
+            <path d="M40 286 H360 M440 294 H820 M880 284 H1160" stroke="#ff4549" stroke-width="2" stroke-opacity="0.35" stroke-dasharray="18 12"/>
+            <!-- Stylized White Fish -->
+            <g transform="translate(860, 145) rotate(-10)" fill="none" stroke="#f2f2ef" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.92">
+              <path d="M0 32 C38 -8, 118 -10, 168 24 L212 2 L196 34 L214 66 L168 44 C118 78, 38 74, 0 32 Z" fill="#18181f"/>
+              <path d="M62 8 L88 -12 L106 8"/>
+              <path d="M72 54 L90 70 L102 52"/>
+              <circle cx="34" cy="28" r="4.5" fill="#ff4549" stroke="none"/>
+            </g>
+            <!-- Lightning bolts -->
+            <path d="M780 65 L758 102 L778 102 L762 138" stroke="#ff4549" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1115 110 L1100 135 L1114 135 L1102 162" stroke="#ff575b" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+          </svg>
+          <div class="hero-overlay">
+            <p class="eyebrow">DEIN TAG KANN DRAUSSEN BEGINNEN</p>
+            <h1 id="hero-title">STERNI WÜNSCHT PETRI HEIL</h1>
+          </div>
+        </div>
+
+        <!-- Daily Joke Card -->
+        <article class="daily-joke" aria-label="Anglerwitz des Tages">
+          <div class="daily-joke-head">
+            <p class="eyebrow">DEIN ANGLERWITZ DES TAGES</p>
+            <button type="button" class="btn-ghost btn-xs" id="next-joke-btn">Nächster Witz ↻</button>
+          </div>
+          <p id="anglerwitz" class="daily-joke-text"></p>
+        </article>
+
+        <!-- Übersichtlich gruppierte Bereiche -->
+        <p class="tile-group-title">1. Vor der Tour · Wetter, Spots &amp; Checklisten</p>
+        <div class="quick-links" role="navigation" aria-label="Vor der Tour">
+          <!-- Wetter & Fisch -->
+          <div class="quick-link quick-link-interactive">
+            <a href="#wetter" class="quick-link-overlay" data-route="wetter" aria-label="Wetter und Fisch öffnen"></a>
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 33h21a8 8 0 0 0 1.4-15.9A11 11 0 0 0 15 19a7 7 0 0 0-1 14Z"/>
+                <path d="M16 39l-2 4M24 39l-2 4M32 39l-2 4"/>
+              </svg>
+            </div>
+            <span class="quick-label">WETTER &amp; FISCH</span>
+            <form class="tile-search-form" id="tile-weather-form">
+              <label for="tile-weather-input" class="sr-only">Ort oder Gewässer</label>
+              <input type="search" id="tile-weather-input" placeholder="Ort oder Gewässer suchen …" autocomplete="off" autocorrect="off" spellcheck="false">
+              <button type="submit" class="btn-fish" title="Wetter und Fisch abrufen" aria-label="Wetter und Fisch abrufen">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M2 12c4-6 11-7 16-3l4-3-1.5 6L22 18l-4-3c-5 4-12 3-16-3Z"/>
+                </svg>
+              </button>
+            </form>
+          </div>
+
+          <!-- Meine Angelspots -->
+          <a href="#spots" class="quick-link" data-route="spots">
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M24 41s13-11.5 13-22a13 13 0 1 0-26 0c0 10.5 13 22 13 22Z"/>
+                <circle cx="24" cy="19" r="4.5"/>
+              </svg>
+            </div>
+            <span class="quick-label">MEINE ANGELSPOTS</span>
+            <span class="quick-sub">Plätze speichern · Karte &amp; Schonzeiten</span>
+          </a>
+
+          <!-- Angelcheck -->
+          <a href="#angeln" class="quick-link" data-route="angeln">
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="8" width="30" height="34" rx="2"/>
+                <path d="M17 8V5h14v3"/>
+                <path d="M16 21l4 4 9-9"/>
+                <path d="M16 32h14"/>
+              </svg>
+            </div>
+            <span class="quick-label">ANGELCHECK</span>
+            <span class="quick-sub">Abhaken, was in die Tasche muss</span>
+          </a>
+
+          <!-- Bootscheck -->
+          <a href="#boot" class="quick-link" data-route="boot">
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 29h36l-4 9H10l-4-9Z"/>
+                <path d="M24 9v20"/>
+                <path d="M24 11l13 13H24"/>
+                <path d="M8 42c4-2 8-2 12 0s8 2 12 0 8-2 8 0"/>
+              </svg>
+            </div>
+            <span class="quick-label">BOOTSCHECK</span>
+            <span class="quick-sub">Kurz-Check vor dem Ablegen</span>
+          </a>
+        </div>
+
+        <p class="tile-group-title">2. Auf dem Wasser, Tagebuch &amp; Wissen</p>
+        <div class="quick-links" role="navigation" aria-label="Auf dem Wasser und danach">
+          <!-- Bootsposition & Fahrt -->
+          <div class="quick-link quick-link-interactive">
+            <a href="#navigation" class="quick-link-overlay" data-route="navigation" aria-label="Bootsposition und Fahrt öffnen"></a>
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="24" cy="24" r="17"/>
+                <path d="M24 12v4M24 32v4M12 24h4M32 24h4"/>
+                <path d="M28 20l-8 3-3 8 8-3 3-8Z" fill="currentColor" fill-opacity="0.25"/>
+              </svg>
+            </div>
+            <span class="quick-label">BOOTSPOSITION &amp; FAHRT</span>
+            <button type="button" class="tile-sub-btn" id="tile-tacho-btn">
+              Tacho öffnen · <span id="tile-speed-readout">Aktuelle Geschwindigkeit — km/h</span>
+            </button>
+          </div>
+
+          <!-- Fangtagebuch -->
+          <a href="#journal" class="quick-link" data-route="journal">
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="10" y="7" width="28" height="34" rx="2"/>
+                <path d="M16 7v34"/>
+                <path d="M21 17h11M21 24h11M21 31h7"/>
+              </svg>
+              <span class="tile-badge" id="journal-count-badge">0 Touren</span>
+            </div>
+            <span class="quick-label">FANGTAGEBUCH</span>
+            <span class="quick-sub">Fänge notieren &amp; Daten sichern</span>
+          </a>
+
+          <!-- Wartung & Pflege -->
+          <a href="#wartung" class="quick-link" data-route="wartung">
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M31 9a9 9 0 0 0-8.6 11.6L11 32l5 5 11.4-11.4A9 9 0 0 0 39 17l-5 5-4-4 5-5A9 9 0 0 0 31 9Z"/>
+              </svg>
+            </div>
+            <span class="quick-label">WARTUNG &amp; PFLEGE</span>
+            <span class="quick-sub">Rollen &amp; Schnüre im Blick behalten</span>
+          </a>
+
+          <!-- Wissenswertes -->
+          <a href="#wissen" class="quick-link" data-route="wissen">
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 10h13a5 5 0 0 1 5 5v23a4 4 0 0 0-4-4H8V10Z"/>
+                <path d="M40 10H27a5 5 0 0 0-5 5v23a4 4 0 0 1 4-4h14V10Z"/>
+              </svg>
+            </div>
+            <span class="quick-label">WISSENSWERTES</span>
+            <span class="quick-sub">Knoten, Köder, Rechner &amp; Tipps</span>
+          </a>
+        </div>
+
+        <p class="tile-group-title">3. Freunde &amp; Quiz</p>
+        <div class="quick-links" role="navigation" aria-label="Freunde und Quiz">
+          <!-- Wissens-Quiz -->
+          <a href="#quiz" class="quick-link" data-route="quiz">
+            <div class="tile-top">
+              <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="24" cy="24" r="18"/>
+                <path d="M18.5 18.5a5.5 5.5 0 0 1 10.6 2c0 3.7-5.1 4.5-5.1 8"/>
+                <circle cx="24" cy="34.5" r="1.4" fill="currentColor" stroke="none"/>
+              </svg>
+              <span class="tile-badge">20 THEMEN</span>
+            </div>
+            <span class="quick-label">WISSENS-QUIZ</span>
+            <span class="quick-sub">Freundeskreis &amp; Duell spielen</span>
+          </a>
+
+          <!-- Anglertreff -->
+          <a href="#anglertreff" class="quick-link" data-route="anglertreff">
+            <div class="tile-top">
+              <svg class="tile-icon tile-icon-blue" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 24c7-10 20-12 30-5l8-5-3 10 3 10-8-5c-10 7-23 5-30-5Z"/>
+                <circle cx="15" cy="22.5" r="1.8" fill="currentColor" stroke="none"/>
+              </svg>
+              <span class="tile-badge tile-badge-blue" id="treff-badge">0 Beiträge</span>
+            </div>
+            <span class="quick-label">ANGLERTREFF</span>
+            <span class="quick-sub">Fangorte, Bilder &amp; Statusmeldungen</span>
+          </a>
+        </div>
+
+        <!-- Collapsible Install & Backup -->
+        <details class="app-install">
+          <summary>Sterni-App installieren · Offline &amp; Sicherung</summary>
+          <div class="details-body">
+            <p>Alle Checklisten, Angelspots, Tagebucheinträge, Wartungsdaten und Quiz-Rekorde werden lokal in deinem Browser (<code>localStorage</code>) gespeichert.</p>
+            <ul>
+              <li><strong>Smartphone (iOS / Android):</strong> Im Browser-Menü „Zum Startbildschirm hinzufügen“ wählen, um die App wie eine native App zu starten.</li>
+              <li><strong>Datensicherung:</strong> Im <a href="#journal">Fangtagebuch</a> kannst du jederzeit eine vollständige JSON-Sicherung deiner gesamten App-Daten herunterladen und wieder einlesen.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- ==================== #QUIZ VIEW (20 THEMEN & MITGLIEDER-DUELL) ==================== -->
+      <section id="view-quiz" class="app-view" aria-labelledby="quiz-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">20 THEMENGEBIETE · MITGLIEDER-DUELL</p>
+          <h1 id="quiz-heading">Wissens-Quiz</h1>
+          <p class="section-lead">Mathe, Physik, Medizin, Allgemeinwissen, Angeln &amp; 15 weitere Gebiete – direkt als Duell unter App-Mitgliedern.</p>
+        </div>
+
+        <!-- 1. Setup -->
+        <div id="quiz-setup" class="quiz-setup-stack">
+          <div id="quiz-invite-banner" class="panel" hidden>
+            <p class="eyebrow">DUELL-EINLADUNG</p>
+            <h2 id="quiz-invite-banner-title" style="margin-bottom:0.35rem">Herausforderung wartet</h2>
+            <p id="quiz-invite-banner-desc" class="muted" style="margin-bottom:0.85rem"></p>
+            <div class="action-row">
+              <button type="button" class="btn-primary" id="quiz-accept-invite-btn">Einladung annehmen &amp; spielen →</button>
+              <button type="button" class="btn-ghost btn-sm" id="quiz-dismiss-invite-btn">Verwerfen</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="entry-card-head" style="margin-bottom:0.85rem">
+              <h2 style="margin:0">Neues Duell starten</h2>
+              <button type="button" class="btn-outline btn-sm" id="quiz-friends-toggle-btn">👥 Freundeskreis (Anmelden &amp; Einladen)</button>
+            </div>
+
+            <!-- Freundeskreis-Panel (direkt beim Quiz) -->
+            <div id="quiz-friends-panel" class="member-subbox" hidden>
+              <div class="entry-card-head" style="margin-bottom:0.65rem">
+                <div>
+                  <p class="eyebrow" style="margin-bottom:0.15rem">FREUNDESKREIS</p>
+                  <strong id="quiz-me-status">Noch nicht angemeldet – einfach Namen eintragen</strong>
+                </div>
+                <button type="button" class="btn-ghost btn-xs" id="quiz-friends-close-btn">Schließen ✕</button>
+              </div>
+
+              <form id="quiz-me-form" class="search-row" style="margin-bottom:0.85rem">
+                <input type="text" id="quiz-me-name" placeholder="Dein Name (z.B. Klaus)" maxlength="30" required>
+                <input type="email" id="quiz-me-email" placeholder="Deine E-Mail (optional)" autocomplete="email">
+                <button type="submit" class="btn-primary btn-sm">Anmelden</button>
+              </form>
+
+              <p class="small-meta muted" style="margin:0 0 0.45rem">Freund per E-Mail oder Statusmeldung (WhatsApp / Link) einladen &amp; direkt herausfordern:</p>
+              <form id="quiz-friend-add-form" class="stack-form">
+                <div class="form-grid-2">
+                  <div class="field">
+                    <label for="quiz-friend-name">Name des Freundes *</label>
+                    <input type="text" id="quiz-friend-name" placeholder="z.B. Thomas" maxlength="30" required>
+                  </div>
+                  <div class="field">
+                    <label for="quiz-friend-email">E-Mail des Freundes (für E-Mail-Einladung)</label>
+                    <input type="email" id="quiz-friend-email" placeholder="freund@beispiel.de">
+                  </div>
+                </div>
+                <div class="action-row" style="margin-top:0">
+                  <button type="submit" class="btn-primary btn-sm">Freund hinzufügen</button>
+                  <button type="button" class="btn-outline btn-sm" id="quiz-friend-email-btn">Per E-Mail einladen ✉</button>
+                  <button type="button" class="btn-outline btn-sm" id="quiz-friend-share-btn">Per Statusmeldung / Link teilen ↗</button>
+                </div>
+              </form>
+
+              <div id="quiz-friends-list" class="stack-list" style="margin-top:0.75rem"></div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="quiz-p1-select">1. Du (Herausforderer)</label>
+                <select id="quiz-p1-select"></select>
+              </div>
+              <div class="field">
+                <label for="quiz-p2-select">2. Gegner aus Freundeskreis</label>
+                <select id="quiz-p2-select"></select>
+              </div>
+              <div class="field">
+                <label for="quiz-category">3. Themengebiet (20 Gebiete)</label>
+                <select id="quiz-category"></select>
+              </div>
+              <div class="field">
+                <label for="quiz-mode">4. Spielart</label>
+                <select id="quiz-mode">
+                  <option value="member-duel">Duell gegen Freund (10 Fragen)</option>
+                  <option value="local-duel">2 Spieler an einem Gerät (je 5 Fragen)</option>
+                  <option value="solo">Solo-Training (10 Fragen)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="action-row" style="margin-top:1rem">
+              <button type="button" class="btn-primary" id="quiz-start-btn">Duell starten →</button>
+              <button type="button" class="btn-outline btn-sm" id="quiz-send-invite-btn">Herausforderungs-Link teilen / kopieren</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="entry-card-head" style="margin-bottom:0.5rem">
+              <h2 style="margin:0">Mitglieder-Rangliste</h2>
+              <button type="button" class="btn-ghost btn-xs" id="quiz-reset-stats-btn">Zurücksetzen</button>
+            </div>
+            <div id="quiz-leaderboard" class="data-table-wrap"></div>
+          </div>
+        </div>
+
+        <!-- 2. Spiel-Ansicht -->
+        <div id="quiz-play" class="panel" hidden>
+          <div id="quiz-duel-board" class="quiz-duel-board">
+            <div class="quiz-duel-player is-active" id="quiz-board-p1">
+              <span class="quiz-duel-name" id="quiz-board-p1-name">Spieler 1</span>
+              <strong class="quiz-duel-pts" id="quiz-board-p1-pts">0 Pkt</strong>
+            </div>
+            <span class="quiz-duel-vs">VS</span>
+            <div class="quiz-duel-player" id="quiz-board-p2">
+              <span class="quiz-duel-name" id="quiz-board-p2-name">Spieler 2</span>
+              <strong class="quiz-duel-pts" id="quiz-board-p2-pts">0 Pkt</strong>
+            </div>
+          </div>
+
+          <div class="quiz-meta-row">
+            <span id="quiz-progress-label" class="quiz-counter">Frage 1 von 10</span>
+            <span id="quiz-cat-badge" class="pill-tag">Mathematik</span>
+          </div>
+          <div class="progress-track" aria-label="Quiz-Fortschritt">
+            <div class="progress-fill" id="quiz-progress-bar" style="width: 0%"></div>
+          </div>
+
+          <h2 id="quiz-question-text" class="quiz-question"></h2>
+          <div id="quiz-options" class="quiz-options" role="group" aria-label="Antwortmöglichkeiten"></div>
+
+          <div id="quiz-feedback" class="quiz-feedback" aria-live="polite" hidden>
+            <p id="quiz-feedback-title" class="quiz-feedback-title"></p>
+            <p id="quiz-feedback-desc" style="margin:0 0 0.75rem"></p>
+            <button type="button" class="btn-primary btn-sm" id="quiz-next-btn">Weiter →</button>
+          </div>
+        </div>
+
+        <!-- 3. Ergebnis -->
+        <div id="quiz-result" class="panel" hidden>
+          <p class="eyebrow">DUELL-AUSWERTUNG</p>
+          <h2 id="quiz-result-headline">GUT GESPIELT!</h2>
+          <div id="quiz-result-summary" class="stats-grid-3"></div>
+          <p id="quiz-result-rank" class="quiz-rank-banner"></p>
+          <div class="action-row">
+            <button type="button" class="btn-primary" id="quiz-retry-btn">Revanche starten →</button>
+            <button type="button" class="btn-outline" id="quiz-send-challenge-btn">Mitglied mit meinem Ergebnis herausfordern</button>
+            <button type="button" class="btn-outline" id="quiz-share-btn">Ergebnis kopieren</button>
+            <button type="button" class="btn-ghost" id="quiz-back-setup-btn">Zurück zur Übersicht</button>
+          </div>
+          <details id="quiz-mistakes-wrap" class="sub-details" hidden>
+            <summary id="quiz-mistakes-summary">Fehler &amp; Erklärungen ansehen</summary>
+            <div class="details-body">
+              <div id="quiz-mistakes-list" class="stack-list"></div>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- ==================== #ANGLERTREFF VIEW ==================== -->
+      <section id="view-anglertreff" class="app-view" aria-labelledby="treff-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">MITGLIEDER · FANGORTE · WEBP-BILDER · STATUSMELDUNGEN</p>
+          <h1 id="treff-heading">Anglertreff</h1>
+          <p class="section-lead">Melde dich kurz mit deinem Namen an und tausche Fangorte, Statusmeldungen („Was hast du gefangen?“) und Bilder im WebP-Format aus.</p>
+        </div>
+
+        <div class="panel">
+          <div class="treff-profile-bar" style="margin-bottom:0.85rem">
+            <div class="field-inline">
+              <label for="treff-nickname">Mitgliedsname:</label>
+              <input type="text" id="treff-nickname" placeholder="Dein Mitgliedsname" maxlength="30">
+              <button type="button" class="btn-outline btn-sm" id="treff-save-name-btn">Registrieren / Anmelden</button>
+              <span id="treff-member-status" class="small-meta muted"></span>
+            </div>
+          </div>
+
+          <form id="treff-post-form" class="stack-form">
+            <div class="form-grid-3" style="margin-top:0">
+              <div class="field">
+                <label for="treff-kind">Beitragsart</label>
+                <select id="treff-kind">
+                  <option value="Statusmeldung · Fang">Statusmeldung (Was gefangen?)</option>
+                  <option value="Fangort">Fangort teilen</option>
+                  <option value="Nachricht">Nachricht / Frage</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="treff-title">Überschrift / Fang oder Status *</label>
+                <input type="text" id="treff-title" required placeholder="z.B. 74er Zander an der Steinpackung">
+              </div>
+              <div class="field">
+                <label for="treff-water">Fangort / Gewässer</label>
+                <input type="text" id="treff-water" placeholder="z.B. Oder bei Eisenhüttenstadt">
+              </div>
+            </div>
+            <div class="field">
+              <label for="treff-body">Nachricht, Köder &amp; Tipps *</label>
+              <textarea id="treff-body" rows="3" required placeholder="Was hast du gefangen, womit und wo genau?"></textarea>
+            </div>
+            <div class="field">
+              <label for="treff-photo">Bild hochladen (wird automatisch ins WebP-Format umgewandelt)</label>
+              <div class="action-row" style="margin:0">
+                <input type="file" id="treff-photo" accept="image/*" style="max-width:340px">
+                <button type="button" class="btn-ghost btn-xs" id="treff-clear-photo-btn" hidden>Bild entfernen</button>
+                <span id="treff-photo-info" class="small-meta muted"></span>
+              </div>
+              <div id="treff-photo-preview" hidden></div>
+            </div>
+            <div class="action-row">
+              <button type="submit" class="btn-primary">Beitrag / Status posten</button>
+              <button type="button" class="btn-outline btn-sm" id="treff-import-journal-btn">Letzten Tagebuch-Fang übernehmen</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="treff-feed" class="stack-list" aria-live="polite"></div>
+      </section>
+
+      <!-- ==================== #SPOTS VIEW ==================== -->
+      <section id="view-spots" class="app-view" aria-labelledby="spots-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">DEINE PLÄTZE AM WASSER</p>
+          <h1 id="spots-heading">Meine Angelspots</h1>
+        </div>
+
+        <!-- 1. Featured Water Profile: Oder bei Eisenhüttenstadt -->
+        <article class="panel featured-water">
+          <div class="featured-head">
+            <div>
+              <p class="eyebrow">GEWÄSSERWISSEN · ERSTES PROFIL</p>
+              <h2>Oder bei Eisenhüttenstadt</h2>
+              <p class="muted">Grenzfluss mit Buhnenfeldern, Altarmen und starker Strömung (Brandenburg).</p>
+            </div>
+            <button type="button" class="btn-primary" id="adopt-oder-btn">Dieses Gewässer für meinen Spot übernehmen</button>
+          </div>
+
+          <div class="oder-daylight-row">
+            <button type="button" class="btn-outline btn-sm" id="load-oder-daylight-btn">Heutigen Sonnenaufgang &amp; Sonnenuntergang laden</button>
+            <span id="oder-daylight-output" class="muted"></span>
+          </div>
+
+          <h3>Typische Fischarten</h3>
+          <div id="oder-fish-grid" class="fish-cards-grid"></div>
+
+          <div class="target-hints-box">
+            <div class="field">
+              <label for="oder-target-fish">Zielfisch für Angelhinweise</label>
+              <select id="oder-target-fish">
+                <option value="Zander">Zander</option>
+                <option value="Barsch">Barsch</option>
+                <option value="Hecht">Hecht</option>
+                <option value="Brasse">Brasse</option>
+              </select>
+            </div>
+            <div id="oder-hints-grid" class="stats-grid-3"></div>
+          </div>
+
+          <div class="action-row">
+            <a class="btn-outline btn-sm" href="https://www.lavb.de/" target="_blank" rel="noopener">Angelkarten beim LAVB ↗</a>
+            <a class="btn-outline btn-sm" href="https://www.kav-eisenhuettenstadt.de/" target="_blank" rel="noopener">Regionale Hinweise KAV Eisenhüttenstadt ↗</a>
+          </div>
+          <details class="sub-details">
+            <summary>Quellen &amp; Einordnung</summary>
+            <div class="details-body">
+              <p>Die Angaben basieren auf fischereibiologischen Standardwerten für die Oder in Brandenburg. Maßgeblich am Wasser sind stets die aktuelle Gewässerordnung des LAVB sowie die Fischereiordnung des Landes Brandenburg.</p>
+            </div>
+          </details>
+        </article>
+
+        <!-- 2. Manual Spot CRUD -->
+        <article class="panel">
+          <h2>Neuer Angelspot</h2>
+          <form id="spot-form" class="stack-form">
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="spot-name">Name des Spots *</label>
+                <input type="text" id="spot-name" required placeholder="z.B. Buhne 4 Nordufer">
+              </div>
+              <div class="field">
+                <label for="spot-water-input">Gewässer / Ort *</label>
+                <input type="text" id="spot-water-input" required placeholder="z.B. Oder bei Eisenhüttenstadt">
+              </div>
+              <div class="field">
+                <label for="spot-target-input">Zielfisch</label>
+                <input type="text" id="spot-target-input" placeholder="z.B. Zander, Barsch">
+              </div>
+              <div class="field">
+                <label for="spot-place-input">Ort zum Gewässer</label>
+                <input type="text" id="spot-place-input" placeholder="z.B. Eisenhüttenstadt">
+              </div>
+            </div>
+            <div class="field">
+              <label for="spot-notes-input">Notizen</label>
+              <textarea id="spot-notes-input" rows="2" placeholder="Zugang, Parkplatz, Bodenstruktur, Kanten …"></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Spot speichern</button>
+          </form>
+
+          <h3>Deine Angelplätze</h3>
+          <div id="saved-spots-list" class="stack-list"></div>
+        </article>
+
+        <!-- 3. Interactive Map Spot Selector -->
+        <article class="panel">
+          <h2>Angelplatz auf der Karte auswählen</h2>
+          <form id="map-spot-search-form" class="search-row">
+            <label for="map-spot-search" class="sr-only">Ort oder Gewässer suchen</label>
+            <input type="search" id="map-spot-search" placeholder="Ort oder Gewässer suchen (z.B. Müritz, Elbe, Rügen)" autocorrect="off" spellcheck="false">
+            <button type="submit" class="btn-primary">Suchen</button>
+          </form>
+          <div id="map-search-results" class="disambig-list" hidden></div>
+
+          <div class="action-row">
+            <button type="button" class="btn-outline btn-sm" id="spot-use-gps-btn">Aktuellen Standort verwenden</button>
+            <button type="button" class="btn-outline btn-sm" id="spot-save-fav-btn">★ Spot speichern</button>
+            <button type="button" class="btn-outline btn-sm" id="spot-share-btn">Spot teilen</button>
+            <button type="button" class="btn-outline btn-sm" id="spot-refresh-btn">Aktualisieren</button>
+          </div>
+
+          <div id="spots-map" class="leaflet-box" aria-label="Interaktive Angelkarte"></div>
+          <p id="spot-coords-label" class="muted small-meta">Klicke auf die Karte oder suche ein Gewässer, um Wetter, Fangbedingungen, Pegel und Schonzeiten zu laden.</p>
+
+          <div class="form-grid-3">
+            <div class="field">
+              <label for="spot-water">Gewässer bestätigen</label>
+              <input type="text" id="spot-water" placeholder="Gewässername">
+            </div>
+            <div class="field">
+              <label for="spot-region">Bundesland prüfen</label>
+              <select id="spot-region">
+                <option value="">Nicht eindeutig bestimmt</option>
+                <option value="Baden-Württemberg">Baden-Württemberg</option>
+                <option value="Bayern">Bayern</option>
+                <option value="Berlin">Berlin</option>
+                <option value="Brandenburg">Brandenburg</option>
+                <option value="Bremen">Bremen</option>
+                <option value="Hamburg">Hamburg</option>
+                <option value="Hessen">Hessen</option>
+                <option value="Mecklenburg-Vorpommern">Mecklenburg-Vorpommern</option>
+                <option value="Niedersachsen">Niedersachsen</option>
+                <option value="Nordrhein-Westfalen">Nordrhein-Westfalen</option>
+                <option value="Rheinland-Pfalz">Rheinland-Pfalz</option>
+                <option value="Saarland">Saarland</option>
+                <option value="Sachsen">Sachsen</option>
+                <option value="Sachsen-Anhalt">Sachsen-Anhalt</option>
+                <option value="Schleswig-Holstein">Schleswig-Holstein</option>
+                <option value="Thüringen">Thüringen</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="spot-fish">Zielfisch</label>
+              <select id="spot-fish">
+                <option value="Zander">Zander</option>
+                <option value="Hecht">Hecht</option>
+                <option value="Barsch">Barsch</option>
+                <option value="Karpfen">Karpfen</option>
+                <option value="Aal">Aal</option>
+                <option value="Forelle">Forelle</option>
+                <option value="Wels">Wels</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="spot-panels-grid">
+            <div class="sub-panel">
+              <h3>Fangbedingungen</h3>
+              <div id="spot-conditions-output" class="muted">Position wählen …</div>
+            </div>
+            <div class="sub-panel">
+              <h3>Wetter</h3>
+              <div id="spot-weather-output" class="muted">Position wählen …</div>
+            </div>
+            <div class="sub-panel">
+              <h3>Wasser (PEGELONLINE)</h3>
+              <div id="spot-waterlevel-output" class="muted">Position wählen …</div>
+            </div>
+            <div class="sub-panel">
+              <h3>Fischbestand (GBIF)</h3>
+              <div class="radius-group" id="spot-gbif-radii">
+                <button type="button" class="btn-xs btn-outline active" data-km="1">1 km</button>
+                <button type="button" class="btn-xs btn-outline" data-km="5">5 km</button>
+                <button type="button" class="btn-xs btn-outline" data-km="20">20 km</button>
+                <button type="button" class="btn-xs btn-outline" data-km="50">50 km</button>
+              </div>
+              <div id="spot-gbif-output" class="muted">Position wählen …</div>
+            </div>
+          </div>
+
+          <div class="sub-panel">
+            <h3>Schonzeiten &amp; Mindestmaße</h3>
+            <div id="spot-schonzeiten-output" class="muted">Wähle ein Bundesland und bestätige das Gewässer, um die Landesrichtwerte anzuzeigen.</div>
+          </div>
+
+          <div class="sub-panel">
+            <h3>Gespeicherte Kartenpositionen &amp; Verlauf</h3>
+            <div class="action-row">
+              <button type="button" class="btn-outline btn-xs" id="export-spots-btn">Spots sichern</button>
+              <label class="btn-outline btn-xs file-btn">
+                Spot-Sicherung einlesen
+                <input type="file" id="import-spots-input" accept="application/json" hidden>
+              </label>
+            </div>
+            <div id="spot-favorites-list" class="stack-list"></div>
+          </div>
+        </article>
+      </section>
+
+      <!-- ==================== #WISSEN VIEW ==================== -->
+      <section id="view-wissen" class="app-view" aria-labelledby="wissen-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">AM WASSER DAZULERNEN</p>
+          <h1 id="wissen-heading">Wissenswertes</h1>
+        </div>
+
+        <div class="panel">
+          <div class="field">
+            <label for="wissen-search">Im gesamten Ratgeber suchen</label>
+            <input type="search" id="wissen-search" placeholder="z.B. Palomar, Zander, Schnur, Impeller, Salzlake …" autocorrect="off" spellcheck="false">
+            <span id="wissen-search-count" class="hint"></span>
+          </div>
+          <nav class="anchor-pills" aria-label="Themenbereiche">
+            <a href="#wissen-rechner" class="pill-link">Rechner &amp; Geräte</a>
+            <a href="#wissen-knoten" class="pill-link">Knoten &amp; Haken</a>
+            <a href="#wissen-fische" class="pill-link">Fische &amp; Köder</a>
+            <a href="#wissen-grundlagen" class="pill-link">Grundlagen</a>
+          </nav>
+        </div>
+
+        <!-- 1. Rechner & praktische Helfer -->
+        <div id="wissen-rechner" class="wissen-group">
+          <h2>Rechner &amp; praktische Helfer</h2>
+
+          <details class="wissen-item" data-search="schnur rechner kapazität unterfütterung spule durchmesser">
+            <summary>Schnur-Rechner · Kapazität &amp; Unterfütterung</summary>
+            <div class="details-body">
+              <div class="form-grid-3">
+                <div class="field">
+                  <label for="line-cap-len">Spulenangabe Länge (m)</label>
+                  <input type="number" id="line-cap-len" value="200" min="1" step="1">
+                </div>
+                <div class="field">
+                  <label for="line-cap-dia">Spulenangabe Ø (mm)</label>
+                  <input type="number" id="line-cap-dia" value="0.35" min="0.05" step="0.01">
+                </div>
+                <div class="field">
+                  <label for="line-main-dia">Neue Hauptschnur Ø (mm)</label>
+                  <input type="number" id="line-main-dia" value="0.25" min="0.04" step="0.01">
+                </div>
+                <div class="field">
+                  <label for="line-main-len">Gewünschte Hauptschnur (m)</label>
+                  <input type="number" id="line-main-len" value="150" min="1" step="1">
+                </div>
+                <div class="field">
+                  <label for="line-backing-dia">Unterschnur Ø (mm)</label>
+                  <input type="number" id="line-backing-dia" value="0.30" min="0.05" step="0.01">
+                </div>
+              </div>
+              <p id="line-calc-result" class="calc-result"></p>
+            </div>
+          </details>
+
+          <details class="wissen-item" data-search="boot sprit reichweite tank reserve verbrauch geschwindigkeit">
+            <summary>Boot · Sprit &amp; Reichweite</summary>
+            <div class="details-body">
+              <div class="form-grid-2">
+                <div class="field">
+                  <label for="fuel-tank">Tankinhalt (Liter)</label>
+                  <input type="number" id="fuel-tank" value="40" min="1" step="1">
+                </div>
+                <div class="field">
+                  <label for="fuel-reserve">Sicherheitsreserve (Liter)</label>
+                  <input type="number" id="fuel-reserve" value="10" min="0" step="1">
+                </div>
+                <div class="field">
+                  <label for="fuel-rate">Verbrauch (Liter / Stunde)</label>
+                  <input type="number" id="fuel-rate" value="8" min="0.5" step="0.5">
+                </div>
+                <div class="field">
+                  <label for="fuel-speed">Marschfahrt (km/h)</label>
+                  <input type="number" id="fuel-speed" value="20" min="1" step="1">
+                </div>
+              </div>
+              <p id="fuel-calc-result" class="calc-result"></p>
+            </div>
+          </details>
+
+          <details class="wissen-item" data-search="fehlersuche außenborder bordstrom anlasser motor startet nicht">
+            <summary>Fehlersuche · Außenborder &amp; Bordstrom</summary>
+            <div class="details-body">
+              <div class="field">
+                <label for="trouble-symptom">Symptom wählen</label>
+                <select id="trouble-symptom">
+                  <option value="no-crank">Anlasser dreht nicht</option>
+                  <option value="cranks-no-start">Anlasser dreht, Motor startet nicht</option>
+                  <option value="no-power">Bordgerät bleibt aus</option>
+                </select>
+              </div>
+              <ol id="trouble-steps" class="clean-list"></ol>
+            </div>
+          </details>
+
+          <details class="wissen-item" data-search="geräte ersatzteile gerätemappe seriennummer typenschild foto">
+            <summary>Meine Geräte &amp; Ersatzteile · persönliche Gerätemappe</summary>
+            <div class="details-body">
+              <form id="equip-form" class="stack-form">
+                <div class="form-grid-2">
+                  <div class="field">
+                    <label for="equip-name">Gerät / Bezeichnung *</label>
+                    <input type="text" id="equip-name" required placeholder="z.B. Außenborder 15 PS">
+                  </div>
+                  <div class="field">
+                    <label for="equip-model">Hersteller und Modell</label>
+                    <input type="text" id="equip-model" placeholder="z.B. Yamaha F15CEHS">
+                  </div>
+                  <div class="field">
+                    <label for="equip-serial">Seriennummer</label>
+                    <input type="text" id="equip-serial" placeholder="z.B. 6AGK-1048291">
+                  </div>
+                  <div class="field">
+                    <label for="equip-parts">Ersatzteile / Teilenummern</label>
+                    <input type="text" id="equip-parts" placeholder="z.B. Impeller 63V-44352-01">
+                  </div>
+                  <div class="field">
+                    <label for="equip-link">Link zur Anleitung</label>
+                    <input type="url" id="equip-link" placeholder="https://…">
+                  </div>
+                  <div class="field">
+                    <label for="equip-photo">Typenschildfoto (optional)</label>
+                    <input type="file" id="equip-photo" accept="image/*">
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="equip-notes">Notizen</label>
+                  <textarea id="equip-notes" rows="2" placeholder="Ölsorte, Zündkerzenabstand, Wartungshinweise …"></textarea>
+                </div>
+                <div class="action-row">
+                  <button type="submit" class="btn-primary btn-sm">Gerät speichern</button>
+                  <button type="button" class="btn-ghost btn-sm" id="equip-clear-photo-btn">Foto entfernen</button>
+                </div>
+              </form>
+              <div id="equip-list" class="stack-list"></div>
+            </div>
+          </details>
+
+          <details class="wissen-item" data-search="fischküche salzlake räuchern rezepte salz wasser">
+            <summary>Fischküche · Salzlake &amp; eigene Rezepte</summary>
+            <div class="details-body">
+              <div class="form-grid-2">
+                <div class="field">
+                  <label for="brine-water">Wassermenge (Liter)</label>
+                  <input type="number" id="brine-water" value="2" min="0.5" step="0.5">
+                </div>
+                <div class="field">
+                  <label for="brine-salt">Salzgehalt (g pro Liter)</label>
+                  <input type="number" id="brine-salt" value="60" min="10" step="5">
+                </div>
+              </div>
+              <p id="brine-calc-result" class="calc-result"></p>
+              <p class="muted small-meta">Hinweis zur Lebensmittelsicherheit: Beim Räuchern und Garen auf mindestens 70 °C Kerntemperatur achten (BfR-Empfehlung).</p>
+              <form id="kitchen-form" class="stack-form">
+                <div class="field">
+                  <label for="kitchen-title">Eigenes Rezept / Versuch *</label>
+                  <input type="text" id="kitchen-title" required placeholder="z.B. Forelle 6% Lake mit Wacholder">
+                </div>
+                <div class="field">
+                  <label for="kitchen-body">Zutaten, Zubereitung und Ergebnis *</label>
+                  <textarea id="kitchen-body" rows="2" required placeholder="12h einlegen, 1h trocknen, 90 Min. bei 75 °C …"></textarea>
+                </div>
+                <button type="submit" class="btn-primary btn-sm">Küchennotiz speichern</button>
+              </form>
+              <div id="kitchen-list" class="stack-list"></div>
+            </div>
+          </details>
+        </div>
+
+        <!-- 2. Praxis vertiefen -->
+        <div class="wissen-group">
+          <h2>Praxis vertiefen</h2>
+          <div id="wissen-praxis-list"></div>
+        </div>
+
+        <!-- 3. Angelknoten (11 Knoten mit SVG-Schemazeichnungen) -->
+        <div id="wissen-knoten" class="wissen-group">
+          <h2>Angelknoten für Haken, Vorfach und Rolle</h2>
+          <div id="wissen-knots-list"></div>
+        </div>
+
+        <!-- 4. Fischarten & Köder -->
+        <div id="wissen-fische" class="wissen-group">
+          <h2>Welcher Fisch, welche Methode, welcher Köder?</h2>
+          <div id="wissen-fish-list"></div>
+        </div>
+
+        <!-- 5. Grundlagen -->
+        <div id="wissen-grundlagen" class="wissen-group">
+          <h2>Die Grundlagen am Wasser</h2>
+          <div id="wissen-basics-list"></div>
+        </div>
+      </section>
+
+      <!-- ==================== #ANGELN VIEW ==================== -->
+      <section id="view-angeln" class="app-view" aria-labelledby="angeln-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">GUT VORBEREITET ANS WASSER</p>
+          <h1 id="angeln-heading">Dein Angelcheck</h1>
+        </div>
+        <div class="panel">
+          <div class="checklist-header">
+            <span id="angeln-counter" class="quiz-counter">0 / 6 Vorbereitungen erledigt</span>
+            <button type="button" class="btn-outline btn-sm" id="angeln-reset-btn">Für den nächsten Trip zurücksetzen</button>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="angeln-progress" style="width: 0%"></div>
+          </div>
+          <ul id="angeln-list" class="checklist"></ul>
+        </div>
+      </section>
+
+      <!-- ==================== #BOOT VIEW ==================== -->
+      <section id="view-boot" class="app-view" aria-labelledby="boot-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">BEVOR DU ABLEGST</p>
+          <h1 id="boot-heading">Dein Bootscheck</h1>
+        </div>
+        <div class="panel">
+          <div class="checklist-header">
+            <span id="boot-counter" class="quiz-counter">0 / 6 Vorbereitungen erledigt</span>
+            <button type="button" class="btn-outline btn-sm" id="boot-reset-btn">Für den nächsten Trip zurücksetzen</button>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="boot-progress" style="width: 0%"></div>
+          </div>
+          <ul id="boot-list" class="checklist"></ul>
+        </div>
+      </section>
+
+      <!-- ==================== #WETTER VIEW ==================== -->
+      <section id="view-wetter" class="app-view" aria-labelledby="wetter-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">LIVE-DATEN VOM GEWÄSSER</p>
+          <h1 id="wetter-heading">Wetter &amp; Fisch</h1>
+        </div>
+
+        <div class="panel">
+          <form id="wetter-search-form" class="search-row">
+            <label for="wetter-search-input" class="sr-only">Ort oder Gewässer</label>
+            <input type="search" id="wetter-search-input" placeholder="Ort oder Gewässer eingeben (z.B. Müritz, Plöner See, Oder)" autocorrect="off" spellcheck="false" required>
+            <button type="submit" class="btn-primary">Wetter und Fisch abrufen</button>
+          </form>
+          <div id="wetter-disambig" class="disambig-list" hidden></div>
+
+          <div style="margin-top:1rem">
+            <div class="entry-card-head" style="margin-bottom:0.35rem">
+              <div>
+                <h2 style="margin:0;font-size:1.15rem">Deutschlandkarte · Gewässer &amp; Angelorte direkt anklicken</h2>
+                <p class="small-meta muted" style="margin:0.15rem 0 0">Zoome in die Karte und klicke auf einen Marker oder eine beliebige Stelle – der Ort wird automatisch übernommen und alle Daten geladen.</p>
+              </div>
+              <button type="button" class="btn-outline btn-xs" id="wetter-map-reset-btn">Deutschland-Übersicht</button>
+            </div>
+            <div id="wetter-map" class="leaflet-box" aria-label="Zoombare Deutschlandkarte für Wetter und Fisch"></div>
+          </div>
+        </div>
+
+        <div id="wetter-results" hidden>
+          <div class="panel">
+            <div class="featured-head">
+              <div>
+                <p class="eyebrow" id="wetter-place-type">GEWÄSSER / ORT</p>
+                <h2 id="wetter-place-name"></h2>
+                <p id="wetter-coords-meta" class="muted small-meta"></p>
+              </div>
+              <button type="button" class="btn-outline btn-sm" id="wetter-open-on-map-btn">Auf Spot-Karte öffnen →</button>
+            </div>
+
+            <div class="stats-grid-4" id="wetter-metrics"></div>
+            <div class="daylight-strip" id="wetter-daylight"></div>
+          </div>
+
+          <div class="panel" id="wetter-sections-panel">
+            <div class="featured-head">
+              <div>
+                <h3>Alle Teilabschnitte des Gewässers</h3>
+                <p id="wetter-sections-count" class="muted small-meta" style="margin:0">Lade Teilabschnitte …</p>
+              </div>
+            </div>
+            <div id="wetter-sections-list" class="sections-grid"></div>
+          </div>
+
+          <div class="panel">
+            <h3>Vorhandene Fische · Bild &amp; Beschreibung</h3>
+            <div class="radius-group" id="wetter-gbif-radii">
+              <button type="button" class="btn-xs btn-outline active" data-km="1">1 km</button>
+              <button type="button" class="btn-xs btn-outline" data-km="5">5 km</button>
+              <button type="button" class="btn-xs btn-outline" data-km="20">20 km</button>
+              <button type="button" class="btn-xs btn-outline" data-km="50">50 km</button>
+            </div>
+            <div id="wetter-gbif-list" class="muted small-meta"></div>
+            <div id="wetter-fish-grid" class="wetter-fish-grid"></div>
+          </div>
+
+          <div class="panel">
+            <h3>24-Stunden-Ausblick</h3>
+            <div id="wetter-hourly-wrap" class="hourly-strip"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== #NAVIGATION VIEW ==================== -->
+      <section id="view-navigation" class="app-view" aria-labelledby="nav-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">TACHO &amp; STRECKENZÄHLER</p>
+          <h1 id="nav-heading">Bootsposition &amp; Fahrt</h1>
+        </div>
+
+        <div class="panel">
+          <div class="stats-grid-3">
+            <div class="metric-box">
+              <span class="metric-label">Geschwindigkeit</span>
+              <strong class="metric-val" id="nav-speed-kmh">— km/h</strong>
+              <span class="muted small-meta" id="nav-speed-kn">— kn</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Gefahrene Strecke</span>
+              <strong class="metric-val" id="nav-dist-km">0,00 km</strong>
+              <span class="muted small-meta" id="nav-duration-min">0 min</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">GPS-Position</span>
+              <strong class="metric-val metric-val-sm" id="nav-coords">Ausgeschaltet</strong>
+              <span class="muted small-meta" id="nav-accuracy">Genauigkeit —</span>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button type="button" class="btn-primary btn-sm" id="nav-gps-toggle-btn">GPS einschalten</button>
+            <button type="button" class="btn-outline btn-sm" id="nav-record-btn" disabled>Fahrt aufzeichnen</button>
+            <button type="button" class="btn-outline btn-sm" id="nav-center-btn">Position zentrieren</button>
+            <button type="button" class="btn-outline btn-sm" id="nav-new-trip-btn">Neue Fahrt</button>
+            <button type="button" class="btn-outline btn-sm" id="nav-export-gpx-btn">Fahrt als GPX sichern</button>
+          </div>
+
+          <div id="nav-map" class="leaflet-box" aria-label="Seekarte und Bootsposition"></div>
+
+          <details class="sub-details">
+            <summary>Standort &amp; Speicherung</summary>
+            <div class="details-body">
+              <p>Deine GPS-Koordinaten werden ausschließlich lokal in deinem Browser verarbeitet und niemals an einen Server übertragen. Aufgezeichnete Tracks lassen sich jederzeit als GPX-Datei für deinen Kartenplotter herunterladen.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- ==================== #JOURNAL VIEW ==================== -->
+      <section id="view-journal" class="app-view" aria-labelledby="journal-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">DEINE ERFAHRUNG ZÄHLT</p>
+          <h1 id="journal-heading">Fangtagebuch</h1>
+        </div>
+
+        <div class="stats-grid-3" id="journal-stats">
+          <div class="metric-box">
+            <span class="metric-label">Dokumentierte Touren</span>
+            <strong class="metric-val" id="stat-tours">0</strong>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Gefangene Fische</span>
+            <strong class="metric-val" id="stat-fish">0</strong>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Größter Fisch</span>
+            <strong class="metric-val" id="stat-biggest">— cm</strong>
+          </div>
+        </div>
+
+        <article class="panel">
+          <h2>Tour eintragen</h2>
+          <form id="journal-form" class="stack-form">
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="j-water">Gewässer / Angelplatz *</label>
+                <input type="text" id="j-water" list="j-water-list" required placeholder="z.B. Oder bei Eisenhüttenstadt">
+                <datalist id="j-water-list"></datalist>
+              </div>
+              <div class="field">
+                <label for="j-date">Datum und Uhrzeit *</label>
+                <input type="datetime-local" id="j-date" required>
+              </div>
+              <div class="field">
+                <label for="j-species">Fischart *</label>
+                <input type="text" id="j-species" required placeholder="z.B. Zander">
+              </div>
+              <div class="field">
+                <label for="j-count">Anzahl gefangener Fische *</label>
+                <input type="number" id="j-count" min="0" value="1" required>
+              </div>
+              <div class="field">
+                <label for="j-length">Größter Fisch (cm, optional)</label>
+                <input type="number" id="j-length" min="1" placeholder="z.B. 68">
+              </div>
+              <div class="field">
+                <label for="j-bait">Köder und Methode</label>
+                <input type="text" id="j-bait" placeholder="z.B. 12 cm Gummifisch am 14g Jig">
+              </div>
+            </div>
+            <div class="field">
+              <label for="j-notes">Beobachtungen</label>
+              <textarea id="j-notes" rows="2" placeholder="Wetter, Wasserstand, Beißzeit, Strömung …"></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Tour speichern</button>
+          </form>
+        </article>
+
+        <article class="panel">
+          <div class="form-grid-2">
+            <div class="field">
+              <label for="j-search">Einträge durchsuchen</label>
+              <input type="search" id="j-search" placeholder="Gewässer, Fischart oder Köder" autocorrect="off" spellcheck="false">
+            </div>
+            <div class="field">
+              <label for="j-sort">Sortierung</label>
+              <select id="j-sort">
+                <option value="newest">Neueste zuerst</option>
+                <option value="oldest">Älteste zuerst</option>
+                <option value="biggest">Größter Fisch zuerst</option>
+              </select>
+            </div>
+          </div>
+          <div id="journal-list" class="stack-list"></div>
+        </article>
+
+        <article class="panel">
+          <h2>Deine Daten sichern</h2>
+          <p class="muted">Exportiere alle lokal gespeicherten Daten (Spots, Favoriten, Fangtagebuch, Wartung, Checklisten, Gerätemappe, Rezepte, Quiz-Rekorde) als JSON-Datei.</p>
+          <div class="action-row">
+            <button type="button" class="btn-outline" id="backup-download-btn">Sicherung herunterladen</button>
+            <label class="btn-outline file-btn">
+              Sicherung einlesen
+              <input type="file" id="backup-upload-input" accept="application/json" hidden>
+            </label>
+          </div>
+        </article>
+      </section>
+
+      <!-- ==================== #WARTUNG VIEW ==================== -->
+      <section id="view-wartung" class="app-view" aria-labelledby="wartung-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">GUT GEPFLEGT ANS WASSER</p>
+          <h1 id="wartung-heading">Wartung &amp; Pflege</h1>
+        </div>
+
+        <article class="panel">
+          <h2>Pflegehinweise für Rollen &amp; Schnüre</h2>
+          <div id="wartung-guides-list"></div>
+          <div class="action-row" style="margin-top: 1rem;">
+            <a class="btn-outline btn-sm" href="https://fish.shimano.com/" target="_blank" rel="noopener">Shimano Rollenpflege ↗</a>
+            <a class="btn-outline btn-sm" href="https://www.daiwa.de/" target="_blank" rel="noopener">Daiwa Schnurprüfung ↗</a>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Rolle oder Schnur anlegen</h2>
+          <form id="wartung-form" class="stack-form">
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="w-name">Bezeichnung *</label>
+                <input type="text" id="w-name" required placeholder="z.B. Zander-Rolle 3000">
+              </div>
+              <div class="field">
+                <label for="w-kind">Art *</label>
+                <select id="w-kind">
+                  <option value="Rolle">Rolle</option>
+                  <option value="Schnur">Schnur</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="w-subtype">Rollentyp / Schnurtyp</label>
+                <select id="w-subtype"></select>
+              </div>
+              <div class="field">
+                <label for="w-brand">Hersteller / Modell</label>
+                <input type="text" id="w-brand" placeholder="z.B. Shimano Stradic FL 3000">
+              </div>
+              <div class="field">
+                <label for="w-spec">Durchmesser / Tragkraft / Länge</label>
+                <input type="text" id="w-spec" placeholder="z.B. 0,14 mm / 9,5 kg / 150 m">
+              </div>
+              <div class="field">
+                <label for="w-belongs">Gehört zu Rolle / Einsatz</label>
+                <input type="text" id="w-belongs" placeholder="z.B. Spinnrute Zander">
+              </div>
+              <div class="field">
+                <label for="w-last">Letzte Pflege / letzter Schnurwechsel</label>
+                <input type="date" id="w-last">
+              </div>
+              <div class="field">
+                <label for="w-next">Nächster eigener Prüftermin</label>
+                <input type="date" id="w-next">
+              </div>
+            </div>
+            <div class="field">
+              <label for="w-notes">Notizen</label>
+              <textarea id="w-notes" rows="2" placeholder="Schnurlaufröllchen gefettet, Bremsscheiben geprüft …"></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Eintrag speichern</button>
+          </form>
+        </article>
+
+        <article class="panel">
+          <div class="field">
+            <label for="w-search">Einträge durchsuchen</label>
+            <input type="search" id="w-search" placeholder="Rolle, Schnur, Modell oder Notiz" autocorrect="off" spellcheck="false">
+          </div>
+          <div id="wartung-list" class="stack-list"></div>
+        </article>
+      </section>
+
+      <!-- ==================== #HINWEISE VIEW ==================== -->
+      <section id="view-hinweise" class="app-view" aria-labelledby="hinweise-heading" hidden>
+        <div class="section-head">
+          <p class="eyebrow">RECHTLICHES &amp; DATENQUELLEN</p>
+          <h1 id="hinweise-heading">Anbieter, Datenschutz &amp; Hinweise</h1>
+        </div>
+        <div class="panel">
+          <h2 id="anbieter">Anbieter &amp; Projekt</h2>
+          <p>Sterni-App · Petri Heil – Persönlicher Angelbegleiter für Vorbereitung, Wetter, Gewässerkarten, Fangtagebuch, Quiz und Ausrüstungspflege.</p>
+          <h2 id="datenschutz">Datenschutz</h2>
+          <p>Alle persönlichen Einträge (Spots, Fangtagebuch, Checklisten, Wartung, Gerätemappe, Rezepte, Anglertreff-Beiträge, Quiz-Statistiken) werden ausschließlich lokal im Browser (<code>localStorage</code>) gespeichert. Bei Abruf von Wetter-, Pegel-, Karten- und Fischbestandsdaten werden lediglich die angefragten Koordinaten bzw. Suchbegriffe an die jeweiligen offenen Dienste (Open-Meteo, OpenStreetMap Nominatim, PEGELONLINE WSV, GBIF) gesendet.</p>
+          <h2 id="nutzungshinweise">Nutzungshinweise &amp; Gewährleistung</h2>
+          <p>Die angezeigten Schonzeiten, Mindestmaße, Wetter- und Pegeldaten dienen als unverbindliche Orientierungshilfe. Am Gewässer gelten ausschließlich die amtlichen Fischereigesetze des jeweiligen Bundeslandes sowie die Erlaubnisscheine und Gewässerordnungen der Bewirtschafter. GPS-Navigation ersetzt keinen amtlichen Kartenplotter und keine seemännische Sorgfaltspflicht.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Legal Footer -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span>Sterni-App · Petri Heil</span>
+        <nav aria-label="Rechtliche Hinweise">
+          <a href="#hinweise">Anbieter, Datenschutz &amp; Hinweise</a>
+        </nav>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Sticky Bottom Quick-Nav (visible when not on #start) -->
+  <nav class="sticky-quick-nav" id="sticky-quick-nav" aria-label="Schnelle App-Navigation" hidden>
+    <div class="sticky-quick-nav-inner">
+      <a href="#start" class="btn-outline btn-sm">← Übersicht</a>
+      <select id="quick-nav-select" aria-label="App-Bereich wechseln">
+        <option value="start">Startseite (Übersicht)</option>
+        <option value="wetter">Wetter &amp; Fisch</option>
+        <option value="spots">Meine Angelspots</option>
+        <option value="angeln">Angelcheck</option>
+        <option value="boot">Bootscheck</option>
+        <option value="navigation">Bootsposition &amp; Fahrt</option>
+        <option value="journal">Fangtagebuch</option>
+        <option value="wartung">Wartung &amp; Pflege</option>
+        <option value="wissen">Wissenswertes</option>
+        <option value="quiz">Wissens-Quiz (20 Themen)</option>
+        <option value="anglertreff">Anglertreff</option>
+      </select>
+    </div>
+  </nav>
+
+  <!-- Native Modal Dialog for Fish / Photo Lightbox -->
+  <dialog id="lightbox-dialog" class="app-dialog" closedby="any" aria-labelledby="lightbox-title">
+    <div class="dialog-head">
+      <h2 id="lightbox-title">Vorschau</h2>
+      <form method="dialog">
+        <button type="submit" class="btn-ghost btn-sm" aria-label="Schließen">✕</button>
+      </form>
+    </div>
+    <div id="lightbox-body" class="dialog-body"></div>
+  </dialog>
+
+  <!-- Toast Notification -->
+  <div id="app-toast" class="app-toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="js/data.js"></script>
+  <script src="js/quiz-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/maps.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
