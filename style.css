@@ -199,9 +199,9 @@ h3 {
   border: 1px solid var(--border);
   overflow: hidden;
   margin-bottom: 1.15rem;
-  min-height: 240px;
-  display: flex;
-  align-items: flex-end;
+  min-height: clamp(170px, 32vw, 240px);
+  display: grid;
+  place-items: center;
   background: #141419;
 }
 
@@ -213,18 +213,12 @@ h3 {
   pointer-events: none;
 }
 
-.hero-overlay {
+.hero-art {
   position: relative;
-  z-index: 2;
-  padding: 2rem 1.5rem 1.5rem;
-  max-width: 720px;
-  background: linear-gradient(90deg, #0d0d10d9 0%, #0d0d1099 65%, transparent 100%);
-}
-
-.hero-overlay h1 {
-  font-size: clamp(2.4rem, 6vw, 4.4rem);
-  text-shadow: 3px 3px 0 #ed383b44;
-  margin-bottom: 0;
+  width: min(94%, 420px);
+  height: auto;
+  display: block;
+  pointer-events: none;
 }
 
 /* Daily Joke */
