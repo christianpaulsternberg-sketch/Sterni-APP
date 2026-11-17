@@ -1,0 +1,71 @@
+/* Gemeinsame Anpassung an Handy, Tablet und Desktop; bestehendes Design erhalten. */
+html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}
+body{width:100%;max-width:1320px;margin-inline:auto;min-width:0}
+main,section,article,form,.panel,.trip-hub,.dashboard-tile{min-width:0}
+img,video,canvas{max-width:100%}input,textarea,select{max-width:100%}
+input,textarea,select{font-size:16px!important}button,a,input,select,textarea{touch-action:manipulation}
+.maenner-app>aside{position:static;width:100%;padding:20px 16px 0;border:0}
+.maenner-app .brand-sharing{max-width:520px;margin:auto}
+.maenner-app>main{margin:0;padding:20px 16px 32px;max-width:none}
+.maenner-app .hero{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.maenner-app .hero>div:first-child{padding:0}
+.maenner-app .daily-joke{margin:0;padding:18px 20px}
+.maenner-app .daily-joke #anglerwitz{font-size:15px;line-height:1.65}
+.maenner-app .trip-hub #trip-auswahl{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;padding:0;margin:0}
+.maenner-app #trip-auswahl .quick-link .quick-label{font-size:16px!important;letter-spacing:0}
+.maenner-app #trip-auswahl .quick-link small{font-size:12px;line-height:1.45}
+.maenner-app #trip-auswahl .dashboard-tile:has(>.view:not([hidden])),.maenner-app #trip-auswahl .weather-tile:has(#weather-tile-content:not([hidden])){grid-column:1/-1}
+.maenner-app .dashboard-tile>.view{padding:20px}
+.maenner-app .dashboard-tile>.view h1{font-size:clamp(27px,4vw,40px);overflow-wrap:normal;word-break:normal}
+.maenner-app .app-route-bar{left:max(0px,calc((100vw - 1320px)/2));right:max(0px,calc((100vw - 1320px)/2))}
+.maenner-app .app-route-bar select{width:auto;max-width:none;flex:1;min-width:0}
+.maenner-app .boat-actions{flex-wrap:wrap}.maenner-app .boat-actions button{min-height:44px}
+.maenner-app #boat-map{width:100%;height:clamp(280px,50dvh,520px)}
+.maenner-app #spot-integrated .spot-grid{grid-template-columns:minmax(0,1fr)}
+.maenner-app.has-app-route>main{padding-bottom:110px}
+footer.app-legal-footer nav{max-width:800px;margin-inline:auto}
+footer.app-legal-footer p{max-width:880px;margin-inline:auto}
+@media(max-width:360px){
+ .maenner-app .trip-hub #trip-auswahl{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ .maenner-app #trip-auswahl .quick-link .quick-label{font-size:12px!important}
+ .maenner-app .dashboard-tile>.view{padding:12px}
+ .maenner-app .app-route-bar{gap:6px;padding-inline:10px}
+ .maenner-app .app-route-bar button,.maenner-app .app-route-bar select{font-size:12px}
+}
+@media(min-width:700px){
+ .maenner-app>main{padding:24px}
+ .maenner-app>aside{padding-top:24px}
+ .maenner-app .trip-hub #trip-auswahl{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important}
+ .maenner-app #trip-auswahl .quick-link .quick-label{font-size:18px!important}
+ .maenner-app .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .maenner-app .boat-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .maenner-app .boat-stats>div:last-child{grid-column:auto}
+ .maenner-app .weather-stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+ .maenner-app #spot-integrated .spot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .maenner-app .fish-tips{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .maenner-app .app-route-bar{justify-content:center}
+ .maenner-app .app-route-bar select{max-width:600px}
+ .treff-page main{padding:28px;max-width:1000px}
+}
+@media(min-width:1100px){
+ .maenner-app .trip-hub #trip-auswahl{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important}
+ .maenner-app .hero{gap:24px}
+ .maenner-app .daily-joke{max-width:none}
+ .maenner-app .daily-joke #anglerwitz{font-size:16px}
+ .maenner-app #trip-auswahl .quick-link .quick-label{font-size:19px!important}
+ .maenner-app .dashboard-tile>.view{padding:28px}
+}
+@media(orientation:landscape) and (max-height:500px){
+ .maenner-app .brand-sharing{max-width:320px}
+ .maenner-app .app-route-bar{padding-top:5px;padding-bottom:5px}
+ .maenner-app #boat-map{height:280px}
+ .round-shell .game-actions{position:static}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media(min-width:361px) and (max-width:430px){.maenner-app #trip-auswahl .boat-tile .quick-label{font-size:clamp(12px,3.5vw,16px)!important}}
+
+/* Auf ausdrücklichen Wunsch auf allen Geräten genau zwei Startkacheln. */
+body.maenner-app{max-width:1040px}.maenner-app .app-route-bar{left:max(0px,calc((100vw - 1040px)/2));right:max(0px,calc((100vw - 1040px)/2))}@media(max-width:360px){.maenner-app>main{padding-inline:12px}.maenner-app #trip-auswahl .boat-tile .quick-label{white-space:normal!important;line-height:12px!important;overflow-wrap:normal!important;word-break:normal!important}.maenner-app #trip-auswahl .boat-tile .boat-speed-window>strong{font-size:22px!important}.maenner-app #trip-auswahl>.weather-tile:not(:has(#weather-tile-content:not([hidden]))) #weather-form{left:8px;right:8px}.maenner-app #trip-auswahl .treff-new>span:last-child{display:none}.maenner-app #trip-auswahl .boat-speed-window{padding:5px!important}}
+
+/* Wetter und Fahrt bilden auch im zweispaltigen Raster ein gemeinsames Paar. */
+.maenner-app #trip-auswahl>.dashboard-tile:has(>.quick-link[data-tab="wartung"]){order:3}
