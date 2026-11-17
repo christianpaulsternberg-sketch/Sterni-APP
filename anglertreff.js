@@ -51,15 +51,17 @@ async function enter(){
  $('#treff-admin').hidden=!isAdmin;$('#treff-admin-shortcut').hidden=!isAdmin;$('#treff-change-password').hidden=demo;
  $('#treff-entry').hidden=true;$('#treff-password').hidden=true;$('#treff-session').hidden=false;$('#treff-content').hidden=false;$('#treff-demo-switch').hidden=!demo;
  $('#treff-user').textContent='Angemeldet als '+(demo?(user.id==='christian'?'Christian (Test)':'Angelfreund (Test)'):user.email);
- await refresh();if(isAdmin)await loadAdmin();
+ await refresh();
+ if(isAdmin)await loadAdmin(members);
 }
 async function refresh(){
  const run=++generation;
  let data;
  if(demo)data=[test.posts.slice(),test.comments.slice(),test.likes.slice(),[{id:'christian',display_name:'Christian (Test)'},{id:'freund',display_name:'Angelfreund (Test)'}]];
- else {await membership();data=await Promise.all(['/rest/v1/treff_posts?select=*&order=created_at.desc&limit=100','/rest/v1/treff_comments?select=*&order=created_at.asc&limit=2000','/rest/v1/treff_likes?select=*&limit=5000','/rest/v1/treff_members?select=id,display_name'].map(p=>request(p)));}
+ else {await membership();data=await Promise.all(['/rest/v1/treff_posts?select=*&order=created_at.desc&limit=100','/rest/v1/treff_comments?select=*&order=created_at.asc&limit=2000','/rest/v1/treff_likes?select=*&limit=5000','/rest/v1/treff_members?select=id,display_name,active&order=display_name.asc'].map(p=>request(p)));}
  if(run!==generation||!user)return;
  [posts,comments,likes,members]=data;posts.sort((a,b)=>b.created_at.localeCompare(a.created_at));clearPictures();render(run);
+ if(isAdmin)renderAdminMembers(members);
  status(demo?'Testvorschau: nur in diesem Fenster, keine Übertragung an Freunde.':'Übersicht geladen · bis zu 100 aktuelle Beiträge.'); 
 }
 function action(text,fn){const b=node('button',text);b.type='button';b.onclick=()=>guard(b,fn);return b;}
@@ -208,21 +210,46 @@ async function adminCall(data){
  let result;try{result=await res.json();}catch{throw Error('Mitgliederverwaltung gerade nicht erreichbar.');}
  if(!res.ok)throw Error(result.error||'Aktion nicht möglich. Bitte erneut anmelden.');return result;
 }
-async function loadAdmin(){
- const result=await adminCall({action:'list'}),root=$('#treff-admin-members');root.replaceChildren();
- for(const person of result.members){
- const row=node('article');row.append(node('strong',person.display_name),node('p',person.active?'Zugang aktiv':'Zugang gesperrt'));
- const email=node('p',person.email?'E-Mail: '+person.email:'E-Mail-Adresse derzeit nicht verfügbar');email.className='treff-member-email';row.append(email);
- if(person.id!==user.id)row.append(action(person.active?'Zugang sperren':'Zugang wieder freigeben',async()=>{if(!confirm(person.display_name+': Zugang '+(person.active?'sperren?':'freigeben?')))return;await adminCall({action:person.active?'suspend':'restore',id:person.id});await loadAdmin();status('Mitgliedschaft aktualisiert.');}));
- if(person.active)row.append(action('Wiederherstellungslink erstellen',async()=>{const result=await adminCall({action:'recovery',id:person.id});showAdminLink(result.link);}));
- root.append(row);
+function renderAdminMembers(people, canManage=false){
+ const root=$('#treff-admin-members');
+ root.replaceChildren();
+ if(!people.length)root.append(node('p','Keine Mitglieder gefunden.'));
+ for(const person of people){
+  const row=node('article');
+  row.append(node('strong',person.display_name),node('p',person.active?'Zugang aktiv':'Zugang gesperrt'));
+  if(canManage){
+   if(person.email)row.append(node('p','E-Mail: '+person.email,'treff-member-email'));
+   if(person.id!==user.id)row.append(action(person.active?'Zugang sperren':'Zugang wieder freigeben',async()=>{
+    if(!confirm(person.display_name+': Zugang '+(person.active?'sperren?':'freigeben?')))return;
+    await adminCall({action:person.active?'suspend':'restore',id:person.id});
+    await loadAdmin();status('Mitgliedschaft aktualisiert.');
+   }));
+   if(person.active)row.append(action('Wiederherstellungslink erstellen',async()=>{
+    const result=await adminCall({action:'recovery',id:person.id});showAdminLink(result.link);
+   }));
+  }
+  root.append(row);
+ }
+}
+async function loadAdmin(existing){
+ const adminId=user.id;
+ const list=existing || await request('/rest/v1/treff_members?select=id,display_name,active&order=display_name.asc');
+ if(!isAdmin||user?.id!==adminId)return;
+ renderAdminMembers(list || []);
+ try{
+  const result=await adminCall({action:'list'});
+  if(isAdmin&&user?.id===adminId)renderAdminMembers(result.members,true);
+ }catch{
+  if(isAdmin&&user?.id===adminId){
+   $('#treff-admin-members').prepend(node('p','Die Mitgliederliste ist geladen. Verwaltungsaktionen sind hier derzeit nicht verfügbar.'));
+  }
  }
 }
 function showAdminLink(link,recipient=null){
  const destination=new URL(link);if(destination.origin!==location.origin||destination.pathname!==location.pathname)throw Error('Die Mitgliederverwaltung hat einen Link für eine andere App-Adresse geliefert.');
  invitationRecipient=recipient;$('#treff-link-value').value=link;$('#treff-admin-link').hidden=false;status('Link bereit. Wähle jetzt Teilen, WhatsApp oder E-Mail und bestätige dort den Versand.');}
 $('#treff-invite-form').onsubmit=e=>{e.preventDefault();guard(e.target.querySelector('button'),async()=>{const data=new FormData(e.target);const result=await adminCall({action:'invite',name:data.get('name'),email:data.get('email')});e.target.reset();showAdminLink(result.link,{name:String(data.get('name')),email:String(data.get('email'))});await loadAdmin();});};
-$('#treff-admin-refresh').onclick=()=>guard($('#treff-admin-refresh'),loadAdmin);
+$('#treff-admin-refresh').onclick=()=>guard($('#treff-admin-refresh'),()=>loadAdmin());
 $('#treff-copy-link').onclick=()=>guard($('#treff-copy-link'),async()=>{try{await navigator.clipboard.writeText($('#treff-link-value').value);status('Link kopiert. Bitte persönlich weitergeben.');}catch{$('#treff-link-value').focus();$('#treff-link-value').select();status('Bitte den markierten Link kopieren.');}});
 function invitationText(){const link=$('#treff-link-value').value;if(!link)throw Error('Bitte zuerst einen persönlichen Link erstellen.');return (invitationRecipient?'Hallo '+invitationRecipient.name+',':'Hallo,')+'\n\nkomm in unseren privaten Anglertreff! Öffne deinen persönlichen Zugangslink und lege dein eigenes Passwort fest:\n'+link+'\n\nDer Link ist einmalig und zeitlich begrenzt. Bitte nicht weiterleiten.';}
 $('#treff-share-link').onclick=()=>guard($('#treff-share-link'),async()=>{const text=invitationText();if(!navigator.share){status('Teilen wird hier nicht unterstützt. Nutze WhatsApp, E-Mail oder Link kopieren.');return;}try{await navigator.share({title:'Dein Zugang zum Anglertreff',text});status('Teilen-Fenster geschlossen. Ob die Nachricht versandt wurde, siehst du in deiner Nachrichten-App.');}catch(e){if(e.name!=='AbortError')throw Error('Teilen nicht möglich. Nutze E-Mail oder Link kopieren.');}});
