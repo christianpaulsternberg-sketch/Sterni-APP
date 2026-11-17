@@ -8,7 +8,16 @@ let invitationRecipient=null,composeKind='catch',feedFilter='all';
 let selectedPhoto=null,previewUrl=null,photoSequence=0,photoPending=false;
 let busy=false,pendingLink=null,isAdmin=false,remember=false,refreshing=null;
 const sessionKey='petri-treff-session-v1';
-function storeSession(){try{sessionStorage.removeItem(sessionKey);if(remember&&session)localStorage.setItem(sessionKey,JSON.stringify({access_token:session.access_token,refresh_token:session.refresh_token,expires_at:session.expires_at}));else localStorage.removeItem(sessionKey);}catch{status('Die Anmeldung kann auf diesem Gerät nicht dauerhaft gespeichert werden.');}}
+function storeSession(){
+ try{
+  const active=remember?localStorage:sessionStorage;
+  const other=remember?sessionStorage:localStorage;
+  if(session)active.setItem(sessionKey,JSON.stringify({access_token:session.access_token,refresh_token:session.refresh_token,expires_at:session.expires_at}));
+  else active.removeItem(sessionKey);
+  other.removeItem(sessionKey);
+  window.dispatchEvent(new Event('sterni-session-changed'));
+ }catch{status('Die Anmeldung kann auf diesem Gerät nicht gespeichert werden.');}
+}
 let demo=false,session=null,user=null,editing=null,posts=[],comments=[],likes=[],members=[],objects=[],generation=0;
 const test={posts:[],comments:[],likes:[]},form=$('#treff-catch');
 const status=message=>{$('#treff-status').textContent=message;};
@@ -23,7 +32,7 @@ document.querySelectorAll('[data-compose]').forEach(button=>button.onclick=()=>{
 document.querySelectorAll('[data-filter]').forEach(button=>button.onclick=()=>{feedFilter=button.dataset.filter;render(generation);});
 function close(retainSession=false){
  $('#treff-admin-shortcut').hidden=true;
- if(!retainSession){try{localStorage.removeItem(sessionKey);sessionStorage.removeItem(sessionKey);}catch{}}
+ if(!retainSession){try{localStorage.removeItem(sessionKey);sessionStorage.removeItem(sessionKey);window.dispatchEvent(new Event('sterni-session-changed'));}catch{}}
 generation++;invitationRecipient=null;clearPictures();isAdmin=false;pendingLink=null;$('#treff-admin').hidden=true;$('#treff-accept').hidden=true;$('#treff-link-value').value='';$('#treff-admin-link').hidden=true;$('#treff-admin-members').replaceChildren();session=null;user=null;posts=[];comments=[];likes=[];members=[];test.posts=[];test.comments=[];test.likes=[];$('#treff-feed').replaceChildren();$('#treff-content').hidden=true;$('#treff-session').hidden=true;$('#treff-password').hidden=true;$('#treff-entry').hidden=false;$('#treff-login').reset();resetForm();}
 async function request(path,{method='GET',body,token=session?.access_token,raw=false,headers={},retried=false}={}){
  let response;try{response=await fetch(config.url+path,{method,signal:AbortSignal.timeout(20000),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',headers:{apikey:config.publishableKey,...(token?{Authorization:'Bearer '+token}:{}),...(!raw&&body?{'Content-Type':'application/json'}:{}),...headers},body:body===undefined?undefined:raw?body:JSON.stringify(body)});}catch{throw Error('Keine Verbindung zum Anglertreff. Bitte Internet prüfen und erneut versuchen.');}
@@ -267,7 +276,7 @@ async function init(){
  if(location.hash||location.search)history.replaceState(null,'',location.pathname);
  if(hash.get('error')||query.get('error'))throw Error('Dieser Link ist ungültig oder abgelaufen. Bitte einen neuen Link anfordern.');
  if(configured&&(hash.get('token_hash')||query.get('token_hash')||hash.get('access_token'))){offerLink(linkParts(hash,query));return;}
- if(configured){try{const saved=localStorage.getItem(sessionKey)||sessionStorage.getItem(sessionKey);if(saved){session=JSON.parse(saved);remember=true;user=await request('/auth/v1/user');await enter();}}catch(error){close(true);status(error.message||'Bitte erneut versuchen.');}}
+ if(configured){try{const saved=localStorage.getItem(sessionKey)||sessionStorage.getItem(sessionKey);if(saved){session=JSON.parse(saved);remember=!!localStorage.getItem(sessionKey);user=await request('/auth/v1/user');await enter();}}catch(error){close(true);status(error.message||'Bitte erneut versuchen.');}}
 }
 window.addEventListener('hashchange',()=>{if(location.hash.includes('token_hash=')||location.hash.includes('access_token=')||location.hash.includes('error=')){close();init().catch(e=>{close();status(e.message);});}});
 async function keepSession(){if(!configured||demo||!session?.refresh_token||document.visibilityState==='hidden')return;try{await request('/auth/v1/user');}catch(error){status(error.message);}}

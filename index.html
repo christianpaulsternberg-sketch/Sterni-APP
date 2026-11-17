@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=online-1">
 </head>
 <body class="maenner-app">
   <a class="skip-link" href="#main-content">Zum Hauptinhalt springen</a>
@@ -104,8 +104,15 @@
             <span class="quick-sub">Freundeskreis &amp; Duell spielen</span>
           </a>
 
+          <section class="panel quiz-online" aria-labelledby="quiz-online-heading">
+            <h2 id="quiz-online-heading">Angler online – Jetzt herausfordern <span id="quiz-online-count" class="pill-tag" hidden></span></h2>
+            <p id="quiz-online-status" class="muted" aria-live="polite">Online-Status wird geprüft …</p>
+            <a id="quiz-online-login" href="./anglertreff.html" hidden>Im Anglertreff anmelden</a>
+            <ul id="quiz-online-members" class="quiz-online-list" aria-label="Mitglieder online"></ul>
+            <div id="quiz-online-home-duels"></div>
+          </section>
           <!-- Anglertreff -->
-          <a href="./anglertreff.html" class="quick-link">
+          <a href="./anglertreff.html" class="quick-link quiz-online-companion">
             <div class="tile-top">
               <svg class="tile-icon tile-icon-blue" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M6 24c7-10 20-12 30-5l8-5-3 10 3 10-8-5c-10 7-23 5-30-5Z"/>
@@ -265,6 +272,20 @@
 
         <!-- 1. Setup -->
         <div id="quiz-setup" class="quiz-setup-stack">
+          <section id="quiz-online-setup" class="panel" aria-labelledby="quiz-online-setup-heading" hidden>
+            <h2 id="quiz-online-setup-heading">Online-Duelle</h2>
+            <form id="quiz-online-form" hidden>
+              <p id="quiz-online-opponent" aria-live="polite"></p>
+              <div class="field">
+                <label for="quiz-online-category">Kategorie für das Online-Duell</label>
+                <select id="quiz-online-category"></select>
+              </div>
+              <button type="submit" class="btn-primary">Online-Duell starten</button>
+              <button type="button" class="btn-ghost" id="quiz-online-cancel">Auswahl aufheben</button>
+            </form>
+            <div id="quiz-online-setup-duels"></div>
+            <p id="quiz-online-feedback" role="status"></p>
+          </section>
           <div id="quiz-invite-banner" class="panel" hidden>
             <p class="eyebrow">DUELL-EINLADUNG</p>
             <h2 id="quiz-invite-banner-title" style="margin-bottom:0.35rem">Herausforderung wartet</h2>
@@ -1234,7 +1255,9 @@
   <script src="js/data.js"></script>
   <script src="js/quiz-data.js"></script>
   <script src="js/api.js"></script>
-  <script src="js/quiz.js"></script>
+  <script src="./anglertreff-config.js"></script>
+  <script src="js/quiz.js?v=online-1"></script>
+  <script src="js/quiz-online.js?v=1"></script>
   <script src="js/maps.js"></script>
   <script src="js/app.js?v=anglertreff-2"></script>
 </body>
