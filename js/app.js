@@ -90,6 +90,14 @@ window.STERNI_APP = (() => {
       if (select) select.value = hash;
       return;
     }
+    const knowledgeGroup = /^wissen-(rechner|knoten|fische|grundlagen)$/.test(hash)
+      ? document.getElementById(hash)
+      : null;
+    if (knowledgeGroup) {
+      navigateTo("wissen");
+      requestAnimationFrame(() => knowledgeGroup.scrollIntoView({ block: "start" }));
+      return;
+    }
     navigateTo(hash || "start");
   }
 
@@ -490,17 +498,6 @@ window.STERNI_APP = (() => {
   }
 
   // ==================== WISSENSWERTES ====================
-  function makeKnotSvg(idx) {
-    return `<svg viewBox="0 0 180 100" width="100%" height="90" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <rect x="2" y="2" width="176" height="96" fill="#0d0d10" stroke="#2c2c34"/>
-      <circle cx="34" cy="50" r="14" stroke="#aaaab3" stroke-width="3"/>
-      <path d="M48 50 H155" stroke="#ff4549" stroke-width="3"/>
-      <path d="M68 35 C78 20, 88 80, 98 35 C108 20, 118 80, 128 50" stroke="#f2f2ef" stroke-width="2.5"/>
-      <path d="M128 50 C140 30, 152 65, 165 44" stroke="#4ea1ff" stroke-width="2.2" stroke-dasharray="4 3"/>
-      <text x="168" y="90" text-anchor="end" fill="#aaaab3" font-size="10">#${idx + 1}</text>
-    </svg>`;
-  }
-
   function initWissen() {
     // 1. Schnur-Rechner
     const lineInputs = ["line-cap-len", "line-cap-dia", "line-main-dia", "line-main-len", "line-backing-dia"];
@@ -631,26 +628,6 @@ window.STERNI_APP = (() => {
       d.dataset.search = `${g.title} ${g.body}`.toLowerCase();
       d.innerHTML = `<summary>${g.title}</summary><div class="details-body"><p>${g.body}</p></div>`;
       praxisWrap.appendChild(d);
-    });
-
-    const knotsWrap = document.getElementById("wissen-knots-list");
-    window.STERNI_DATA.KNOTS_DATA.forEach((k, idx) => {
-      const d = document.createElement("details");
-      d.className = "wissen-item";
-      d.dataset.search = `${k.name} ${k.use} ${k.steps.join(" ")}`.toLowerCase();
-      d.innerHTML = `
-        <summary>${k.name}</summary>
-        <div class="details-body">
-          <p class="muted" style="margin:0.5rem 0 0">${k.use}</p>
-          <div class="knot-grid">
-            <div class="knot-diagram">${makeKnotSvg(idx)}</div>
-            <ol class="clean-list" style="margin:0;padding-left:1.2rem">
-              ${k.steps.map((s) => `<li>${s.replace(/^\d+\.\s*/, "")}</li>`).join("")}
-            </ol>
-          </div>
-        </div>
-      `;
-      knotsWrap.appendChild(d);
     });
 
     const fishWrap = document.getElementById("wissen-fish-list");
