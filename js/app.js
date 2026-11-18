@@ -826,7 +826,13 @@ window.STERNI_APP = (() => {
     const container = document.getElementById("wetter-map");
     if (!container || typeof L === "undefined") return;
 
-    wetterMap = L.map(container, { minZoom: 3, maxZoom: 18 }).setView([51.1657, 10.4515], 6);
+    wetterMap = L.map(container, {
+      minZoom: 3,
+      maxZoom: 18,
+      scrollWheelZoom: false,
+      dragging: !L.Browser.touch,
+      touchZoom: false
+    }).setView([51.1657, 10.4515], 6);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap"
     }).addTo(wetterMap);
