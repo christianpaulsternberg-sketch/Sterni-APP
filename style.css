@@ -276,8 +276,6 @@ h3 {
 }
 
 #view-start .quiz-online {
-  justify-self: center;
-  width: clamp(min(85%, 20rem), calc((100% - 0.9rem) / 2), 85%);
   padding: 0.8rem;
 }
 

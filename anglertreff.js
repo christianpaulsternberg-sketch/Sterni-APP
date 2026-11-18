@@ -4,7 +4,7 @@ const $=s=>document.querySelector(s),config=window.ANGLERTREFF_CONFIG||{};
 const hasConfig=!!(config.url||config.publishableKey);
 const publicKey=()=>{const key=config.publishableKey||'';if(/^sb_publishable_[A-Za-z0-9_-]+$/.test(key))return true;try{return JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='anon';}catch{return false;}};
 const configured=/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(config.url||'')&&publicKey();
-let invitationRecipient=null,composeKind='catch',feedFilter='all';
+let invitationRecipient=null,adminLinkType='invite',composeKind='catch',feedFilter='all';
 let selectedPhoto=null,previewUrl=null,photoSequence=0,photoPending=false;
 let busy=false,pendingLink=null,isAdmin=false,remember=false,refreshing=null;
 const sessionKey='petri-treff-session-v1';
@@ -234,7 +234,9 @@ function renderAdminMembers(people, canManage=false){
     await loadAdmin();status('Mitgliedschaft aktualisiert.');
    }));
    if(person.active)row.append(action('Wiederherstellungslink erstellen',async()=>{
-    const result=await adminCall({action:'recovery',id:person.id});showAdminLink(result.link);
+    clearAdminLink();
+    const result=await adminCall({action:'recovery',id:person.id});
+    showAdminLink(result.link,{name:person.display_name,email:person.email},'recovery');
    }));
   }
   root.append(row);
@@ -254,17 +256,39 @@ async function loadAdmin(existing){
   }
  }
 }
-function showAdminLink(link,recipient=null){
- const destination=new URL(link);if(destination.origin!==location.origin||destination.pathname!==location.pathname)throw Error('Die Mitgliederverwaltung hat einen Link für eine andere App-Adresse geliefert.');
- invitationRecipient=recipient;$('#treff-link-value').value=link;$('#treff-admin-link').hidden=false;status('Link bereit. Wähle jetzt Teilen, WhatsApp oder E-Mail und bestätige dort den Versand.');}
+function showAdminLink(link,recipient=null,type='invite'){
+ let destination;
+ try{destination=new URL(link);}catch{throw Error('Die Mitgliederverwaltung hat keinen gültigen Zugangslink geliefert.');}
+ if(destination.origin!==location.origin||destination.pathname!==location.pathname)throw Error('Die Mitgliederverwaltung hat einen Link für eine andere App-Adresse geliefert.');
+ const parts=linkParts(new URLSearchParams(destination.hash.slice(1)),destination.searchParams);
+ if(parts.type!==type)throw Error('Die Mitgliederverwaltung hat einen unpassenden Zugangslink geliefert.');
+ invitationRecipient=recipient;adminLinkType=type;
+ const recovery=type==='recovery';
+ $('#treff-link-value').value=destination.href;
+ $('#treff-share-help').textContent=recovery?'Wiederherstellungslink an das Mitglied weitergeben:':'Jetzt Einladung weitergeben:';
+ $('#treff-share-link').textContent=recovery?'Wiederherstellungslink teilen':'Einladung teilen';
+ $('#treff-admin-link').hidden=false;
+ $('#treff-link-value').focus({preventScroll:true});
+ $('#treff-admin-link').scrollIntoView({block:'nearest'});
+ status('Link bereit. Wähle jetzt Teilen, WhatsApp oder E-Mail und bestätige dort den Versand.');
+}
 $('#treff-invite-form').onsubmit=e=>{e.preventDefault();guard(e.target.querySelector('button'),async()=>{const data=new FormData(e.target);const result=await adminCall({action:'invite',name:data.get('name'),email:data.get('email')});e.target.reset();showAdminLink(result.link,{name:String(data.get('name')),email:String(data.get('email'))});await loadAdmin();});};
 $('#treff-admin-refresh').onclick=()=>guard($('#treff-admin-refresh'),()=>loadAdmin());
 $('#treff-copy-link').onclick=()=>guard($('#treff-copy-link'),async()=>{try{await navigator.clipboard.writeText($('#treff-link-value').value);status('Link kopiert. Bitte persönlich weitergeben.');}catch{$('#treff-link-value').focus();$('#treff-link-value').select();status('Bitte den markierten Link kopieren.');}});
-function invitationText(){const link=$('#treff-link-value').value;if(!link)throw Error('Bitte zuerst einen persönlichen Link erstellen.');return (invitationRecipient?'Hallo '+invitationRecipient.name+',':'Hallo,')+'\n\nkomm in unseren privaten Anglertreff! Öffne deinen persönlichen Zugangslink und lege dein eigenes Passwort fest:\n'+link+'\n\nDer Link ist einmalig und zeitlich begrenzt. Bitte nicht weiterleiten.';}
+function invitationText(){
+ const link=$('#treff-link-value').value;
+ if(!link)throw Error('Bitte zuerst einen persönlichen Link erstellen.');
+ const greeting=invitationRecipient?'Hallo '+invitationRecipient.name+',':'Hallo,';
+ const instructions=adminLinkType==='recovery'
+  ?'öffne diesen persönlichen Wiederherstellungslink und lege dein neues Anglertreff-Passwort fest:'
+  :'komm in unseren privaten Anglertreff! Öffne deinen persönlichen Zugangslink und lege dein eigenes Passwort fest:';
+ return greeting+'\n\n'+instructions+'\n'+link+'\n\nDer Link ist einmalig und zeitlich begrenzt. Bitte nicht weiterleiten.';
+}
 $('#treff-share-link').onclick=()=>guard($('#treff-share-link'),async()=>{const text=invitationText();if(!navigator.share){status('Teilen wird hier nicht unterstützt. Nutze WhatsApp, E-Mail oder Link kopieren.');return;}try{await navigator.share({title:'Dein Zugang zum Anglertreff',text});status('Teilen-Fenster geschlossen. Ob die Nachricht versandt wurde, siehst du in deiner Nachrichten-App.');}catch(e){if(e.name!=='AbortError')throw Error('Teilen nicht möglich. Nutze E-Mail oder Link kopieren.');}});
 $('#treff-whatsapp-link').onclick=()=>{const text=invitationText();window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');status('Wähle in WhatsApp den vorgesehenen Freund und bestätige selbst den Versand.');};
 $('#treff-email-link').onclick=()=>{const text=invitationText();location.href='mailto:'+encodeURIComponent(invitationRecipient?.email||'')+'?subject='+encodeURIComponent('Deine Einladung zum Anglertreff')+'&body='+encodeURIComponent(text);status('E-Mail vorbereitet. Bitte in deiner E-Mail-App auf Senden drücken. Falls sie sich nicht öffnet, nutze Link kopieren.');};
-$('#treff-clear-link').onclick=()=>{invitationRecipient=null;$('#treff-link-value').value='';$('#treff-admin-link').hidden=true;};
+function clearAdminLink(){invitationRecipient=null;adminLinkType='invite';$('#treff-link-value').value='';$('#treff-admin-link').hidden=true;}
+$('#treff-clear-link').onclick=clearAdminLink;
 async function init(){
  resetForm();$('#treff-login').hidden=!configured;$('#treff-demo').hidden=hasConfig;
  $('#treff-mode').className='treff-badge';$('#treff-mode').textContent=configured?'Privater Anglertreff · Zugang nur für freigeschaltete Mitglieder':'Testversion · Gemeinsamer Dienst noch nicht eingerichtet';
