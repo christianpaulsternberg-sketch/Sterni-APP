@@ -213,9 +213,12 @@ h3 {
   border: 1px solid var(--border);
   overflow: hidden;
   margin-bottom: 1.15rem;
-  min-height: clamp(170px, 32vw, 240px);
+  min-height: clamp(132px, 24vw, 240px);
   display: grid;
-  place-items: center;
+  grid-template-columns: minmax(0, 160px) minmax(0, 300px) minmax(0, 160px);
+  justify-content: center;
+  align-items: center;
+  padding-inline: clamp(6px, 2vw, 24px);
   background: #141419;
 }
 
@@ -227,58 +230,38 @@ h3 {
   pointer-events: none;
 }
 
-.hero-art {
+.hero-art,
+.hero-side-art {
   position: relative;
-  z-index: 2;
-  width: min(94%, 420px);
-  height: auto;
   display: block;
+  width: 100%;
+  height: auto;
   pointer-events: none;
 }
 
-.hero-side-art {
-  position: absolute;
-  bottom: 0;
-  z-index: 1;
-  display: block;
-  max-width: 36%;
-  height: auto;
-  pointer-events: none;
-  user-select: none;
+.hero-art {
+  grid-column: 2;
+  grid-row: 1;
 }
 
 .hero-side-art-left {
-  left: -1%;
-  width: auto;
-  max-width: 42%;
-  height: 100%;
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  width: min(100%, 148px);
   opacity: 0.92;
   filter: drop-shadow(0 0 7px rgba(255, 218, 149, 0.34));
 }
 
 .hero-side-art-right {
-  right: -2%;
-  width: min(37%, 350px);
-  opacity: 0.8;
+  grid-column: 3;
+  grid-row: 1;
+  opacity: 0.88;
 }
 
 @media (max-width: 640px) {
-  .hero-side-art-left {
-    left: -5%;
-    width: auto;
-    max-width: 44%;
-    height: 100%;
-    opacity: 0.9;
-  }
-
-  .hero-side-art-right {
-    right: -9%;
-    width: 49%;
-    opacity: 0.56;
-  }
-
-  .hero-art {
-    width: min(76%, 320px);
+  .hero-banner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, 1fr);
   }
 }
 
@@ -326,13 +309,6 @@ h3 {
   min-width: 0;
 }
 
-@media (min-width: 641px) {
-  .quiz-online-companion {
-    grid-column: 2;
-    grid-row: 1;
-  }
-}
-
 .quiz-online h2 {
   display: flex;
   align-items: baseline;
@@ -363,12 +339,6 @@ h3 {
   margin-right: 0.4rem;
   border-radius: 50%;
   background: #8ce9b1;
-}
-
-@media (max-width: 640px) {
-  .quick-links {
-    grid-template-columns: 1fr;
-  }
 }
 
 .quick-link {
@@ -476,6 +446,51 @@ h3 {
   display: flex;
   gap: 0.45rem;
   margin-top: 0.45rem;
+}
+
+@media (max-width: 640px) {
+  .quick-links {
+    gap: 0.55rem;
+  }
+
+  .quick-link {
+    min-height: 132px;
+    padding: 12px 10px;
+  }
+
+  .tile-top {
+    gap: 0.25rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .tile-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .tile-badge {
+    padding: 0.15rem 0.25rem;
+    font-size: 0.62rem;
+  }
+
+  .quick-label {
+    font-size: clamp(0.83rem, 3.65vw, 1.23rem);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .quick-sub {
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+
+  .tile-search-form {
+    gap: 0.25rem;
+  }
+
+  .tile-search-form .btn-fish {
+    padding-inline: 0.35rem;
+  }
 }
 
 .tile-search-form input {

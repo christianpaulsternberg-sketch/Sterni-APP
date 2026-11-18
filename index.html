@@ -6,11 +6,14 @@
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0d0d10">
   <title>Sterni-App · Petri Heil</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/petri-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="style.css?v=footer-tile-2">
+  <link rel="stylesheet" href="style.css?v=mobile-layout-1">
   <link rel="stylesheet" href="legal-footer.css?v=compact-2">
   <link rel="stylesheet" href="responsive.css?v=compact-2">
 </head>
@@ -109,15 +112,8 @@
             <span class="quick-sub">Freundeskreis &amp; Duell spielen</span>
           </a>
 
-          <section class="panel quiz-online" aria-labelledby="quiz-online-heading">
-            <h2 id="quiz-online-heading">Angler online – Jetzt herausfordern <span id="quiz-online-count" class="pill-tag" hidden></span></h2>
-            <p id="quiz-online-status" class="muted" aria-live="polite">Online-Status wird geprüft …</p>
-            <a id="quiz-online-login" href="./anglertreff.html" hidden>Im Anglertreff anmelden</a>
-            <ul id="quiz-online-members" class="quiz-online-list" aria-label="Mitglieder online"></ul>
-            <div id="quiz-online-home-duels"></div>
-          </section>
           <!-- Anglertreff -->
-          <a href="./anglertreff.html" class="quick-link quiz-online-companion">
+          <a href="./anglertreff.html" class="quick-link">
             <div class="tile-top">
               <svg class="tile-icon tile-icon-blue" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M6 24c7-10 20-12 30-5l8-5-3 10 3 10-8-5c-10 7-23 5-30-5Z"/>
@@ -127,6 +123,14 @@
             <span class="quick-label">ANGLERTREFF</span>
             <span class="quick-sub">Fangorte, Bilder &amp; Statusmeldungen</span>
           </a>
+
+          <section class="panel quiz-online" aria-labelledby="quiz-online-heading">
+            <h2 id="quiz-online-heading">Angler online – Jetzt herausfordern <span id="quiz-online-count" class="pill-tag" hidden></span></h2>
+            <p id="quiz-online-status" class="muted" aria-live="polite">Online-Status wird geprüft …</p>
+            <a id="quiz-online-login" href="./anglertreff.html" hidden>Im Anglertreff anmelden</a>
+            <ul id="quiz-online-members" class="quiz-online-list" aria-label="Mitglieder online"></ul>
+            <div id="quiz-online-home-duels"></div>
+          </section>
         </div>
 
         <div class="quick-links" role="navigation" aria-label="Vor der Tour">
