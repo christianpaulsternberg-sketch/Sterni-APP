@@ -274,6 +274,32 @@ h3 {
   margin-bottom: var(--start-tile-spacing);
 }
 
+#view-start .start-bottom-tiles {
+  margin-bottom: 0;
+}
+
+#view-start .start-bottom-tiles > .app-legal-footer {
+  min-width: 0;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+#view-start .start-bottom-tiles > .app-legal-footer:is(:hover, :active, :focus-within) {
+  border-color: var(--accent);
+  background: linear-gradient(140deg, #3c282f, #1c181e);
+}
+
+#view-start .start-bottom-tiles .app-legal-footer nav {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow-wrap: anywhere;
+}
+
+#view-start .start-bottom-tiles .app-install {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .quiz-online {
   grid-column: 1 / -1;
   min-width: 0;

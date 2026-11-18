@@ -61,6 +61,13 @@ window.STERNI_APP = (() => {
     });
 
     const stickyNav = document.getElementById("sticky-quick-nav");
+    const legalFooter = document.querySelector(".app-legal-footer");
+    const footerParent = clean === "start"
+      ? document.getElementById("start-bottom-tiles")
+      : document.querySelector(".app-shell");
+    if (legalFooter && footerParent && legalFooter.parentElement !== footerParent) {
+      footerParent.append(legalFooter);
+    }
     const select = document.getElementById("quick-nav-select");
     if (clean === "start") {
       stickyNav.hidden = true;
