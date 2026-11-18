@@ -235,8 +235,11 @@ h3 {
 
 .hero-side-art-left {
   left: -1%;
-  width: min(32%, 270px);
-  opacity: 0.78;
+  width: auto;
+  max-width: 42%;
+  height: 100%;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 7px rgba(255, 218, 149, 0.34));
 }
 
 .hero-side-art-right {
@@ -248,8 +251,10 @@ h3 {
 @media (max-width: 640px) {
   .hero-side-art-left {
     left: -5%;
-    width: 38%;
-    opacity: 0.56;
+    width: auto;
+    max-width: 44%;
+    height: 100%;
+    opacity: 0.9;
   }
 
   .hero-side-art-right {
