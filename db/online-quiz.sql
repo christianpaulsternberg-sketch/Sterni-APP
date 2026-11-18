@@ -136,6 +136,19 @@ begin
 end;
 $$;
 
+create or replace function public.sterni_quiz_decline(duel_id uuid) returns void
+language plpgsql security definer set search_path = '' as $$
+declare
+  me uuid := auth.uid();
+begin
+  delete from treff_private.quiz_duels q
+  where q.id = duel_id and q.opponent = me and q.accepted_at is null
+    and q.opponent_score is null and q.created_at >= now() - interval '7 days'
+    and exists (select 1 from public.treff_members where id = me and active);
+  if not found then raise exception 'Diese Einladung ist nicht verfügbar.' using errcode = '42501'; end if;
+end;
+$$;
+
 create or replace function public.sterni_quiz_submit(duel_id uuid, points integer) returns jsonb
 language plpgsql security definer set search_path = '' as $$
 declare
@@ -171,4 +184,6 @@ grant execute on function public.sterni_quiz_create(uuid, uuid, text, integer) t
 grant execute on function public.sterni_quiz_submit(uuid, integer) to authenticated;
 revoke all on function public.sterni_quiz_accept(uuid) from public, anon;
 grant execute on function public.sterni_quiz_accept(uuid) to authenticated;
+revoke all on function public.sterni_quiz_decline(uuid) from public, anon;
+grant execute on function public.sterni_quiz_decline(uuid) to authenticated;
 commit;
