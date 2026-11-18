@@ -275,10 +275,14 @@ h3 {
 }
 
 #view-start .start-bottom-tiles {
+  align-items: stretch;
   margin-bottom: 0;
 }
 
 #view-start .start-bottom-tiles > .app-legal-footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-width: 0;
   margin: 0;
   background: var(--surface);
@@ -291,8 +295,13 @@ h3 {
 }
 
 #view-start .start-bottom-tiles .app-legal-footer nav {
+  width: 100%;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   overflow-wrap: anywhere;
+}
+
+#view-start .start-bottom-tiles .app-legal-footer > p {
+  display: none;
 }
 
 #view-start .start-bottom-tiles .app-install {
