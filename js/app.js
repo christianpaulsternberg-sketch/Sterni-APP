@@ -23,6 +23,7 @@ window.STERNI_APP = (() => {
   let pendingTreffPhoto = "";
   let currentWetterPlace = null;
   let wetterGbifKm = 1;
+  let wetterFishRequest = 0;
   let wetterMap = null;
   let wetterMarker = null;
 
@@ -141,9 +142,21 @@ window.STERNI_APP = (() => {
     });
 
     const jokes = window.STERNI_DATA.ANGLERWITZE;
-    let jokeIdx = new Date().getDate() % jokes.length;
+    const calendarDay = () => {
+      const now = new Date();
+      return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000;
+    };
+    let jokeDay = calendarDay();
+    let jokeIdx = jokeDay % jokes.length;
     const jokeEl = document.getElementById("anglerwitz");
     if (jokeEl) jokeEl.textContent = jokes[jokeIdx];
+    document.addEventListener("visibilitychange", () => {
+      const day = calendarDay();
+      if (document.hidden || day === jokeDay) return;
+      jokeDay = day;
+      jokeIdx = day % jokes.length;
+      if (jokeEl) jokeEl.textContent = jokes[jokeIdx];
+    });
 
     document.getElementById("next-joke-btn")?.addEventListener("click", () => {
       jokeIdx = (jokeIdx + 1) % jokes.length;
@@ -1059,6 +1072,7 @@ window.STERNI_APP = (() => {
 
   async function loadWetterSections() {
     if (!currentWetterPlace) return;
+    const place = currentWetterPlace;
     const countEl = document.getElementById("wetter-sections-count");
     const listEl = document.getElementById("wetter-sections-list");
     countEl.textContent = "Suche alle benannten Teilabschnitte im Umkreis …";
@@ -1066,15 +1080,16 @@ window.STERNI_APP = (() => {
 
     try {
       const sections = await window.STERNI_API.fetchWaterSections(
-        currentWetterPlace.lat,
-        currentWetterPlace.lon,
-        currentWetterPlace.name
+        place.lat,
+        place.lon,
+        place.name
       );
+      if (place !== currentWetterPlace) return;
       if (!sections.length) {
-        countEl.textContent = "Keine weiteren benannten Teilabschnitte im Umkreis von 10 km gefunden.";
+        countEl.textContent = "Keine Teilabschnitte oder weiteren Gewässer gefunden.";
         return;
       }
-      countEl.textContent = `${sections.length} benannte Teilabschnitte im Umkreis – Klick lädt Wetter & Fisch für den Abschnitt:`;
+      countEl.textContent = `${sections.length} Einträge · Tippen lädt Wetter & Fisch für den gewählten Ort.`;
       sections.forEach((sec) => {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -1102,12 +1117,13 @@ window.STERNI_APP = (() => {
         listEl.appendChild(btn);
       });
     } catch {
-      countEl.textContent = "Teilabschnitte konnten aktuell nicht von OpenStreetMap geladen werden.";
+      if (place === currentWetterPlace) countEl.textContent = "Teilabschnitte und nahe Gewässer sind gerade nicht abrufbar.";
     }
   }
 
   async function loadWetterGbif() {
     if (!currentWetterPlace) return;
+    const requestId = ++wetterFishRequest;
     const listEl = document.getElementById("wetter-gbif-list");
     const gridEl = document.getElementById("wetter-fish-grid");
     listEl.textContent = "Lade GBIF-Fischmeldungen …";
@@ -1115,13 +1131,14 @@ window.STERNI_APP = (() => {
 
     try {
       const res = await window.STERNI_API.fetchFishOccurrences(currentWetterPlace.lat, currentWetterPlace.lon, wetterGbifKm);
+      if (requestId !== wetterFishRequest) return;
       const infoMap = window.STERNI_DATA.FISH_SPECIES_INFO || {};
       const orderMethodMap = window.STERNI_DATA.FISH_METHOD_BY_ORDER || {};
       let speciesList = res.species || [];
       let isFallback = false;
-      const placeText = `${currentWetterPlace.name || ""} ${currentWetterPlace.display_name || ""}`.toLowerCase();
+      const placeWords = (currentWetterPlace.name || "").toLowerCase().split(/[^\p{L}\p{N}]+/u);
       const profiles = window.STERNI_DATA.WATER_FISH_PROFILES || {};
-      const matchedProfile = Object.entries(profiles).find(([key]) => placeText.includes(key));
+      const matchedProfile = Object.entries(profiles).find(([key]) => placeWords.includes(key) || (key === "spree" && placeWords.includes("müggelspree")));
       let hasRegionalProfile = false;
       const usedKm = res.effectiveRadiusKm || wetterGbifKm;
 
@@ -1132,9 +1149,11 @@ window.STERNI_APP = (() => {
         const isSouth = currentWetterPlace.lat < 45.5;
         const isRiver = t.includes("river") || t.includes("fluss") || t.includes("kanal") || t.includes("stream") || t.includes("buhne");
         const fallbackKey = isCoast ? "coast" : (isSouth ? "southRiver" : (isRiver ? "river" : "lake"));
-        const defaults = window.STERNI_DATA.DEFAULT_FISH_BY_TYPE?.[fallbackKey] || [];
-        speciesList = defaults.map((sci) => ({ name: sci, count: null, order: "" }));
-        listEl.textContent = `Keine GBIF-Einzelmeldungen im ${usedKm}-km-Radius – regional typischer Fischbestand:`;
+        const defaults = matchedProfile?.[1] || window.STERNI_DATA.DEFAULT_FISH_BY_TYPE?.[fallbackKey] || [];
+        speciesList = defaults.map((sci) => ({ name: sci, count: null, order: "", regional: !!matchedProfile }));
+        listEl.textContent = matchedProfile
+          ? `Keine GBIF-Einzelmeldungen im ${usedKm}-km-Radius · Arten aus dem regionalen Flussprofil:`
+          : `Keine GBIF-Einzelmeldungen im ${usedKm}-km-Radius · Beispiele für diesen Gewässertyp:`;
       }
 
       if (matchedProfile) {
@@ -1216,9 +1235,9 @@ window.STERNI_APP = (() => {
             ? `<p style="margin-top:0.75rem"><a href="${wikiUrl}" target="_blank" rel="noopener">Wikipedia-Artikel öffnen ↗</a></p>`
             : "";
           const countLine = s.regional
-            ? `<p><strong>Bestandshinweis:</strong> Regional hinterlegte Art für diesen Flussabschnitt. Kein einzelner GBIF-Nachweis.</p>`
+            ? `<p><strong>Regionaler Hinweis:</strong> Art aus dem Flussprofil. Für den ausgewählten Abschnitt liegt kein einzelner GBIF-Nachweis vor.</p>`
             : (isFallback
-              ? `<p><strong>Bestandshinweis:</strong> Regional typische Art für dieses Gewässer</p>`
+              ? `<p><strong>Beispiel:</strong> Typische Art für den Gewässertyp. Ein lokaler Nachweis fehlt.</p>`
               : `<p><strong>Nachweise im Umkreis (${usedKm} km):</strong> ${s.count} Meldungen</p>`);
           openLightbox(
             `${deName} (${s.name})`,
@@ -1229,7 +1248,7 @@ window.STERNI_APP = (() => {
         gridEl.appendChild(card);
       });
     } catch {
-      listEl.textContent = "GBIF-Daten derzeit nicht abrufbar.";
+      if (requestId === wetterFishRequest) listEl.textContent = "GBIF-Daten derzeit nicht abrufbar.";
     }
   }
 

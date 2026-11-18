@@ -1,5 +1,8 @@
 window.STERNI_DATA = (() => {
   const ANGLERWITZE = [
+    "Warum nimmt der Angler eine Uhr mit? Damit er weiß, wie lange er schon sagt: Nur noch ein Wurf.",
+    "Der Köder war heute der Einzige, der angebissen hat. Am Ast.",
+    "Was macht ein Angler bei Flaute? Er übt schon mal die Geschichte vom riesigen Fisch.",
     "„Und, beißen die Fische heute?“ – „Keine Ahnung, ich habe sie noch nicht gestreichelt.“",
     "Zwei Angler sitzen schweigend am See. Nach drei Stunden zuckt die Pose des einen. Sagt der andere: „Sag mal, sind wir zum Angeln hier oder zum Quatschen?“",
     "Ein Angler fängt einen winzigen Barsch und wirft ihn zurück. Fragt ein Spaziergänger: „Warum lassen Sie den frei?“ – „Für die Pfanne zu klein, und zum Lügen zu leicht!“",
@@ -1006,7 +1009,7 @@ window.STERNI_DATA = (() => {
       { name: "Spree bei Cottbus", type: "Stadtstrecke", lat: 51.756, lon: 14.334 },
       { name: "Spree bei Peitz", type: "Flussabschnitt", lat: 51.858, lon: 14.415 },
       { name: "Spreewald bei Lübben", type: "Flussarme / Spreewald", lat: 51.949, lon: 13.898 },
-      { name: "Spree bei Beeskow", type: "Flussabschnitt", lat: 52.172, lon: 14.245 },
+      { name: "Spree bei Beeskow (Alt-Schadow bis Fürstenwalde)", type: "Flussabschnitt", lat: 52.172, lon: 14.245 },
       { name: "Spree bei Fürstenwalde", type: "Flussabschnitt", lat: 52.361, lon: 14.062 },
       { name: "Spree bei Erkner", type: "Flussabschnitt", lat: 52.422, lon: 13.752 },
       { name: "Müggelsee / Spree", type: "Flusssee", lat: 52.439, lon: 13.655 },

@@ -290,9 +290,9 @@ window.STERNI_API = (() => {
 
     // 1. Bekannte deutsche Gewässer-Teilabschnitte prüfen
     const knownWaters = window.STERNI_DATA?.KNOWN_WATER_SECTIONS || {};
-    const lowerName = (waterName || "").toLowerCase();
+    const nameWords = waterName.toLowerCase().split(/[^\p{L}\p{N}]+/u);
     for (const [key, list] of Object.entries(knownWaters)) {
-      if (lowerName.includes(key)) {
+      if (nameWords.includes(key) || (key === "spree" && nameWords.includes("müggelspree"))) {
         list.forEach((s) => addSection(s.name, s.type, s.lat, s.lon));
       }
     }
@@ -302,19 +302,14 @@ window.STERNI_API = (() => {
       const dLat = 0.12;
       const dLon = 0.18;
       const viewbox = `${(lon - dLon).toFixed(4)},${(lat + dLat).toFixed(4)},${(lon + dLon).toFixed(4)},${(lat - dLat).toFixed(4)}`;
-      try {
-        const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&bounded=1&viewbox=${viewbox}&limit=15&accept-language=de&q=${encodeURIComponent("See")}`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const hits = await res.json();
-          for (const h of hits) {
-            if (h.class !== "natural" && h.class !== "waterway" && h.class !== "leisure") continue;
-            const n = h.name || h.display_name.split(",")[0];
-            addSection(n, "Teilgewässer / Abschnitt", h.lat, h.lon);
-          }
-        }
-      } catch {
-        // Ignore query error
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&bounded=1&viewbox=${viewbox}&limit=15&accept-language=de&q=${encodeURIComponent("See")}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Gewässersuche derzeit nicht erreichbar.");
+      const hits = await res.json();
+      for (const h of hits) {
+        if (h.class !== "waterway" && !(h.class === "natural" && h.type === "water")) continue;
+        const n = h.name || h.display_name?.split(",")[0];
+        addSection(n, "Gewässer in der Nähe", h.lat, h.lon);
       }
     }
 
