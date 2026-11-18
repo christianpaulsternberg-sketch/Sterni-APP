@@ -290,9 +290,22 @@ h3 {
   border: 1px solid var(--border);
 }
 
-#view-start .start-bottom-tiles > .app-legal-footer:is(:hover, :active, :focus-within) {
+#view-start .start-bottom-tiles > :is(.app-legal-footer, .app-install) {
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+#view-start .start-bottom-tiles > :is(.app-legal-footer, .app-install):is(:hover, :active, :focus-within) {
+  transform: translateY(-3px);
   border-color: var(--accent);
   background: linear-gradient(140deg, #3c282f, #1c181e);
+  box-shadow: 0 10px 26px #00000066;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #view-start .start-bottom-tiles > :is(.app-legal-footer, .app-install):is(:hover, :active, :focus-within) {
+    transform: none;
+    transition: none;
+  }
 }
 
 #view-start .start-bottom-tiles .app-legal-footer > nav,
@@ -307,13 +320,18 @@ h3 {
 #view-start .start-bottom-tiles .legal-tile-link {
   padding: 0.85rem 1rem;
   color: var(--ink);
-  font: 700 1rem/1.55 var(--body);
+  font: 700 0.85rem/1.4 var(--body);
   text-decoration: none;
 }
 
 #view-start .start-bottom-tiles .app-install {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+#view-start .start-bottom-tiles .app-install > summary {
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .quiz-online {
