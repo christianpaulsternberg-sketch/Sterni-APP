@@ -23,6 +23,8 @@ input,textarea,select{font-size:16px!important}button,a,input,select,textarea{to
 .maenner-app #boat-map{width:100%;height:clamp(280px,50dvh,520px)}
 .maenner-app #spot-integrated .spot-grid{grid-template-columns:minmax(0,1fr)}
 .maenner-app.has-app-route>main{padding-bottom:110px}
+/* Auf der Startseite gibt es keine untere Schnellnavigation: Footer direkt anschließen. */
+.maenner-app:not(.has-app-route) .main-container{padding-bottom:.5rem}
 footer.app-legal-footer nav{max-width:800px;margin-inline:auto}
 footer.app-legal-footer p{max-width:880px;margin-inline:auto}
 @media(max-width:360px){
