@@ -64,6 +64,8 @@ window.STERNI_APP = (() => {
     const select = document.getElementById("quick-nav-select");
     if (clean === "start") {
       stickyNav.hidden = true;
+      document.getElementById("tile-weather-input").value = "";
+      document.getElementById("wetter-search-input").value = "";
     } else {
       stickyNav.hidden = false;
       if (select && [...select.options].some((o) => o.value === clean)) {
