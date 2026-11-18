@@ -102,6 +102,11 @@ window.STERNI_APP = (() => {
   }
 
   function initRouting() {
+    // Jeder frische Browserstart beginnt bewusst auf der Übersicht, auch wenn
+    // der Browser den letzten Hash einer vorherigen Sitzung wiederherstellt.
+    if (location.hash !== "#start") {
+      history.replaceState(null, "", `${location.pathname}${location.search}#start`);
+    }
     window.addEventListener("hashchange", handleHash);
     document.getElementById("quick-nav-select")?.addEventListener("change", (e) => {
       location.hash = `#${e.target.value}`;
