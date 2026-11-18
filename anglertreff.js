@@ -233,11 +233,21 @@ function renderAdminMembers(people, canManage=false){
     await adminCall({action:person.active?'suspend':'restore',id:person.id});
     await loadAdmin();status('Mitgliedschaft aktualisiert.');
    }));
-   if(person.active)row.append(action('Wiederherstellungslink erstellen',async()=>{
-    clearAdminLink();
-    const result=await adminCall({action:'recovery',id:person.id});
-    showAdminLink(result.link,{name:person.display_name,email:person.email},'recovery');
-   }));
+   if(person.active&&person.email){
+    const feedback=node('p');
+    feedback.setAttribute('role','status');
+    row.append(action('Wiederherstellungslink per E-Mail senden',async()=>{
+     feedback.textContent='Versand wird angefragt …';
+     try{
+      const redirectTo=new URL(location.pathname,location.origin).href;
+      const query=new URLSearchParams({redirect_to:redirectTo});
+      await request('/auth/v1/recover?'+query,{method:'POST',token:null,body:{email:person.email}});
+      feedback.textContent='Versand an die hinterlegte E-Mail-Adresse wurde angefragt.';
+     }catch(error){
+      feedback.textContent='Versand fehlgeschlagen: '+error.message;
+     }
+    }),feedback);
+   }
   }
   root.append(row);
  }
