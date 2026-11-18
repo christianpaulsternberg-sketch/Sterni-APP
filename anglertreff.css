@@ -9,3 +9,6 @@
 .treff-page .treff-admin-home{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:10px 14px;margin:12px 0;border:1px solid #b06570;border-radius:8px;background:#38252b;color:#fff0ed;text-decoration:none;font-size:15px;font-weight:700}
 
 .treff-member-email{overflow-wrap:anywhere;font-size:14px;color:#e8dce4}
+
+/* Sichtbarer Rückweg zur Haupt-App auf der eigenständigen Anglertreff-Seite. */
+.treff-page .treff-topbar{margin:0 0 16px;padding:0}.treff-page .treff-topbar .treff-home{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:9px 12px;border:1px solid #4c4149;border-radius:6px;background:#17171d;color:#f6f3f1;text-decoration:none}.treff-page .treff-topbar .treff-home:hover{border-color:#ff6568;background:#252027}.treff-home-mark{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#37242b;font-size:17px}.treff-home strong,.treff-home small{display:block}.treff-home strong{font-family:Impact,"Arial Narrow",sans-serif;font-size:19px;letter-spacing:.7px;text-transform:uppercase}.treff-home small{margin-top:1px;color:#e4afb2;font-size:11px;letter-spacing:.4px}
