@@ -147,6 +147,9 @@ h3 {
 .brand {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
+  white-space: nowrap;
   gap: 0.65rem;
   color: var(--ink);
   text-decoration: none;
@@ -162,7 +165,7 @@ h3 {
 
 .brand b {
   font-family: var(--display);
-  font-size: 1.35rem;
+  font-size: clamp(1.1rem, 5vw, 1.65rem);
   letter-spacing: 0.05em;
 }
 
@@ -220,6 +223,12 @@ h3 {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 2.8;
+  object-fit: cover;
+}
+
+#view-start .daily-joke {
+  margin-bottom: var(--start-tile-spacing);
 }
 
 /* Daily Joke */

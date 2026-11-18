@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="style.css?v=angelpanorama-1">
+  <link rel="stylesheet" href="style.css?v=startaufbau-1">
   <link rel="stylesheet" href="legal-footer.css?v=compact-2">
   <link rel="stylesheet" href="responsive.css?v=compact-2">
 </head>
@@ -33,11 +33,6 @@
           </span>
           <span><b>STERNI-APP</b> <small>PETRI HEIL</small></span>
         </a>
-        <div class="top-actions">
-          <button type="button" class="btn-outline btn-sm" id="share-app-btn">
-            Sterni-App weiterempfehlen
-          </button>
-        </div>
       </div>
     </header>
 
@@ -49,15 +44,6 @@
           <h1 class="sr-only" id="hero-title">Sterni-App · Startseite</h1>
           <img class="hero-panorama" src="assets/hero/angelpanorama.png" width="2172" height="724" alt="Angler am Ufer, springender Wels und Angelboot auf demselben See">
         </div>
-
-        <!-- Daily Joke Card -->
-        <article class="daily-joke" aria-label="Anglerwitz des Tages">
-          <div class="daily-joke-head">
-            <p class="eyebrow">DEIN ANGLERWITZ DES TAGES</p>
-            <button type="button" class="btn-ghost btn-xs" id="next-joke-btn">Nächster Witz ↻</button>
-          </div>
-          <p id="anglerwitz" class="daily-joke-text"></p>
-        </article>
 
         <!-- Übersichtlich gruppierte Bereiche -->
         <div class="quick-links" role="navigation" aria-label="Freunde und Quiz">
@@ -214,10 +200,19 @@
           </a>
         </div>
 
+        <article class="daily-joke" aria-label="Anglerwitz des Tages">
+          <div class="daily-joke-head">
+            <p class="eyebrow">DEIN ANGLERWITZ DES TAGES</p>
+            <button type="button" class="btn-ghost btn-xs" id="next-joke-btn">Nächster Witz ↻</button>
+          </div>
+          <p id="anglerwitz" class="daily-joke-text"></p>
+        </article>
+
         <!-- Collapsible Install & Backup -->
         <details class="app-install">
           <summary>Sterni-App installieren · Offline &amp; Sicherung</summary>
           <div class="details-body">
+            <p><button type="button" class="btn-outline btn-sm" id="share-app-btn">Sterni-App weiterempfehlen</button></p>
             <h3>Auf dem iPhone installieren</h3>
             <ol>
               <li>Öffne die Sterni-App in <strong>Safari</strong>.</li>
