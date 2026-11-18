@@ -106,9 +106,6 @@ window.STERNI_QUIZ = (() => {
       saved[idx].email = cleanEmail;
     }
     localStorage.setItem(MEMBERS_KEY, JSON.stringify(saved));
-    populateSelectors();
-    renderLeaderboard();
-    renderFriendsPanel();
   }
 
   function renderFriendsPanel() {
@@ -252,108 +249,14 @@ window.STERNI_QUIZ = (() => {
   }
 
   function init() {
-    populateSelectors();
-    renderLeaderboard();
-    renderFriendsPanel();
-
-    const modeSel = document.getElementById("quiz-mode");
-    const p2Field = document.getElementById("quiz-p2-select")?.closest(".field");
-    modeSel?.addEventListener("change", () => {
-      if (p2Field) p2Field.hidden = modeSel.value === "solo";
-    });
-
-    const friendsPanel = document.getElementById("quiz-friends-panel");
-    document.getElementById("quiz-friends-toggle-btn")?.addEventListener("click", () => {
-      friendsPanel.hidden = !friendsPanel.hidden;
-      if (!friendsPanel.hidden) renderFriendsPanel();
-    });
-    document.getElementById("quiz-friends-close-btn")?.addEventListener("click", () => {
-      friendsPanel.hidden = true;
-    });
-
-    document.getElementById("quiz-me-form")?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const name = document.getElementById("quiz-me-name").value.trim();
-      const email = document.getElementById("quiz-me-email").value.trim();
-      if (!name) return;
-      saveMe(name, email);
-      populateSelectors();
-      renderLeaderboard();
-      renderFriendsPanel();
-      window.STERNI_APP?.toast(`Angemeldet als „${name}“!`);
-    });
-
-    document.getElementById("quiz-friend-add-form")?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const name = document.getElementById("quiz-friend-name").value.trim();
-      const email = document.getElementById("quiz-friend-email").value.trim();
-      if (!name) return;
-      addMember(name, email);
-      document.getElementById("quiz-p2-select").value = name;
-      e.target.reset();
-      window.STERNI_APP?.toast(`„${name}“ zum Freundeskreis hinzugefügt!`);
-    });
-
-    document.getElementById("quiz-friend-email-btn")?.addEventListener("click", () => {
-      const fName = document.getElementById("quiz-friend-name").value.trim() || "Freund";
-      const fEmail = document.getElementById("quiz-friend-email").value.trim();
-      if (fName !== "Freund") addMember(fName, fEmail);
-      const me = getMe()?.name || "Ein Angelfreund";
-      const catId = document.getElementById("quiz-category")?.value || "all";
-      const seed = Math.floor(Math.random() * 1e9);
-      const duelUrl = buildDuelUrl({ from: me, to: fName, cat: catId, seed });
-      const subject = `Sterni-App Wissens-Quiz: Einladung von ${me}`;
-      const body = `Hallo ${fName},\n\n${me} lädt dich in den Freundeskreis beim Wissens-Quiz der Sterni-App ein!\nÖffne einfach diesen Link, um dich anzumelden und direkt im Duell zu spielen:\n${duelUrl}\n`;
-      window.open(`mailto:${encodeURIComponent(fEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_blank", "noopener");
-      window.STERNI_APP?.toast(`E-Mail-Einladung für ${fName} geöffnet!`);
-    });
-
-    document.getElementById("quiz-friend-share-btn")?.addEventListener("click", async () => {
-      const fName = document.getElementById("quiz-friend-name").value.trim() || "Freund";
-      const fEmail = document.getElementById("quiz-friend-email").value.trim();
-      if (fName !== "Freund") addMember(fName, fEmail);
-      const me = getMe()?.name || "Ein Angelfreund";
-      const catId = document.getElementById("quiz-category")?.value || "all";
-      const seed = Math.floor(Math.random() * 1e9);
-      const duelUrl = buildDuelUrl({ from: me, to: fName, cat: catId, seed });
-      const text = `${me} lädt dich zum Wissens-Quiz in der Sterni-App ein! Melde dich kurz an und spiel gegen mich: ${duelUrl}`;
-      try {
-        if (navigator.share) {
-          await navigator.share({ title: "Sterni-App Wissens-Quiz", text, url: duelUrl });
-        } else {
-          await navigator.clipboard.writeText(text);
-        }
-        window.STERNI_APP?.toast("Statusmeldung / Einladungslink bereit & kopiert!");
-      } catch {
-        window.STERNI_APP?.toast("Einladungslink: " + duelUrl);
-      }
-    });
-
-    document.getElementById("quiz-start-btn")?.addEventListener("click", () => startQuiz());
-    document.getElementById("quiz-send-invite-btn")?.addEventListener("click", sendSetupInvite);
-    document.getElementById("quiz-accept-invite-btn")?.addEventListener("click", acceptPendingInvite);
-    document.getElementById("quiz-dismiss-invite-btn")?.addEventListener("click", () => {
-      pendingInvite = null;
-      const b = document.getElementById("quiz-invite-banner");
-      if (b) b.hidden = true;
-    });
     document.getElementById("quiz-next-btn")?.addEventListener("click", nextQuestion);
     document.getElementById("quiz-retry-btn")?.addEventListener("click", () => startQuiz());
     document.getElementById("quiz-send-challenge-btn")?.addEventListener("click", sendResultChallenge);
     document.getElementById("quiz-back-setup-btn")?.addEventListener("click", showSetup);
     document.getElementById("quiz-share-btn")?.addEventListener("click", shareResult);
-    document.getElementById("quiz-reset-stats-btn")?.addEventListener("click", () => {
-      if (confirm("Mitglieder-Rangliste wirklich zurücksetzen?")) {
-        saveBoard({});
-        renderLeaderboard();
-        window.STERNI_APP?.toast("Rangliste zurückgesetzt.");
-      }
-    });
   }
 
   function showSetup() {
-    populateSelectors();
-    renderLeaderboard();
     document.getElementById("quiz-setup").hidden = false;
     document.getElementById("quiz-play").hidden = true;
     document.getElementById("quiz-result").hidden = true;
@@ -361,10 +264,10 @@ window.STERNI_QUIZ = (() => {
 
   function startQuiz(override) {
     window.STERNI_QUIZ_ONLINE?.clearResult();
-    const catId = override?.catId || document.getElementById("quiz-category").value;
-    const mode = override?.mode || document.getElementById("quiz-mode").value;
-    const p1Name = override?.p1Name || document.getElementById("quiz-p1-select").value;
-    const p2Name = override?.p2Name || document.getElementById("quiz-p2-select").value;
+    const catId = override?.catId || "all";
+    const mode = override?.mode || "online-duel";
+    const p1Name = override?.p1Name || "";
+    const p2Name = override?.p2Name || "";
 
     if (!p1Name) {
       window.STERNI_APP?.toast("Bitte zuerst im Mitgliederbereich anmelden oder ein Mitglied hinzufügen.");

@@ -245,96 +245,6 @@
             <ul id="quiz-online-opponents" class="quiz-online-list" aria-label="Verfügbare Gegner" hidden></ul>
             <div id="quiz-online-leaderboard"></div>
           </section>
-          <div id="quiz-invite-banner" class="panel" hidden>
-            <p class="eyebrow">DUELL-EINLADUNG</p>
-            <h2 id="quiz-invite-banner-title" style="margin-bottom:0.35rem">Herausforderung wartet</h2>
-            <p id="quiz-invite-banner-desc" class="muted" style="margin-bottom:0.85rem"></p>
-            <div class="action-row">
-              <button type="button" class="btn-primary" id="quiz-accept-invite-btn">Einladung annehmen &amp; spielen →</button>
-              <button type="button" class="btn-ghost btn-sm" id="quiz-dismiss-invite-btn">Verwerfen</button>
-            </div>
-          </div>
-
-          <div class="panel">
-            <div class="entry-card-head" style="margin-bottom:0.85rem">
-              <h2 style="margin:0">Neues Duell starten</h2>
-              <button type="button" class="btn-outline btn-sm" id="quiz-friends-toggle-btn">👥 Freundeskreis (Anmelden &amp; Einladen)</button>
-            </div>
-
-            <!-- Freundeskreis-Panel (direkt beim Quiz) -->
-            <div id="quiz-friends-panel" class="member-subbox" hidden>
-              <div class="entry-card-head" style="margin-bottom:0.65rem">
-                <div>
-                  <p class="eyebrow" style="margin-bottom:0.15rem">FREUNDESKREIS</p>
-                  <strong id="quiz-me-status">Noch nicht angemeldet – einfach Namen eintragen</strong>
-                </div>
-                <button type="button" class="btn-ghost btn-xs" id="quiz-friends-close-btn">Schließen ✕</button>
-              </div>
-
-              <form id="quiz-me-form" class="search-row" style="margin-bottom:0.85rem">
-                <input type="text" id="quiz-me-name" placeholder="Dein Name (z.B. Klaus)" maxlength="30" required>
-                <input type="email" id="quiz-me-email" placeholder="Deine E-Mail (optional)" autocomplete="email">
-                <button type="submit" class="btn-primary btn-sm">Anmelden</button>
-              </form>
-
-              <p class="small-meta muted" style="margin:0 0 0.45rem">Freund per E-Mail oder Statusmeldung (WhatsApp / Link) einladen &amp; direkt herausfordern:</p>
-              <form id="quiz-friend-add-form" class="stack-form">
-                <div class="form-grid-2">
-                  <div class="field">
-                    <label for="quiz-friend-name">Name des Freundes *</label>
-                    <input type="text" id="quiz-friend-name" placeholder="z.B. Thomas" maxlength="30" required>
-                  </div>
-                  <div class="field">
-                    <label for="quiz-friend-email">E-Mail des Freundes (für E-Mail-Einladung)</label>
-                    <input type="email" id="quiz-friend-email" placeholder="freund@beispiel.de">
-                  </div>
-                </div>
-                <div class="action-row" style="margin-top:0">
-                  <button type="submit" class="btn-primary btn-sm">Freund hinzufügen</button>
-                  <button type="button" class="btn-outline btn-sm" id="quiz-friend-email-btn">Per E-Mail einladen ✉</button>
-                  <button type="button" class="btn-outline btn-sm" id="quiz-friend-share-btn">Per Statusmeldung / Link teilen ↗</button>
-                </div>
-              </form>
-
-              <div id="quiz-friends-list" class="stack-list" style="margin-top:0.75rem"></div>
-            </div>
-
-            <div class="form-grid-2">
-              <div class="field">
-                <label for="quiz-p1-select">1. Du (Herausforderer)</label>
-                <select id="quiz-p1-select"></select>
-              </div>
-              <div class="field">
-                <label for="quiz-p2-select">2. Gegner aus Freundeskreis</label>
-                <select id="quiz-p2-select"></select>
-              </div>
-              <div class="field">
-                <label for="quiz-category">3. Themengebiet (20 Gebiete)</label>
-                <select id="quiz-category"></select>
-              </div>
-              <div class="field">
-                <label for="quiz-mode">4. Spielart</label>
-                <select id="quiz-mode">
-                  <option value="member-duel">Duell gegen Freund (10 Fragen)</option>
-                  <option value="local-duel">2 Spieler an einem Gerät (je 5 Fragen)</option>
-                  <option value="solo">Solo-Training (10 Fragen)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="action-row" style="margin-top:1rem">
-              <button type="button" class="btn-primary" id="quiz-start-btn">Duell starten →</button>
-              <button type="button" class="btn-outline btn-sm" id="quiz-send-invite-btn">Herausforderungs-Link teilen / kopieren</button>
-            </div>
-          </div>
-
-          <div class="panel">
-            <div class="entry-card-head" style="margin-bottom:0.5rem">
-              <h2 style="margin:0">Mitglieder-Rangliste</h2>
-              <button type="button" class="btn-ghost btn-xs" id="quiz-reset-stats-btn">Zurücksetzen</button>
-            </div>
-            <div id="quiz-leaderboard" class="data-table-wrap"></div>
-          </div>
         </div>
 
         <!-- 2. Spiel-Ansicht -->
@@ -1437,7 +1347,7 @@
   <script src="js/quiz-data.js"></script>
   <script src="js/api.js?v=gewaesser-check-1"></script>
   <script src="./anglertreff-config.js"></script>
-  <script src="js/quiz.js?v=duell-2"></script>
+  <script src="js/quiz.js?v=wissenskachel-2"></script>
   <script src="js/quiz-online.js?v=wissenskachel-1"></script>
   <script src="js/maps.js"></script>
   <script src="js/app.js?v=gewaesser-check-1"></script>
