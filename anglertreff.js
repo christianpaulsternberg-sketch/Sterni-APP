@@ -44,7 +44,8 @@ async function request(path,{method='GET',body,token=session?.access_token,raw=f
  if(code==='invalid_credentials')throw Error('E-Mail oder Passwort stimmen nicht. Bitte beide Eingaben prüfen.');
  if(code==='email_not_confirmed')throw Error('Bitte zuerst deine Einladung bestätigen.');
  if(['otp_expired','access_denied'].includes(code))throw Error('Dieser Link ist ungültig oder abgelaufen. Bitte Christian um einen neuen Link bitten.');
- if(code==='weak_password'||code==='same_password')throw Error('Bitte ein neues, stärkeres Passwort mit mindestens 12 Zeichen wählen.');
+ if(code==='weak_password')throw Error('Dieses Passwort erfüllt die Sicherheitsvorgaben des Anmeldedienstes nicht. Bitte ein stärkeres Passwort wählen.');
+ if(code==='same_password')throw Error('Bitte ein anderes Passwort als das bisherige wählen.');
  if(response.status===429)throw Error('Zu viele Versuche. Bitte etwas warten.');
  if([401,403].includes(response.status)&&session&&token){close();throw Error('Deine Sitzung ist abgelaufen. Bitte erneut anmelden.');}throw Error(response.status===403?'Zugriff verweigert. Deine Mitgliedschaft muss freigeschaltet sein.':response.status===400?'Anfrage nicht möglich. Bitte Eingaben oder Zugangsdaten prüfen.':'Der Treff ist gerade nicht erreichbar. Bitte später erneut versuchen.');}
  if(response.status===204||response.headers.get('content-length')==='0')return null;
@@ -190,7 +191,7 @@ $('#treff-login').onsubmit=e=>{e.preventDefault();const button=e.target.querySel
 
 $('#treff-password').onsubmit=e=>{e.preventDefault();guard(e.target.querySelector('button'),async()=>{
  const data=new FormData(e.target);if(data.get('password')!==data.get('password_confirm'))throw Error('Die beiden Passwörter stimmen nicht überein.');
- if(String(data.get('password')).length<12)throw Error('Bitte mindestens 12 Zeichen verwenden.');
+ if(String(data.get('password')).length<8)throw Error('Bitte mindestens 8 Zeichen verwenden.');
  await request('/auth/v1/user',{method:'PUT',body:{password:data.get('password')}});e.target.reset();await enter();status('Dein Passwort wurde gespeichert. Willkommen im Anglertreff!');
 });};
 function showPassword(flow){$('#treff-entry').hidden=true;$('#treff-accept').hidden=true;$('#treff-content').hidden=true;$('#treff-admin').hidden=true;$('#treff-password').reset();$('#treff-password-title').textContent=flow==='invite'?'Registrierung abschließen':flow==='recovery'?'Neues Passwort festlegen':'Passwort ändern';$('#treff-password').hidden=false;}
