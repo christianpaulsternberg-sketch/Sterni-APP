@@ -198,6 +198,10 @@ h3 {
   border: 1px solid var(--border);
 }
 
+.app-shell:has(#view-start.active) > .app-legal-footer:is(:hover, :active, :focus-within) {
+  border-color: var(--accent);
+  background: linear-gradient(140deg, #3c282f, #1c181e);
+}
 
 .app-view[hidden] {
   display: none !important;
