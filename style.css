@@ -358,6 +358,11 @@ h3 {
   padding: 0;
 }
 
+.quiz-online-list[hidden],
+#quiz-online-count[hidden] {
+  display: none;
+}
+
 .quiz-online-row {
   display: flex;
   align-items: center;

@@ -7,7 +7,6 @@ window.STERNI_QUIZ_ONLINE = (() => {
   let pendingResult = null;
   let snapshotPending = false;
   let lastSnapshot = "";
-  let lastOnlineCount = null;
   let onAnglertreff = false;
 
   function storedSession() {
@@ -154,15 +153,14 @@ window.STERNI_QUIZ_ONLINE = (() => {
     target.replaceChildren(heading, entries.length ? list : "Bisher sind keine Duelle abgeschlossen.");
   }
 
-  function renderDuels(target, duels, includeResults) {
-    const entries = duels.filter((duel) => includeResults || duel.my_score === null);
+  function renderDuels(target, duels) {
     target.replaceChildren();
-    if (!entries.length) return;
+    if (!duels.length) return;
     const heading = document.createElement("h3");
-    heading.textContent = includeResults ? "Meine Online-Duelle" : "Offene Online-Duelle";
+    heading.textContent = "Meine Online-Duelle";
     const list = document.createElement("ul");
     list.className = "quiz-online-list";
-    for (const duel of entries) {
+    for (const duel of duels) {
       const row = document.createElement("li");
       row.className = "quiz-online-row";
       const label = document.createElement("span");
@@ -185,6 +183,25 @@ window.STERNI_QUIZ_ONLINE = (() => {
     target.append(heading, list);
   }
 
+  function renderOnlineMembers(members) {
+    const list = element("quiz-online-members");
+    const count = element("quiz-online-count");
+    list.hidden = count.hidden = members.length === 0;
+    text("quiz-online-count", members.length ? String(members.length) : "");
+    list.replaceChildren();
+    for (const member of members) {
+      const row = document.createElement("li");
+      row.className = "quiz-online-row";
+      const name = document.createElement("span");
+      const dot = document.createElement("span");
+      dot.className = "quiz-online-dot";
+      dot.setAttribute("aria-hidden", "true");
+      name.append(dot, member.name);
+      row.append(name);
+      list.append(row);
+    }
+  }
+
   function renderSnapshot(snapshot) {
     if (onAnglertreff) {
       const invitations = snapshot.duels.filter((duel) => duel.incoming && duel.my_score === null);
@@ -198,15 +215,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
     if (currentMember?.id !== snapshot.me.id) clearSelection();
     currentMember = snapshot.me;
     const opponents = snapshot.online.filter((member) => member.id !== currentMember.id);
-    const count = element("quiz-online-count");
-    count.hidden = false;
-    element("quiz-online-login").hidden = true;
     element("quiz-online-setup").hidden = false;
-    if (lastOnlineCount !== snapshot.online.length) {
-      text("quiz-online-count", String(snapshot.online.length));
-      lastOnlineCount = snapshot.online.length;
-    }
-    text("quiz-online-status", opponents.length ? "Grüner Punkt: Mitglied ist gerade online." : "Gerade ist kein anderes Mitglied online.");
     window.STERNI_QUIZ.updateOnlineRound(snapshot.duels);
     if (pendingResult?.memberId === currentMember.id) {
       const duel = snapshot.duels.find((entry) => entry.id === pendingResult.id);
@@ -217,17 +226,16 @@ window.STERNI_QUIZ_ONLINE = (() => {
     const signature = JSON.stringify(snapshot);
     if (signature === lastSnapshot) return;
     lastSnapshot = signature;
-    const members = element("quiz-online-members");
+    renderOnlineMembers(opponents);
+    const members = element("quiz-online-opponents");
+    members.hidden = opponents.length === 0;
     const focusedMember = document.activeElement?.dataset.quizMember;
     members.replaceChildren();
     for (const member of opponents) {
       const row = document.createElement("li");
       row.className = "quiz-online-row";
       const name = document.createElement("span");
-      const dot = document.createElement("span");
-      dot.className = "quiz-online-dot";
-      dot.setAttribute("aria-hidden", "true");
-      name.append(dot, member.name);
+      name.textContent = member.name;
       const challenge = button("Herausfordern", () => selectOpponent(member));
       challenge.dataset.quizMember = member.id;
       challenge.setAttribute("aria-label", member.name + " herausfordern");
@@ -235,39 +243,35 @@ window.STERNI_QUIZ_ONLINE = (() => {
       members.append(row);
       if (member.id === focusedMember) challenge.focus();
     }
-    renderDuels(element("quiz-online-home-duels"), snapshot.duels, false);
-    renderDuels(element("quiz-online-setup-duels"), snapshot.duels, true);
+    renderDuels(element("quiz-online-setup-duels"), snapshot.duels);
     if (snapshot.leaderboard) renderLeaderboard(snapshot.leaderboard);
   }
 
-  function hideSnapshot(message, signIn) {
+  function hideSnapshot() {
     if (onAnglertreff) {
       element("treff-quiz-notice").hidden = true;
       return;
     }
     currentMember = null;
     lastSnapshot = "";
-    lastOnlineCount = null;
     clearSelection();
-    element("quiz-online-count").hidden = true;
-    element("quiz-online-login").hidden = !signIn;
+    renderOnlineMembers([]);
     element("quiz-online-setup").hidden = true;
-    for (const id of ["quiz-online-members", "quiz-online-home-duels", "quiz-online-setup-duels", "quiz-online-leaderboard"]) element(id).replaceChildren();
-    text("quiz-online-status", message);
+    for (const id of ["quiz-online-opponents", "quiz-online-setup-duels", "quiz-online-leaderboard"]) element(id).replaceChildren();
   }
 
   async function sync() {
     if (snapshotPending || document.hidden) return;
     if (!storedSession()) {
-      hideSnapshot("Melde dich an, um aktive Mitglieder und Einladungen zu sehen.", true);
+      hideSnapshot();
       return;
     }
     snapshotPending = true;
     try {
       const value = await rpc("sterni_quiz_snapshot");
       if (storedSession()) renderSnapshot(value);
-    } catch (error) {
-      hideSnapshot(error.name === "TimeoutError" || error instanceof TypeError ? "Online-Status gerade nicht verfügbar." : error.message, !storedSession());
+    } catch {
+      hideSnapshot();
     } finally {
       snapshotPending = false;
     }
@@ -329,7 +333,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
       });
     }
     if (!config?.url || !config?.publishableKey) {
-      hideSnapshot("Online-Duelle sind gerade nicht eingerichtet.", false);
+      hideSnapshot();
       return;
     }
     window.addEventListener("pageshow", sync);
