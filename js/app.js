@@ -1089,6 +1089,10 @@ window.STERNI_APP = (() => {
       const orderMethodMap = window.STERNI_DATA.FISH_METHOD_BY_ORDER || {};
       let speciesList = res.species || [];
       let isFallback = false;
+      const placeText = `${currentWetterPlace.name || ""} ${currentWetterPlace.display_name || ""}`.toLowerCase();
+      const profiles = window.STERNI_DATA.WATER_FISH_PROFILES || {};
+      const matchedProfile = Object.entries(profiles).find(([key]) => placeText.includes(key));
+      let hasRegionalProfile = false;
       const usedKm = res.effectiveRadiusKm || wetterGbifKm;
 
       if (!speciesList.length) {
@@ -1101,9 +1105,24 @@ window.STERNI_APP = (() => {
         const defaults = window.STERNI_DATA.DEFAULT_FISH_BY_TYPE?.[fallbackKey] || [];
         speciesList = defaults.map((sci) => ({ name: sci, count: null, order: "" }));
         listEl.textContent = `Keine GBIF-Einzelmeldungen im ${usedKm}-km-Radius – regional typischer Fischbestand:`;
-      } else {
+      }
+
+      if (matchedProfile) {
+        const existingSpecies = new Set(speciesList.map((s) => s.name));
+        const additions = matchedProfile[1]
+          .filter((name) => !existingSpecies.has(name))
+          .map((name) => ({ name, count: null, order: "", regional: true }));
+        if (additions.length) {
+          speciesList = [...additions, ...speciesList];
+          hasRegionalProfile = true;
+        }
+      }
+
+      if (!isFallback) {
         const radiusNote = usedKm !== wetterGbifKm ? ` (automatisch auf ${usedKm} km erweitert)` : ` (${usedKm} km)`;
-        listEl.textContent = `${res.total} GBIF-Fischmeldungen im Umkreis${radiusNote} · ${speciesList.length} vorkommende Arten:`;
+        listEl.textContent = `${res.total} GBIF-Fischmeldungen im Umkreis${radiusNote} · ${speciesList.length} vorkommende Arten${hasRegionalProfile ? " einschließlich regional hinterlegter Gewässerarten" : ""}:`;
+      } else if (hasRegionalProfile) {
+        listEl.textContent = `Keine GBIF-Einzelmeldungen im ${usedKm}-km-Radius – regionaler Fischbestand für ${currentWetterPlace.name}:`;
       }
 
       speciesList.forEach((s) => {
@@ -1123,7 +1142,7 @@ window.STERNI_APP = (() => {
                 <strong></strong>
                 <div class="small-meta muted"><em></em></div>
               </div>
-              <span class="pill-tag">${s.count != null ? `${s.count}×` : "Bestand"}</span>
+              <span class="pill-tag">${s.count != null ? `${s.count}×` : (s.regional ? "regional" : "Bestand")}</span>
             </div>
             <p class="wetter-fish-desc"></p>
             <p class="wetter-fish-method"></p>
@@ -1166,9 +1185,11 @@ window.STERNI_APP = (() => {
           const linkHtml = wikiUrl
             ? `<p style="margin-top:0.75rem"><a href="${wikiUrl}" target="_blank" rel="noopener">Wikipedia-Artikel öffnen ↗</a></p>`
             : "";
-          const countLine = isFallback
-            ? `<p><strong>Bestandshinweis:</strong> Regional typische Art für dieses Gewässer</p>`
-            : `<p><strong>Nachweise im Umkreis (${usedKm} km):</strong> ${s.count} Meldungen</p>`;
+          const countLine = s.regional
+            ? `<p><strong>Bestandshinweis:</strong> Regional hinterlegte Art für diesen Flussabschnitt. Kein einzelner GBIF-Nachweis.</p>`
+            : (isFallback
+              ? `<p><strong>Bestandshinweis:</strong> Regional typische Art für dieses Gewässer</p>`
+              : `<p><strong>Nachweise im Umkreis (${usedKm} km):</strong> ${s.count} Meldungen</p>`);
           openLightbox(
             `${deName} (${s.name})`,
             `${mediaHtml}${countLine}<p>${loadedExtract}</p><p class="wetter-fish-method">${methodTip}</p>${linkHtml}`

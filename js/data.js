@@ -994,10 +994,25 @@ window.STERNI_DATA = (() => {
     "oder": [
       { name: "Oder bei Ratzdorf (Neißemündung)", type: "Flussabschnitt", lat: 52.067, lon: 14.756 },
       { name: "Oder bei Eisenhüttenstadt", type: "Buhnenstrecke", lat: 52.145, lon: 14.668 },
+      { name: "Oder bei Eisenhüttenstadt / Fürstenberg", type: "Buhnenstrecke", lat: 52.143, lon: 14.649 },
       { name: "Oder-Spree-Kanal (Schleuse Fürstenberg)", type: "Kanal / Schleuse", lat: 52.149, lon: 14.648 },
       { name: "Oder bei Brieskow-Finkenheerd", type: "Flussabschnitt", lat: 52.264, lon: 14.702 },
       { name: "Oder bei Frankfurt (Oder)", type: "Stadtstrecke", lat: 52.347, lon: 14.558 },
       { name: "Oder bei Lebus", type: "Buhnenstrecke", lat: 52.426, lon: 14.544 }
+    ],
+    "spree": [
+      { name: "Obere Spree bei Ebersbach", type: "Oberlauf / Flussabschnitt", lat: 51.007, lon: 14.586 },
+      { name: "Spree bei Spremberg", type: "Flussabschnitt", lat: 51.569, lon: 14.374 },
+      { name: "Spree bei Cottbus", type: "Stadtstrecke", lat: 51.756, lon: 14.334 },
+      { name: "Spree bei Peitz", type: "Flussabschnitt", lat: 51.858, lon: 14.415 },
+      { name: "Spreewald bei Lübben", type: "Flussarme / Spreewald", lat: 51.949, lon: 13.898 },
+      { name: "Spree bei Beeskow", type: "Flussabschnitt", lat: 52.172, lon: 14.245 },
+      { name: "Spree bei Fürstenwalde", type: "Flussabschnitt", lat: 52.361, lon: 14.062 },
+      { name: "Spree bei Erkner", type: "Flussabschnitt", lat: 52.422, lon: 13.752 },
+      { name: "Müggelsee / Spree", type: "Flusssee", lat: 52.439, lon: 13.655 },
+      { name: "Spree bei Köpenick", type: "Stadtstrecke", lat: 52.445, lon: 13.577 },
+      { name: "Spree im Berliner Zentrum", type: "Stadtstrecke", lat: 52.519, lon: 13.407 },
+      { name: "Untere Spree bei Spandau", type: "Unterlauf / Mündung", lat: 52.535, lon: 13.214 }
     ],
     "bodensee": [
       { name: "Obersee (Hauptbecken)", type: "Seeteil", lat: 47.618, lon: 9.425 },
@@ -1023,6 +1038,13 @@ window.STERNI_DATA = (() => {
     coast: ["Dicentrarchus labrax", "Sparus aurata", "Diplodus sargus", "Chelon labrosus", "Platichthys flesus"]
   };
 
+  // Regionaler Bestandsrahmen für häufig gewählte Flüsse. Er ergänzt lokale
+  // GBIF-Meldungen, ersetzt aber weder Fangstatistik noch Gewässerordnung.
+  const WATER_FISH_PROFILES = {
+    oder: ["Silurus glanis", "Sander lucioperca", "Perca fluviatilis", "Esox lucius", "Leuciscus aspius", "Anguilla anguilla", "Abramis brama", "Rutilus rutilus", "Squalius cephalus", "Leuciscus idus", "Barbus barbus", "Lota lota", "Cyprinus carpio", "Tinca tinca"],
+    spree: ["Silurus glanis", "Sander lucioperca", "Perca fluviatilis", "Esox lucius", "Leuciscus aspius", "Anguilla anguilla", "Abramis brama", "Rutilus rutilus", "Squalius cephalus", "Leuciscus idus", "Lota lota", "Cyprinus carpio", "Tinca tinca"]
+  };
+
   return {
     ANGLERWITZE,
     QUIZ_QUESTIONS,
@@ -1042,6 +1064,7 @@ window.STERNI_DATA = (() => {
     FISH_SPECIES_INFO,
     FISH_METHOD_BY_ORDER,
     KNOWN_WATER_SECTIONS,
-    DEFAULT_FISH_BY_TYPE
+    DEFAULT_FISH_BY_TYPE,
+    WATER_FISH_PROFILES
   };
 })();
