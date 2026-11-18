@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="style.css?v=startkacheln-4">
+  <link rel="stylesheet" href="style.css?v=installation-ansicht-1">
   <link rel="stylesheet" href="legal-footer.css?v=compact-2">
   <link rel="stylesheet" href="responsive.css?v=compact-2">
 </head>
@@ -208,26 +208,29 @@
           <p id="anglerwitz" class="daily-joke-text"></p>
         </article>
 
-        <!-- Collapsible Install & Backup -->
         <div class="quick-links start-bottom-tiles" id="start-bottom-tiles">
-        <details class="app-install">
-          <summary>Sterni-App installieren · Offline &amp; Sicherung</summary>
-          <div class="details-body">
-            <p><button type="button" class="btn-outline btn-sm" id="share-app-btn">Sterni-App weiterempfehlen</button></p>
-            <h3>Auf dem iPhone installieren</h3>
-            <ol>
-              <li>Öffne die Sterni-App in <strong>Safari</strong>.</li>
-              <li>Tippe auf <strong>Teilen</strong>. Je nach Safari-Ansicht findest du die Taste im Menü der Seite.</li>
-              <li>Wähle <strong>Zu Home-Bildschirm hinzufügen</strong>. Fehlt der Eintrag, tippe unten auf <strong>Aktionen bearbeiten</strong>.</li>
-              <li>Aktiviere <strong>Als Web-App öffnen</strong>, falls der Schalter angezeigt wird, und tippe auf <strong>Hinzufügen</strong>.</li>
-            </ol>
-            <p>Danach kannst du die Sterni-App über ihr Symbol auf dem Home-Bildschirm öffnen. <a href="https://support.apple.com/de-de/guide/iphone/iphea86e5236/ios">Apple-Anleitung ansehen</a></p>
-            <p><strong>Android:</strong> Öffne das Browser-Menü und wähle „Zum Startbildschirm hinzufügen“.</p>
-            <h3>Sicherung auf dem iPhone</h3>
-            <p>Öffne das <a href="#journal">Fangtagebuch</a> in der App-Ansicht, in der deine Einträge sichtbar sind. Tippe auf <strong>Sicherung herunterladen</strong> und speichere die JSON-Datei in <strong>Dateien</strong>, etwa unter „Downloads“ oder in iCloud Drive. Zum Wiederherstellen tippe in der gewünschten App-Ansicht auf <strong>Sicherung einlesen</strong> und wähle die Datei aus. Einlesen kann vorhandene lokale Einträge ersetzen.</p>
-            <p><strong>Offline:</strong> Für den privaten Anglertreff und aktuelle Online-Daten wie Wetter und Pegel brauchst du Internet. Mitglieder, Beiträge und Fotos des privaten Anglertreffs sind von der lokalen JSON-Sicherung getrennt.</p>
-          </div>
-        </details>
+          <a class="app-install" href="#installation">Sterni-App installieren · Offline &amp; Sicherung</a>
+        </div>
+      </section>
+
+      <section id="view-installation" class="app-view" aria-labelledby="installation-heading" hidden>
+        <div class="section-head">
+          <h1 id="installation-heading">Sterni-App installieren · Offline &amp; Sicherung</h1>
+        </div>
+        <div class="panel">
+          <p><button type="button" class="btn-outline btn-sm" id="share-app-btn">Sterni-App weiterempfehlen</button></p>
+          <h3>Auf dem iPhone installieren</h3>
+          <ol>
+            <li>Öffne die Sterni-App in <strong>Safari</strong>.</li>
+            <li>Tippe auf <strong>Teilen</strong>. Je nach Safari-Ansicht findest du die Taste im Menü der Seite.</li>
+            <li>Wähle <strong>Zu Home-Bildschirm hinzufügen</strong>. Fehlt der Eintrag, tippe unten auf <strong>Aktionen bearbeiten</strong>.</li>
+            <li>Aktiviere <strong>Als Web-App öffnen</strong>, falls der Schalter angezeigt wird, und tippe auf <strong>Hinzufügen</strong>.</li>
+          </ol>
+          <p>Danach kannst du die Sterni-App über ihr Symbol auf dem Home-Bildschirm öffnen. <a href="https://support.apple.com/de-de/guide/iphone/iphea86e5236/ios">Apple-Anleitung ansehen</a></p>
+          <p><strong>Android:</strong> Öffne das Browser-Menü und wähle „Zum Startbildschirm hinzufügen“.</p>
+          <h3>Sicherung auf dem iPhone</h3>
+          <p>Öffne das <a href="#journal">Fangtagebuch</a> in der App-Ansicht, in der deine Einträge sichtbar sind. Tippe auf <strong>Sicherung herunterladen</strong> und speichere die JSON-Datei in <strong>Dateien</strong>, etwa unter „Downloads“ oder in iCloud Drive. Zum Wiederherstellen tippe in der gewünschten App-Ansicht auf <strong>Sicherung einlesen</strong> und wähle die Datei aus. Einlesen kann vorhandene lokale Einträge ersetzen.</p>
+          <p><strong>Offline:</strong> Für den privaten Anglertreff und aktuelle Online-Daten wie Wetter und Pegel brauchst du Internet. Mitglieder, Beiträge und Fotos des privaten Anglertreffs sind von der lokalen JSON-Sicherung getrennt.</p>
         </div>
       </section>
 
@@ -1451,6 +1454,6 @@
   <script src="js/quiz.js?v=duell-2"></script>
   <script src="js/quiz-online.js?v=duell-2"></script>
   <script src="js/maps.js"></script>
-  <script src="js/app.js?v=startkacheln-1"></script>
+  <script src="js/app.js?v=installation-ansicht-1"></script>
 </body>
 </html>

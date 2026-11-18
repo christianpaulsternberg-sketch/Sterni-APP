@@ -15,7 +15,7 @@ window.STERNI_APP = (() => {
 
   const VALID_VIEWS = [
     "start", "quiz", "anglertreff", "spots", "wissen",
-    "angeln", "boot", "wetter", "navigation", "journal", "wartung", "hinweise"
+    "angeln", "boot", "wetter", "navigation", "journal", "wartung", "hinweise", "installation"
   ];
 
   let toastTimer = null;

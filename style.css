@@ -317,7 +317,7 @@ h3 {
   margin: 0;
 }
 
-#view-start .start-bottom-tiles .legal-tile-link {
+#view-start .start-bottom-tiles :is(.legal-tile-link, .app-install) {
   padding: 0.85rem 1rem;
   color: var(--ink);
   font: 700 0.85rem/1.4 var(--body);
@@ -325,13 +325,13 @@ h3 {
 }
 
 #view-start .start-bottom-tiles .app-install {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
   min-width: 0;
   overflow-wrap: anywhere;
-}
-
-#view-start .start-bottom-tiles .app-install > summary {
-  font-size: 0.85rem;
-  line-height: 1.4;
 }
 
 .quiz-online {
