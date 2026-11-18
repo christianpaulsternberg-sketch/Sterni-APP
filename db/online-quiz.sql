@@ -1,9 +1,32 @@
 begin;
 
+create table if not exists treff_private.quiz_presence (
+  member_id uuid primary key references public.treff_members(id) on delete cascade,
+  seen_at timestamptz not null
+);
+
+create table if not exists treff_private.quiz_duels (
+  id uuid primary key,
+  challenger uuid not null references public.treff_members(id) on delete cascade,
+  opponent uuid not null references public.treff_members(id) on delete cascade,
+  category text not null,
+  seed integer not null check (seed >= 0),
+  created_at timestamptz not null default now(),
+  challenger_score integer check (challenger_score between 0 and 100 and challenger_score % 10 = 0),
+  opponent_score integer check (opponent_score between 0 and 100 and opponent_score % 10 = 0),
+  check (challenger <> opponent)
+);
+
 alter table treff_private.quiz_duels add column if not exists accepted_at timestamptz;
 update treff_private.quiz_duels
 set accepted_at = created_at
 where accepted_at is null and opponent_score is not null;
+
+alter table treff_private.quiz_presence enable row level security;
+alter table treff_private.quiz_duels enable row level security;
+revoke all on treff_private.quiz_presence, treff_private.quiz_duels from public, anon, authenticated;
+create index if not exists quiz_duels_challenger on treff_private.quiz_duels(challenger, created_at desc);
+create index if not exists quiz_duels_opponent on treff_private.quiz_duels(opponent, created_at desc);
 
 create or replace function public.sterni_quiz_snapshot() returns jsonb
 language plpgsql security definer set search_path = '' as $$
@@ -63,6 +86,41 @@ begin
 end;
 $$;
 
+create or replace function public.sterni_quiz_create(duel_id uuid, target uuid, topic text, question_seed integer) returns uuid
+language plpgsql security definer set search_path = '' as $$
+declare
+  me uuid := auth.uid();
+  existing uuid;
+begin
+  if not exists (select 1 from public.treff_members where id = me and active) then
+    raise exception 'Aktive Mitgliedschaft erforderlich.' using errcode = '42501';
+  end if;
+  if duel_id is null or target is null or target = me or question_seed is null or question_seed < 0
+     or topic is null or topic !~ '^[a-z]{2,24}$' then raise exception 'Ungültige Herausforderung.'; end if;
+
+  perform pg_advisory_xact_lock(hashtextextended('sterni-quiz:' || me::text, 0));
+  select q.id into existing from treff_private.quiz_duels q
+    where q.id = duel_id and q.challenger = me and q.opponent = target;
+  if found then return existing; end if;
+
+  if not exists (
+    select 1 from treff_private.quiz_presence p join public.treff_members m on m.id = p.member_id
+    where p.member_id = target and m.active and p.seen_at >= now() - interval '90 seconds'
+  ) then raise exception 'Dieses Mitglied ist gerade offline.'; end if;
+  if exists (
+    select 1 from treff_private.quiz_duels q
+    where q.challenger = me and q.opponent = target and q.challenger_score is null
+      and q.created_at >= now() - interval '7 days'
+  ) then raise exception 'Für dieses Mitglied hast du bereits eine offene Runde.'; end if;
+  if (select count(*) from treff_private.quiz_duels q where q.challenger = me and q.created_at >= now() - interval '1 minute') >= 3
+  then raise exception 'Bitte warte kurz vor deiner nächsten Herausforderung.'; end if;
+
+  insert into treff_private.quiz_duels(id, challenger, opponent, category, seed)
+  values (duel_id, me, target, topic, question_seed);
+  return duel_id;
+end;
+$$;
+
 create or replace function public.sterni_quiz_accept(duel_id uuid) returns void
 language plpgsql security definer set search_path = '' as $$
 declare
@@ -105,6 +163,12 @@ begin
 end;
 $$;
 
+revoke all on function public.sterni_quiz_snapshot() from public, anon;
+revoke all on function public.sterni_quiz_create(uuid, uuid, text, integer) from public, anon;
+revoke all on function public.sterni_quiz_submit(uuid, integer) from public, anon;
+grant execute on function public.sterni_quiz_snapshot() to authenticated;
+grant execute on function public.sterni_quiz_create(uuid, uuid, text, integer) to authenticated;
+grant execute on function public.sterni_quiz_submit(uuid, integer) to authenticated;
 revoke all on function public.sterni_quiz_accept(uuid) from public, anon;
 grant execute on function public.sterni_quiz_accept(uuid) to authenticated;
 commit;

@@ -360,6 +360,7 @@ window.STERNI_QUIZ = (() => {
   }
 
   function startQuiz(override) {
+    window.STERNI_QUIZ_ONLINE?.clearResult();
     const catId = override?.catId || document.getElementById("quiz-category").value;
     const mode = override?.mode || document.getElementById("quiz-mode").value;
     const p1Name = override?.p1Name || document.getElementById("quiz-p1-select").value;
@@ -408,7 +409,7 @@ window.STERNI_QUIZ = (() => {
       opponentSkill: opponent?.skill || 0.7,
       targetScore: typeof override?.targetScore === "number" ? override.targetScore : null,
       inviteId: override?.inviteId || null,
-      onlineDuelId: override?.onlineDuelId || null,
+      onlineDuel: override?.onlineDuel || null,
       questions,
       index: 0,
       scores: [0, typeof override?.targetScore === "number" ? override.targetScore : 0],
@@ -423,8 +424,18 @@ window.STERNI_QUIZ = (() => {
 
     const boardEl = document.getElementById("quiz-duel-board");
     boardEl.hidden = mode === "solo";
-    document.getElementById("quiz-board-p1-name").textContent = p1Name;
-    document.getElementById("quiz-board-p2-name").textContent = p2Name;
+    for (const [index, name] of state.players.entries()) {
+      const label = document.getElementById("quiz-board-p" + (index + 1) + "-name");
+      label.textContent = name;
+      if (state.onlineDuel) {
+        const avatar = document.createElement("span");
+        avatar.className = "quiz-duel-avatar";
+        avatar.setAttribute("aria-hidden", "true");
+        avatar.textContent = name.trim().split(/\s+/).slice(0, 2)
+          .map((word) => Array.from(word)[0]).join("").toLocaleUpperCase("de");
+        label.prepend(avatar);
+      }
+    }
     for (const id of ["quiz-retry-btn", "quiz-send-challenge-btn", "quiz-share-btn"]) {
       document.getElementById(id).hidden = mode === "online-duel";
     }
@@ -433,9 +444,15 @@ window.STERNI_QUIZ = (() => {
   }
 
   function updateScoreboard(activePlayerIdx) {
-    document.getElementById("quiz-board-p1-pts").textContent = `${state.scores[0]} Pkt`;
-    document.getElementById("quiz-board-p2-pts").textContent =
-      state.mode === "online-duel" ? "Spielt separat" : `${state.scores[1]} Pkt`;
+    const duel = state.onlineDuel;
+    document.getElementById("quiz-board-p1-pts").textContent = duel
+      ? (state.index + Number(state.answered)) + "/10 beantwortet · " + state.scores[0] + " Pkt"
+      : state.scores[0] + " Pkt";
+    document.getElementById("quiz-board-p2-pts").textContent = duel
+      ? duel.opponent_score !== null
+        ? "10/10 beantwortet · " + duel.opponent_score + " Pkt"
+        : duel.incoming || duel.accepted_at ? "Ergebnis offen" : "Wartet auf Annahme"
+      : state.scores[1] + " Pkt";
     const p1Box = document.getElementById("quiz-board-p1");
     const p2Box = document.getElementById("quiz-board-p2");
     if (state.mode === "local-duel") {
@@ -548,9 +565,9 @@ window.STERNI_QUIZ = (() => {
     const rankEl = document.getElementById("quiz-result-rank");
 
     if (state.mode === "online-duel") {
-      headlineEl.textContent = "Online-Runde beendet";
-      summaryEl.textContent = `${state.correctCounts[0]} von ${state.questions.length} richtig · ${state.scores[0]} Punkte`;
-      window.STERNI_QUIZ_ONLINE.finish(state.onlineDuelId, state.scores[0], rankEl);
+      headlineEl.textContent = "Online-Duell";
+      summaryEl.textContent = state.players[0] + " gegen " + state.players[1];
+      window.STERNI_QUIZ_ONLINE.finish(state.onlineDuel, state.scores[0], rankEl);
     } else if (state.mode === "solo") {
       const correct = state.correctCounts[0];
       const total = state.questions.length;
@@ -772,8 +789,15 @@ window.STERNI_QUIZ = (() => {
     startOnlineRound(duel, me) {
       startQuiz({
         mode: "online-duel", catId: duel.category, seed: duel.seed,
-        p1Name: me.name, p2Name: duel.opponent_name, onlineDuelId: duel.id
+        p1Name: me.name, p2Name: duel.opponent_name, onlineDuel: duel
       });
+    },
+    updateOnlineRound(duels) {
+      if (!state?.onlineDuel) return;
+      const duel = duels.find((entry) => entry.id === state.onlineDuel.id);
+      if (!duel) return;
+      state.onlineDuel = duel;
+      if (!document.getElementById("quiz-play").hidden) updateScoreboard(0);
     },
     addMember,
     populateSelectors,

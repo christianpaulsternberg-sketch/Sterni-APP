@@ -1348,6 +1348,16 @@ dialog::backdrop {
   margin-bottom: 1rem;
 }
 
+.quiz-duel-board[hidden] { display: none; }
+.quiz-duel-avatar {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  margin-inline-end: 0.5rem;
+}
 .quiz-duel-player {
   background: #101015;
   border: 1px solid #34343c;
