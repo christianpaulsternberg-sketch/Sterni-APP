@@ -380,45 +380,6 @@ h3 {
   background: #8ce9b1;
 }
 
-.quiz-online-choice {
-  margin: 0.8rem 0;
-  padding: 0.85rem;
-  border: 1px solid var(--border-strong);
-  background: #121218;
-}
-
-.quiz-online-choice p {
-  margin: 0 0 0.25rem;
-  font-weight: 700;
-}
-
-.quiz-online-category-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.quiz-online-category-row label {
-  font-weight: 600;
-}
-
-.quiz-online-category-row select {
-  min-width: min(100%, 13rem);
-  flex: 1 1 11rem;
-}
-
-.quiz-online-invite {
-  margin-top: 0.8rem;
-  padding: 0.85rem;
-  border: 1px solid var(--accent);
-  background: #23191d;
-}
-
-.quiz-online-invite p {
-  margin: 0;
-}
-
 .quick-link {
   position: relative;
   display: flex;

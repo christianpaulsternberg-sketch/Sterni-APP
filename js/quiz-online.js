@@ -87,18 +87,11 @@ window.STERNI_QUIZ_ONLINE = (() => {
 
   function clearSelection() {
     selected = null;
-    element("quiz-online-form").hidden = true;
   }
 
-  function selectOpponent(member) {
+  function challengeMember(member, action) {
     selected = { member };
-    window.STERNI_QUIZ.showSetup();
-    location.hash = "#quiz";
-    element("quiz-online-setup").hidden = false;
-    element("quiz-online-form").hidden = false;
-    text("quiz-online-opponent", "Duell gegen " + member.name);
-    text("quiz-online-feedback", "");
-    requestAnimationFrame(() => element("quiz-online-random").focus());
+    void start("all", action);
   }
 
   function playRound(duel) {
@@ -111,37 +104,6 @@ window.STERNI_QUIZ_ONLINE = (() => {
       question.tabIndex = -1;
       question.focus();
     });
-  }
-
-  async function accept(duel, action, status) {
-    if (action.disabled) return;
-    action.disabled = true;
-    status.textContent = "";
-    const memberId = currentMember?.id;
-    try {
-      if (duel.incoming && !duel.accepted_at) {
-        await rpc("sterni_quiz_accept", { duel_id: duel.id });
-      }
-      if (memberId && currentMember?.id === memberId) playRound(duel);
-      void sync();
-    } catch (error) {
-      status.textContent = error.message;
-    } finally {
-      action.disabled = false;
-    }
-  }
-
-  async function decline(duel, action, status) {
-    if (action.disabled) return;
-    action.disabled = true;
-    status.textContent = "";
-    try {
-      await rpc("sterni_quiz_decline", { duel_id: duel.id });
-      void sync();
-    } catch (error) {
-      status.textContent = error.message;
-      action.disabled = false;
-    }
   }
 
   function resultText(duel) {
@@ -163,61 +125,8 @@ window.STERNI_QUIZ_ONLINE = (() => {
         + entry.losses + " Niederlagen · " + entry.draws + " Unentschieden · " + entry.points + " Punkte";
       list.append(row);
     }
-    target.replaceChildren(heading, entries.length ? list : "Bisher sind keine Duelle abgeschlossen.");
-  }
-
-  function categoryLabel(duel) {
-    return window.STERNI_QUIZ_DATA.QUIZ_CATEGORIES.find((item) => item.id === duel.category)?.label || "Zufallsmix";
-  }
-
-  function renderInvites(duels) {
-    const target = element("quiz-online-invites");
-    target.replaceChildren();
-    const invitations = duels.filter((duel) => duel.incoming && duel.my_score === null && !duel.accepted_at);
-    for (const duel of invitations) {
-      const card = document.createElement("article");
-      card.className = "quiz-online-invite";
-      const message = document.createElement("p");
-      message.textContent = duel.opponent_name + " fordert dich heraus · " + categoryLabel(duel);
-      const actions = document.createElement("div");
-      actions.className = "action-row";
-      const status = document.createElement("span");
-      status.setAttribute("role", "status");
-      const acceptButton = button("Annehmen", () => accept(duel, acceptButton, status), "btn-primary");
-      const declineButton = button("Ablehnen", () => decline(duel, declineButton, status), "btn-ghost btn-sm");
-      actions.append(acceptButton, declineButton, status);
-      card.append(message, actions);
-      target.append(card);
-    }
-  }
-
-  function renderDuels(target, duels) {
-    target.replaceChildren();
-    const entries = duels.filter((duel) => !(duel.incoming && duel.my_score === null && !duel.accepted_at));
-    if (!entries.length) return;
-    const heading = document.createElement("h3");
-    heading.textContent = "Deine Duelle";
-    const list = document.createElement("ul");
-    list.className = "quiz-online-list";
-    for (const duel of entries) {
-      const row = document.createElement("li");
-      row.className = "quiz-online-row";
-      const label = document.createElement("span");
-      label.textContent = duel.opponent_name + " · " + categoryLabel(duel);
-      row.append(label);
-      if (duel.my_score === null) {
-        const status = document.createElement("span");
-        status.setAttribute("role", "status");
-        const action = button("Jetzt spielen", () => accept(duel, action, status), "btn-primary");
-        row.append(action, status);
-      } else {
-        const result = document.createElement("span");
-        result.textContent = resultText(duel);
-        row.append(result);
-      }
-      list.append(row);
-    }
-    target.append(heading, list);
+    target.hidden = false;
+    target.replaceChildren(heading, list);
   }
 
   function renderOnlineMembers(members) {
@@ -265,9 +174,11 @@ window.STERNI_QUIZ_ONLINE = (() => {
     lastSnapshot = signature;
     renderOnlineMembers(opponents);
     const members = element("quiz-online-opponents");
+    const leaderboard = element("quiz-online-leaderboard");
     members.hidden = opponents.length === 0;
-    const focusedMember = document.activeElement?.dataset.quizMember;
     members.replaceChildren();
+    leaderboard.hidden = opponents.length > 0;
+    if (opponents.length) leaderboard.replaceChildren();
     for (const member of opponents) {
       const row = document.createElement("li");
       row.className = "quiz-online-row";
@@ -276,16 +187,13 @@ window.STERNI_QUIZ_ONLINE = (() => {
       dot.className = "quiz-online-dot";
       dot.setAttribute("aria-hidden", "true");
       name.append(dot, member.name);
-      const challenge = button("Duell starten", () => selectOpponent(member), "btn-primary");
+      const challenge = button("Herausfordern", () => challengeMember(member, challenge), "btn-primary");
       challenge.dataset.quizMember = member.id;
       challenge.setAttribute("aria-label", member.name + " herausfordern");
       row.append(name, challenge);
       members.append(row);
-      if (member.id === focusedMember) challenge.focus();
     }
-    renderInvites(snapshot.duels);
-    renderDuels(element("quiz-online-setup-duels"), snapshot.duels);
-    if (snapshot.leaderboard) renderLeaderboard(snapshot.leaderboard);
+    if (!opponents.length) renderLeaderboard(snapshot.leaderboard || []);
   }
 
   function hideSnapshot() {
@@ -298,7 +206,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
     clearSelection();
     renderOnlineMembers([]);
     element("quiz-online-setup").hidden = true;
-    for (const id of ["quiz-online-opponents", "quiz-online-invites", "quiz-online-setup-duels", "quiz-online-leaderboard"]) element(id).replaceChildren();
+    for (const id of ["quiz-online-opponents", "quiz-online-leaderboard"]) element(id).replaceChildren();
   }
 
   async function sync() {
@@ -337,7 +245,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
       }
       void sync();
     } catch (error) {
-      text("quiz-online-feedback", error.message);
+      window.STERNI_APP?.toast(error.message);
     } finally {
       submit.disabled = false;
     }
@@ -360,19 +268,6 @@ window.STERNI_QUIZ_ONLINE = (() => {
 
   document.addEventListener("DOMContentLoaded", () => {
     onAnglertreff = Boolean(element("treff-quiz-notice"));
-    const category = element("quiz-online-category");
-    if (!onAnglertreff) {
-      for (const id of ["angeln", "allgemein", "biologie", "physik"]) {
-        const item = window.STERNI_QUIZ_DATA.QUIZ_CATEGORIES.find((entry) => entry.id === id);
-        if (item) category.append(new Option(item.label, item.id));
-      }
-      element("quiz-online-random").addEventListener("click", (event) => start("all", event.currentTarget));
-      element("quiz-online-category-start").addEventListener("click", (event) => start(category.value, event.currentTarget));
-      element("quiz-online-cancel").addEventListener("click", () => {
-        clearSelection();
-        text("quiz-online-feedback", "");
-      });
-    }
     if (!config?.url || !config?.publishableKey) {
       hideSnapshot();
       return;

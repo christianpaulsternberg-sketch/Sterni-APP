@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="style.css?v=online-duell-1">
+  <link rel="stylesheet" href="style.css?v=wissenskachel-1">
   <link rel="stylesheet" href="legal-footer.css?v=compact-2">
   <link rel="stylesheet" href="responsive.css?v=compact-2">
 </head>
@@ -241,25 +241,9 @@
 
         <!-- 1. Setup -->
         <div id="quiz-setup" class="quiz-setup-stack">
-          <section id="quiz-online-setup" class="panel" aria-labelledby="quiz-online-setup-heading" hidden>
-            <h2 id="quiz-online-setup-heading">Online-Duell</h2>
+          <section id="quiz-online-setup" class="panel" aria-label="Online-Gegner und Rangliste" hidden>
             <ul id="quiz-online-opponents" class="quiz-online-list" aria-label="Verfügbare Gegner" hidden></ul>
-            <div id="quiz-online-form" class="quiz-online-choice" hidden>
-              <p id="quiz-online-opponent" aria-live="polite"></p>
-              <div class="action-row">
-                <button type="button" class="btn-primary" id="quiz-online-random">Zufallsmix starten</button>
-              </div>
-              <div class="quiz-online-category-row">
-                <label for="quiz-online-category">Oder Kategorie</label>
-                <select id="quiz-online-category"></select>
-                <button type="button" class="btn-outline" id="quiz-online-category-start">Starten</button>
-                <button type="button" class="btn-ghost btn-sm" id="quiz-online-cancel">Abbrechen</button>
-              </div>
-            </div>
-            <div id="quiz-online-invites"></div>
-            <div id="quiz-online-setup-duels"></div>
             <div id="quiz-online-leaderboard"></div>
-            <p id="quiz-online-feedback" role="status"></p>
           </section>
           <div id="quiz-invite-banner" class="panel" hidden>
             <p class="eyebrow">DUELL-EINLADUNG</p>
@@ -1454,7 +1438,7 @@
   <script src="js/api.js?v=gewaesser-check-1"></script>
   <script src="./anglertreff-config.js"></script>
   <script src="js/quiz.js?v=duell-2"></script>
-  <script src="js/quiz-online.js?v=online-duell-1"></script>
+  <script src="js/quiz-online.js?v=wissenskachel-1"></script>
   <script src="js/maps.js"></script>
   <script src="js/app.js?v=gewaesser-check-1"></script>
 </body>
