@@ -76,6 +76,7 @@ window.STERNI_APP = (() => {
     if (clean === "spots") window.STERNI_MAPS?.initSpotsMap();
     if (clean === "navigation") window.STERNI_MAPS?.initNavMap();
     if (clean === "wetter") initWetterMap();
+    else setWetterMapInteractive(false);
 
     window.scrollTo({ top: 0, behavior: "instant" });
   }
@@ -829,9 +830,7 @@ window.STERNI_APP = (() => {
     wetterMap = L.map(container, {
       minZoom: 3,
       maxZoom: 18,
-      scrollWheelZoom: false,
-      dragging: !L.Browser.touch,
-      touchZoom: false
+      scrollWheelZoom: false
     }).setView([51.1657, 10.4515], 6);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap"
@@ -905,7 +904,17 @@ window.STERNI_APP = (() => {
     setTimeout(() => wetterMap?.invalidateSize(), 150);
   }
 
+  function setWetterMapInteractive(active) {
+    const container = document.getElementById("wetter-map");
+    const toggle = document.getElementById("wetter-map-toggle-btn");
+    container.inert = !active;
+    toggle.textContent = active ? "Karte sperren und weiterscrollen" : "Karte aktivieren";
+  }
+
   function initWetter() {
+    document.getElementById("wetter-map-toggle-btn").addEventListener("click", () => {
+      if (wetterMap) setWetterMapInteractive(document.getElementById("wetter-map").inert);
+    });
     document.getElementById("wetter-search-form")?.addEventListener("submit", (e) => {
       e.preventDefault();
       const q = document.getElementById("wetter-search-input").value.trim();
@@ -935,6 +944,7 @@ window.STERNI_APP = (() => {
   }
 
   async function runWetterSearch(query) {
+    setWetterMapInteractive(false);
     const disambig = document.getElementById("wetter-disambig");
     disambig.hidden = false;
     disambig.innerHTML = `<div class="disambig-item">Suche „${query}“ …</div>`;

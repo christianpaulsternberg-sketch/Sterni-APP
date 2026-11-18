@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="style.css?v=angler-online-breit-1">
+  <link rel="stylesheet" href="style.css?v=wetter-karte-1">
   <link rel="stylesheet" href="legal-footer.css?v=compact-2">
   <link rel="stylesheet" href="responsive.css?v=compact-2">
 </head>
@@ -1119,11 +1119,14 @@
             <div class="entry-card-head" style="margin-bottom:0.35rem">
               <div>
                 <h2 style="margin:0;font-size:1.15rem">Deutschlandkarte · Gewässer &amp; Angelorte direkt anklicken</h2>
-                <p class="small-meta muted" style="margin:0.15rem 0 0">Zoome in die Karte und klicke auf einen Marker oder eine beliebige Stelle – der Ort wird automatisch übernommen und alle Daten geladen.</p>
+                <p class="small-meta muted" style="margin:0.15rem 0 0">Aktiviere die Karte, um zu zoomen oder einen Ort auszuwählen. Bei gesperrter Karte kannst du zu den Teilabschnitten weiterscrollen.</p>
               </div>
-              <button type="button" class="btn-outline btn-xs" id="wetter-map-reset-btn">Deutschland-Übersicht</button>
+              <div class="action-row">
+                <button type="button" class="btn-outline btn-xs" id="wetter-map-toggle-btn" aria-controls="wetter-map">Karte aktivieren</button>
+                <button type="button" class="btn-outline btn-xs" id="wetter-map-reset-btn">Deutschland-Übersicht</button>
+              </div>
             </div>
-            <div id="wetter-map" class="leaflet-box" aria-label="Zoombare Deutschlandkarte für Wetter und Fisch"></div>
+            <div id="wetter-map" class="leaflet-box" aria-label="Zoombare Deutschlandkarte für Wetter und Fisch" inert></div>
           </div>
         </div>
 
@@ -1446,6 +1449,6 @@
   <script src="js/quiz.js?v=duell-2"></script>
   <script src="js/quiz-online.js?v=duell-2"></script>
   <script src="js/maps.js"></script>
-  <script src="js/app.js?v=wetter-scroll-1"></script>
+  <script src="js/app.js?v=wetter-karte-1"></script>
 </body>
 </html>

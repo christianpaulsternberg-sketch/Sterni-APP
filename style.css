@@ -219,6 +219,10 @@ h3 {
   background: #141419;
 }
 
+#wetter-map[inert] {
+  pointer-events: none;
+}
+
 .hero-panorama {
   display: block;
   width: 100%;
