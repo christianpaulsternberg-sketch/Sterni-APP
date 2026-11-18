@@ -215,10 +215,52 @@ h3 {
 
 .hero-art {
   position: relative;
+  z-index: 2;
   width: min(94%, 420px);
   height: auto;
   display: block;
   pointer-events: none;
+}
+
+.hero-side-art {
+  position: absolute;
+  bottom: 0;
+  z-index: 1;
+  display: block;
+  max-width: 36%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-side-art-left {
+  left: -1%;
+  width: min(32%, 270px);
+  opacity: 0.78;
+}
+
+.hero-side-art-right {
+  right: -2%;
+  width: min(37%, 350px);
+  opacity: 0.8;
+}
+
+@media (max-width: 640px) {
+  .hero-side-art-left {
+    left: -5%;
+    width: 38%;
+    opacity: 0.56;
+  }
+
+  .hero-side-art-right {
+    right: -9%;
+    width: 49%;
+    opacity: 0.56;
+  }
+
+  .hero-art {
+    width: min(76%, 320px);
+  }
 }
 
 /* Daily Joke */
