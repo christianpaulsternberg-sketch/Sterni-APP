@@ -248,7 +248,7 @@ h3 {
   grid-column: 1;
   grid-row: 1;
   justify-self: end;
-  width: min(100%, 148px);
+  width: min(85%, 125.8px);
   opacity: 0.92;
   filter: drop-shadow(0 0 7px rgba(255, 218, 149, 0.34));
 }
