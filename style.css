@@ -760,6 +760,7 @@ details.sub-details {
   border: 1px solid var(--border);
   margin-bottom: 0.65rem;
 }
+details.app-install { margin-bottom: 0; }
 
 details > summary {
   padding: 0.85rem 1rem;
