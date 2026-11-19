@@ -108,3 +108,39 @@ footer.app-legal-footer[hidden] {
 .quiz-duel-notice .action-row {
   margin: 0;
 }
+
+.quiz-invitation {
+  box-sizing: border-box;
+  width: min(28rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  overflow: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--accent, #fb873c);
+  border-radius: 0.7rem;
+  background: #1b171c;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.quiz-invitation::backdrop {
+  background: #0009;
+}
+
+.quiz-invitation :is(h2, p) {
+  margin: 0 0 1rem;
+}
+
+.quiz-invitation p:empty {
+  display: none;
+}
+
+.quiz-invitation .action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.quiz-invitation button {
+  min-height: 44px;
+}

@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="style.css?v=wissenskachel-1">
   <link rel="stylesheet" href="legal-footer.css?v=compact-2">
-  <link rel="stylesheet" href="quiz-live.css?v=angler-online-1">
+  <link rel="stylesheet" href="quiz-live.css?v=duell-sync-1">
   <link rel="stylesheet" href="responsive.css?v=compact-2">
 </head>
 <body class="maenner-app">
@@ -237,12 +237,12 @@
           <h1 id="quiz-heading">Wissens-Quiz</h1>
           <p class="section-lead">Fordere einen Angler zu fünf Fragen rund ums Angeln heraus.</p>
         </div>
-        <section id="live-quiz" class="panel" aria-label="Live-Duell">
+        <section id="live-quiz" tabindex="-1" class="panel" aria-label="Live-Duell">
           <div id="live-quiz-screen"></div>
           <p id="live-quiz-message" role="status"></p>
         </section>
         <section id="quiz-online-setup" class="panel quiz-online" aria-labelledby="quiz-online-quiz-heading" hidden>
-          <h2 id="quiz-online-quiz-heading">Angler online <span id="quiz-online-count" class="pill-tag" hidden></span></h2>
+          <h2 id="quiz-online-quiz-heading">Angler online <span id="quiz-opponents-count" class="pill-tag" hidden></span></h2>
           <p id="quiz-online-empty" class="muted" hidden>Zurzeit ist niemand online.</p>
           <ul id="quiz-online-opponents" class="quiz-online-list" aria-label="Verfügbare Gegner" hidden></ul>
         </section>
@@ -1357,8 +1357,8 @@
   <script src="js/api.js?v=gewaesser-check-1"></script>
   <script src="./anglertreff-config.js"></script>
   <script src="js/quiz.js?v=duell-anfrage-1"></script>
-  <script src="js/quiz-online.js?v=duell-anfrage-1"></script>
-  <script src="js/quiz-live.js"></script>
+  <script src="js/quiz-online.js?v=duell-sync-1"></script>
+  <script src="js/quiz-live.js?v=duell-sync-1"></script>
   <script src="js/maps.js"></script>
   <script src="js/app.js?v=quiz-kachel-1"></script>
 </body>

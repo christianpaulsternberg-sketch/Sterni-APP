@@ -16,6 +16,8 @@
   let game;
   let busy = false;
   let queuedAction;
+  let pendingDuelId;
+  let runningAction;
   let signature = "";
   let autoJoin = Boolean(code);
 
@@ -210,10 +212,13 @@
   async function request(action, args = {}) {
     if (!api.hasSession()) return;
     if (busy) {
-      if (!queuedAction && action !== "state") queuedAction = { action, args };
+      if (runningAction === "state" && !queuedAction && action !== "state") {
+        queuedAction = { action, args, id: gameId };
+      }
       return;
     }
     busy = true;
+    runningAction = action;
     if (action !== "state") panel.setAttribute("aria-busy", "true");
     try {
       const payload = { action, target_id: gameId, ...args };
@@ -236,12 +241,34 @@
       busy = false;
       panel.removeAttribute("aria-busy");
       render();
-      if (queuedAction) {
+      if (pendingDuelId) {
+        openDuel(pendingDuelId);
+      } else if (queuedAction) {
         const queued = queuedAction;
         queuedAction = null;
-        void request(queued.action, queued.args);
+        if (queued.id === gameId) void request(queued.action, queued.args);
       }
     }
+  }
+
+  function openDuel(id) {
+    if (busy) {
+      pendingDuelId = id;
+      return;
+    }
+    pendingDuelId = null;
+    queuedAction = null;
+    if (gameId !== id) {
+      reset();
+      gameId = id;
+      sessionStorage.setItem(storageKey, id);
+    }
+    location.hash = "#quiz";
+    requestAnimationFrame(() => {
+      panel.scrollIntoView({ block: "start" });
+      panel.focus({ preventScroll: true });
+    });
+    void request("state");
   }
 
   function start() {
@@ -267,6 +294,8 @@
   }
 
   render();
+  window.addEventListener("sterni-live-duel", (event) => openDuel(event.detail));
+  window.addEventListener("sterni-session-changed", sync);
   window.addEventListener("hashchange", sync);
   window.addEventListener("pageshow", sync);
   window.addEventListener("online", sync);

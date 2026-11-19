@@ -3,12 +3,15 @@ window.STERNI_QUIZ_ONLINE = (() => {
   const sessionKey = "petri-treff-session-v1";
   const element = (id) => document.getElementById(id);
   let currentMember = null;
-  let selected = null;
+  let challengePending = false;
+  let decisionPending = false;
+  let invitationId = null;
+  let dialog;
   let pendingResult = null;
   let snapshotPending = false;
   let lastSnapshot = "";
   let onAnglertreff = false;
-  let startedDuelId = null;
+  const openedDuels = new Set();
 
   function storedSession() {
     try {
@@ -86,15 +89,6 @@ window.STERNI_QUIZ_ONLINE = (() => {
     return target;
   }
 
-  function clearSelection() {
-    selected = null;
-  }
-
-  function challengeMember(member, action) {
-    selected = { member };
-    void start("all", action);
-  }
-
   function notice(message, actions = []) {
     const target = element("quiz-duel-notice");
     target.replaceChildren();
@@ -114,17 +108,55 @@ window.STERNI_QUIZ_ONLINE = (() => {
     target.hidden = false;
   }
 
-  function playRound(duel) {
-    if (!currentMember || duel.my_score !== null) return;
-    clearSelection();
-    location.hash = "#quiz";
-    window.STERNI_QUIZ.startOnlineRound(duel, currentMember);
-    requestAnimationFrame(() => {
-      element("quiz-play").closest("details").open = true;
-      const question = element("quiz-question-text");
-      question.tabIndex = -1;
-      question.focus();
-    });
+  function openLiveDuel(id) {
+    if (openedDuels.has(id)) return;
+    openedDuels.add(id);
+    if (onAnglertreff) {
+      sessionStorage.setItem("sterni-live-quiz-id", id);
+      location.assign("./#quiz");
+      return;
+    }
+    window.dispatchEvent(new CustomEvent("sterni-live-duel", { detail: id }));
+  }
+
+  function showInvitation(invitation) {
+    const id = invitation?.id ?? null;
+    if (decisionPending || invitationId === id) return;
+    invitationId = id;
+    if (!invitation) {
+      if (dialog.open) dialog.close();
+      return;
+    }
+    const title = document.createElement("h2");
+    title.id = "quiz-invitation-title";
+    title.textContent = invitation.opponent_name + " fordert dich zum Duell heraus.";
+    const status = document.createElement("p");
+    status.setAttribute("role", "status");
+    const controls = document.createElement("div");
+    controls.className = "action-row";
+    const accept = button("Duell annehmen", () => decide(true), "btn-primary");
+    const decline = button("Ablehnen", () => decide(false));
+    controls.append(accept, decline);
+    dialog.replaceChildren(title, status, controls);
+    if (!dialog.open) dialog.showModal();
+
+    async function decide(accepted) {
+      if (decisionPending) return;
+      decisionPending = accept.disabled = decline.disabled = true;
+      status.textContent = "";
+      try {
+        await rpc(accepted ? "sterni_quiz_accept" : "sterni_quiz_decline", { duel_id: id });
+        dialog.close();
+        invitationId = null;
+        if (accepted) openLiveDuel(id);
+        else if (!onAnglertreff) notice("Du hast die Herausforderung abgelehnt.");
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        decisionPending = accept.disabled = decline.disabled = false;
+        void sync();
+      }
+    }
   }
 
   function resultText(duel) {
@@ -153,8 +185,11 @@ window.STERNI_QUIZ_ONLINE = (() => {
   function renderOnlineMembers(members) {
     const list = element("quiz-online-members");
     const count = element("quiz-online-count");
+    const quizCount = element("quiz-opponents-count");
     list.hidden = count.hidden = members.length === 0;
     text("quiz-online-count", members.length ? String(members.length) : "");
+    quizCount.hidden = count.hidden;
+    quizCount.textContent = count.textContent;
     list.replaceChildren();
     for (const member of members) {
       const row = document.createElement("li");
@@ -170,59 +205,23 @@ window.STERNI_QUIZ_ONLINE = (() => {
   }
 
   function renderSnapshot(snapshot) {
-    if (onAnglertreff) {
-      const invitations = snapshot.duels.filter((duel) => duel.incoming && duel.my_score === null);
-      const link = element("treff-quiz-notice");
-      link.hidden = !invitations.length;
-      link.textContent = invitations.length === 1
-        ? "Offenes Quiz-Duell von " + invitations[0].opponent_name
-        : invitations.length + " offene Quiz-Duelle";
-      return;
-    }
-    if (currentMember?.id !== snapshot.me.id) clearSelection();
+    if (currentMember?.id !== snapshot.me.id) openedDuels.clear();
     currentMember = snapshot.me;
+    const incoming = snapshot.duels.find((duel) => duel.incoming && !duel.accepted_at && !duel.declined_at && duel.my_score === null);
+    showInvitation(incoming);
+    if (onAnglertreff) return;
+
     const opponents = snapshot.online.filter((member) => member.id !== currentMember.id);
     element("quiz-online-setup").hidden = false;
     element("quiz-online-empty").hidden = opponents.length > 0;
     window.STERNI_QUIZ.updateOnlineRound(snapshot.duels);
-    const incoming = snapshot.duels.find((duel) => duel.incoming && !duel.accepted_at && !duel.declined_at && duel.my_score === null);
     const outgoing = snapshot.duels.find((duel) => !duel.incoming && !duel.accepted_at && !duel.declined_at && duel.my_score === null);
-    const declined = snapshot.duels.find((duel) => duel.declined_at && duel.my_score === null);
-    const accepted = snapshot.duels.find((duel) => duel.accepted_at && duel.my_score === null && duel.opponent_score === null);
-    if (incoming) {
-      const accept = button("Duell annehmen", async () => {
-        try {
-          await rpc("sterni_quiz_accept", { duel_id: incoming.id });
-          notice(incoming.opponent_name + " hat das Duell angenommen.");
-          playRound({ ...incoming, accepted_at: new Date().toISOString(), my_score: null, opponent_score: null });
-          void sync();
-        } catch (error) {
-          notice(error.message);
-        }
-      }, "btn-primary");
-      const decline = button("Ablehnen", async () => {
-        try {
-          await rpc("sterni_quiz_decline", { duel_id: incoming.id });
-          notice("Du hast die Herausforderung abgelehnt.");
-          void sync();
-        } catch (error) {
-          notice(error.message);
-        }
-      });
-      notice(incoming.opponent_name + " fordert dich zum Duell heraus.", [accept, decline]);
-    } else if (outgoing) {
-      notice("Warte auf Antwort von " + outgoing.opponent_name + " …");
-    } else if (declined) {
-      notice(declined.opponent_name + " hat das Duell abgelehnt.");
-    } else if (accepted) {
-      notice(accepted.opponent_name + " hat das Duell angenommen.");
-      if (startedDuelId !== accepted.id) {
-        startedDuelId = accepted.id;
-        playRound(accepted);
-      }
-    } else {
-      notice();
-    }
+    const declined = snapshot.duels.find((duel) => !duel.incoming && duel.declined_at && duel.my_score === null);
+    const active = snapshot.duels.find((duel) => duel.live && !duel.live_finished);
+    if (active && !incoming) openLiveDuel(active.id);
+    if (outgoing) notice("Warte auf Antwort von " + outgoing.opponent_name + " …");
+    else if (active || !declined) notice();
+    else notice(declined.opponent_name + " hat das Duell abgelehnt.");
     if (pendingResult?.memberId === currentMember.id) {
       const duel = snapshot.duels.find((entry) => entry.id === pendingResult.id);
       if (duel?.my_score != null && !element("quiz-result").hidden) {
@@ -247,7 +246,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
       dot.className = "quiz-online-dot";
       dot.setAttribute("aria-hidden", "true");
       name.append(dot, member.name);
-      const challenge = button("Herausfordern", () => challengeMember(member, challenge), "btn-primary");
+      const challenge = button("Herausfordern", () => start(member, challenge), "btn-primary");
       challenge.dataset.quizMember = member.id;
       challenge.setAttribute("aria-label", member.name + " herausfordern");
       row.append(name, challenge);
@@ -256,14 +255,11 @@ window.STERNI_QUIZ_ONLINE = (() => {
   }
 
   function hideSnapshot() {
-    if (onAnglertreff) {
-      element("treff-quiz-notice").hidden = true;
-      return;
-    }
+    showInvitation();
+    if (onAnglertreff) return;
     currentMember = null;
-    startedDuelId = null;
+    openedDuels.clear();
     lastSnapshot = "";
-    clearSelection();
     renderOnlineMembers([]);
     element("quiz-online-setup").hidden = true;
     element("quiz-online-empty").hidden = true;
@@ -282,34 +278,26 @@ window.STERNI_QUIZ_ONLINE = (() => {
       const value = await rpc("sterni_quiz_snapshot");
       if (storedSession()) renderSnapshot(value);
     } catch {
-      hideSnapshot();
+      if (!storedSession()) hideSnapshot();
     } finally {
       snapshotPending = false;
     }
   }
 
-  async function start(category, submit) {
-    const choice = selected;
-    const owner = currentMember;
-    if (!choice || !owner) return;
-    if (submit.disabled) return;
-    submit.disabled = true;
-    if (choice.request?.category !== category) {
-      choice.request = { id: crypto.randomUUID(), category, seed: crypto.getRandomValues(new Uint32Array(1))[0] % 2147483647 };
-    }
-    const request = choice.request;
+  async function start(member, submit) {
+    if (!currentMember || challengePending) return;
+    challengePending = submit.disabled = true;
     try {
-      const id = await rpc("sterni_quiz_create", {
-        duel_id: request.id, target: choice.member.id, topic: request.category, question_seed: request.seed
+      await rpc("sterni_quiz_create", {
+        duel_id: crypto.randomUUID(), target: member.id, topic: "all",
+        question_seed: crypto.getRandomValues(new Uint32Array(1))[0] % 2147483647
       });
-      if (currentMember?.id === owner.id && selected === choice) {
-        notice("Warte auf Antwort von " + choice.member.name + " …");
-      }
-      void sync();
+      notice("Warte auf Antwort von " + member.name + " …");
     } catch (error) {
       window.STERNI_APP?.toast(error.message);
     } finally {
-      submit.disabled = false;
+      challengePending = submit.disabled = false;
+      void sync();
     }
   }
 
@@ -329,18 +317,24 @@ window.STERNI_QUIZ_ONLINE = (() => {
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    onAnglertreff = Boolean(element("treff-quiz-notice"));
+    onAnglertreff = !element("quiz-online-setup");
+    dialog = document.createElement("dialog");
+    dialog.className = "quiz-invitation";
+    dialog.setAttribute("aria-labelledby", "quiz-invitation-title");
+    dialog.addEventListener("cancel", (event) => event.preventDefault());
+    document.body.append(dialog);
     if (!config?.url || !config?.publishableKey) {
       hideSnapshot();
       return;
     }
     window.addEventListener("pageshow", sync);
+    window.addEventListener("online", sync);
     window.addEventListener("sterni-session-changed", sync);
     window.addEventListener("storage", (event) => {
       if (event.key === sessionKey) void sync();
     });
     document.addEventListener("visibilitychange", sync);
-    window.setInterval(sync, 30000);
+    window.setInterval(sync, 2000);
     void sync();
   });
 
