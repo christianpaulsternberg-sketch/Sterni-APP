@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="style.css?v=wissenskachel-1">
   <link rel="stylesheet" href="legal-footer.css?v=compact-2">
-  <link rel="stylesheet" href="quiz-live.css?v=quiz-kachel-1">
+  <link rel="stylesheet" href="quiz-live.css?v=angler-online-1">
   <link rel="stylesheet" href="responsive.css?v=compact-2">
 </head>
 <body class="maenner-app">
@@ -241,15 +241,17 @@
           <div id="live-quiz-screen"></div>
           <p id="live-quiz-message" role="status"></p>
         </section>
+        <section id="quiz-online-setup" class="panel quiz-online" aria-labelledby="quiz-online-quiz-heading" hidden>
+          <h2 id="quiz-online-quiz-heading">Angler online <span id="quiz-online-count" class="pill-tag" hidden></span></h2>
+          <p id="quiz-online-empty" class="muted" hidden>Zurzeit ist niemand online.</p>
+          <ul id="quiz-online-opponents" class="quiz-online-list" aria-label="Verfügbare Gegner" hidden></ul>
+        </section>
 
         <details class="sub-details quiz-previous">
           <summary>Bisherige Duelle und Rangliste</summary>
         <!-- 1. Setup -->
         <div id="quiz-setup" class="quiz-setup-stack">
-          <section id="quiz-online-setup" class="panel" aria-label="Online-Gegner und Rangliste" hidden>
-            <ul id="quiz-online-opponents" class="quiz-online-list" aria-label="Verfügbare Gegner" hidden></ul>
-            <div id="quiz-online-leaderboard"></div>
-          </section>
+          <div id="quiz-online-leaderboard"></div>
         </div>
 
         <!-- 2. Spiel-Ansicht -->
@@ -304,15 +306,6 @@
           </details>
         </div>
         </details>
-        <nav class="quiz-bottom-nav" aria-label="Quiz-Navigation">
-          <a class="quick-link quiz-overview-tile" href="#start">
-            <span class="quiz-overview-title">
-              <span class="quick-label">Wissensquiz</span>
-              <span class="tile-badge">20 Themen</span>
-            </span>
-            <span class="quick-sub">← Zur Übersicht</span>
-          </a>
-        </nav>
       </section>
 
       <!-- ==================== #ANGLERTREFF VIEW ==================== -->
@@ -1363,7 +1356,7 @@
   <script src="js/api.js?v=gewaesser-check-1"></script>
   <script src="./anglertreff-config.js"></script>
   <script src="js/quiz.js?v=wissenskachel-2"></script>
-  <script src="js/quiz-online.js?v=live-1"></script>
+  <script src="js/quiz-online.js?v=angler-online-1"></script>
   <script src="js/quiz-live.js"></script>
   <script src="js/maps.js"></script>
   <script src="js/app.js?v=quiz-kachel-1"></script>

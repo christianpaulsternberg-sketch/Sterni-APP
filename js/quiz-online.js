@@ -163,6 +163,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
     currentMember = snapshot.me;
     const opponents = snapshot.online.filter((member) => member.id !== currentMember.id);
     element("quiz-online-setup").hidden = false;
+    element("quiz-online-empty").hidden = opponents.length > 0;
     window.STERNI_QUIZ.updateOnlineRound(snapshot.duels);
     if (pendingResult?.memberId === currentMember.id) {
       const duel = snapshot.duels.find((entry) => entry.id === pendingResult.id);
@@ -178,8 +179,8 @@ window.STERNI_QUIZ_ONLINE = (() => {
     const leaderboard = element("quiz-online-leaderboard");
     members.hidden = opponents.length === 0;
     members.replaceChildren();
-    leaderboard.hidden = opponents.length > 0;
-    if (opponents.length) leaderboard.replaceChildren();
+    leaderboard.hidden = true;
+    leaderboard.replaceChildren();
     for (const member of opponents) {
       const row = document.createElement("li");
       row.className = "quiz-online-row";
@@ -194,7 +195,6 @@ window.STERNI_QUIZ_ONLINE = (() => {
       row.append(name, challenge);
       members.append(row);
     }
-    if (!opponents.length) renderLeaderboard(snapshot.leaderboard || []);
   }
 
   function hideSnapshot() {
@@ -207,6 +207,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
     clearSelection();
     renderOnlineMembers([]);
     element("quiz-online-setup").hidden = true;
+    element("quiz-online-empty").hidden = true;
     for (const id of ["quiz-online-opponents", "quiz-online-leaderboard"]) element(id).replaceChildren();
   }
 
