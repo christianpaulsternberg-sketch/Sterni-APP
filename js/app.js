@@ -66,16 +66,16 @@ window.STERNI_APP = (() => {
     const footerParent = clean === "start"
       ? document.getElementById("start-bottom-tiles")
       : document.querySelector(".app-shell");
+    if (legalFooter) legalFooter.hidden = clean === "quiz";
     if (legalFooter && footerParent && legalFooter.parentElement !== footerParent) {
       footerParent.append(legalFooter);
     }
     const select = document.getElementById("quick-nav-select");
+    stickyNav.hidden = clean === "start" || clean === "quiz";
     if (clean === "start") {
-      stickyNav.hidden = true;
       document.getElementById("tile-weather-input").value = "";
       document.getElementById("wetter-search-input").value = "";
     } else {
-      stickyNav.hidden = false;
       if (select && [...select.options].some((o) => o.value === clean)) {
         select.value = clean;
       }
