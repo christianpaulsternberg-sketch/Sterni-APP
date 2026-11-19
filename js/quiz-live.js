@@ -128,8 +128,11 @@
         );
       }
     } else if (game.left) {
+      const title = game.endReason === "disconnected" && game.left === "opponent"
+        ? "Verbindung zu " + game.opponent + " verloren. Duell beendet."
+        : game.left === "self" ? "Duell beendet" : "Dein Mitspieler hat das Duell verlassen";
       screen.append(
-        node("h2", game.left === "self" ? "Duell beendet" : "Dein Mitspieler hat das Duell verlassen"),
+        node("h2", title),
         button("Zur Quiz-Startseite", reset)
       );
     } else if (!game.opponent) {
@@ -265,7 +268,9 @@
     }
     location.hash = "#quiz";
     requestAnimationFrame(() => {
-      panel.scrollIntoView({ block: "start" });
+      const status = document.getElementById("quiz-duel-notice");
+      const scrollTarget = status && !status.hidden ? status : panel;
+      scrollTarget.scrollIntoView({ block: "start" });
       panel.focus({ preventScroll: true });
     });
     void request("state");

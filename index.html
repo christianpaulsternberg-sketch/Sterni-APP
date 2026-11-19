@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
   <link rel="stylesheet" href="style.css?v=wissenskachel-1">
   <link rel="stylesheet" href="legal-footer.css?v=compact-2">
-  <link rel="stylesheet" href="quiz-live.css?v=duell-sync-1">
+  <link rel="stylesheet" href="quiz-live.css?v=duell-status-1">
   <link rel="stylesheet" href="responsive.css?v=compact-2">
 </head>
 <body class="maenner-app">
@@ -237,6 +237,7 @@
           <h1 id="quiz-heading">Wissens-Quiz</h1>
           <p class="section-lead">Fordere einen Angler zu fünf Fragen rund ums Angeln heraus.</p>
         </div>
+        <aside id="quiz-duel-notice" class="quiz-duel-notice" aria-live="polite" hidden></aside>
         <section id="live-quiz" tabindex="-1" class="panel" aria-label="Live-Duell">
           <div id="live-quiz-screen"></div>
           <p id="live-quiz-message" role="status"></p>
@@ -1349,7 +1350,6 @@
 
   <!-- Toast Notification -->
   <div id="app-toast" class="app-toast" role="status" aria-live="polite" hidden></div>
-  <aside id="quiz-duel-notice" class="quiz-duel-notice" aria-live="polite" hidden></aside>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="js/data.js?v=gewaesser-check-1"></script>
@@ -1357,8 +1357,8 @@
   <script src="js/api.js?v=gewaesser-check-1"></script>
   <script src="./anglertreff-config.js"></script>
   <script src="js/quiz.js?v=duell-anfrage-1"></script>
-  <script src="js/quiz-online.js?v=duell-absage-1"></script>
-  <script src="js/quiz-live.js?v=duell-sync-1"></script>
+  <script src="js/quiz-online.js?v=duell-status-1"></script>
+  <script src="js/quiz-live.js?v=duell-status-1"></script>
   <script src="js/maps.js"></script>
   <script src="js/app.js?v=quiz-kachel-1"></script>
 </body>
