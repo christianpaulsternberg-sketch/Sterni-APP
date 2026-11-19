@@ -18,6 +18,7 @@ create table if not exists treff_private.quiz_duels (
 );
 
 alter table treff_private.quiz_duels add column if not exists accepted_at timestamptz;
+alter table treff_private.quiz_duels add column if not exists declined_at timestamptz;
 update treff_private.quiz_duels
 set accepted_at = created_at
 where accepted_at is null and opponent_score is not null;
@@ -51,7 +52,7 @@ begin
     'duels', coalesce((
       select jsonb_agg(to_jsonb(d) order by d.created_at desc) from (
         select q.id, q.category, q.seed, q.created_at,
-          q.opponent = me as incoming, q.accepted_at,
+          q.opponent = me as incoming, q.accepted_at, q.declined_at,
           case when q.challenger = me then q.opponent else q.challenger end as opponent_id,
           case when q.challenger = me then b.display_name else a.display_name end as opponent_name,
           case when q.challenger = me then q.challenger_score else q.opponent_score end as my_score,
@@ -129,6 +130,7 @@ begin
   update treff_private.quiz_duels q
   set accepted_at = coalesce(q.accepted_at, now())
   where q.id = duel_id and q.opponent = me
+    and q.declined_at is null
     and q.created_at >= now() - interval '7 days'
     and exists (select 1 from public.treff_members where id = me and active)
     and exists (select 1 from public.treff_members where id = q.challenger and active);
@@ -141,9 +143,10 @@ language plpgsql security definer set search_path = '' as $$
 declare
   me uuid := auth.uid();
 begin
-  delete from treff_private.quiz_duels q
+  update treff_private.quiz_duels q
+  set declined_at = coalesce(q.declined_at, now())
   where q.id = duel_id and q.opponent = me and q.accepted_at is null
-    and q.opponent_score is null and q.created_at >= now() - interval '7 days'
+    and q.declined_at is null and q.opponent_score is null and q.created_at >= now() - interval '7 days'
     and exists (select 1 from public.treff_members where id = me and active);
   if not found then raise exception 'Diese Einladung ist nicht verfügbar.' using errcode = '42501'; end if;
 end;

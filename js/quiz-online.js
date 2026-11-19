@@ -8,6 +8,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
   let snapshotPending = false;
   let lastSnapshot = "";
   let onAnglertreff = false;
+  let startedDuelId = null;
 
   function storedSession() {
     try {
@@ -94,6 +95,25 @@ window.STERNI_QUIZ_ONLINE = (() => {
     void start("all", action);
   }
 
+  function notice(message, actions = []) {
+    const target = element("quiz-duel-notice");
+    target.replaceChildren();
+    if (!message) {
+      target.hidden = true;
+      return;
+    }
+    const text = document.createElement("p");
+    text.textContent = message;
+    target.append(text);
+    if (actions.length) {
+      const controls = document.createElement("div");
+      controls.className = "action-row";
+      controls.append(...actions);
+      target.append(controls);
+    }
+    target.hidden = false;
+  }
+
   function playRound(duel) {
     if (!currentMember || duel.my_score !== null) return;
     clearSelection();
@@ -165,6 +185,44 @@ window.STERNI_QUIZ_ONLINE = (() => {
     element("quiz-online-setup").hidden = false;
     element("quiz-online-empty").hidden = opponents.length > 0;
     window.STERNI_QUIZ.updateOnlineRound(snapshot.duels);
+    const incoming = snapshot.duels.find((duel) => duel.incoming && !duel.accepted_at && !duel.declined_at && duel.my_score === null);
+    const outgoing = snapshot.duels.find((duel) => !duel.incoming && !duel.accepted_at && !duel.declined_at && duel.my_score === null);
+    const declined = snapshot.duels.find((duel) => duel.declined_at && duel.my_score === null);
+    const accepted = snapshot.duels.find((duel) => duel.accepted_at && duel.my_score === null && duel.opponent_score === null);
+    if (incoming) {
+      const accept = button("Duell annehmen", async () => {
+        try {
+          await rpc("sterni_quiz_accept", { duel_id: incoming.id });
+          notice(incoming.opponent_name + " hat das Duell angenommen.");
+          playRound({ ...incoming, accepted_at: new Date().toISOString(), my_score: null, opponent_score: null });
+          void sync();
+        } catch (error) {
+          notice(error.message);
+        }
+      }, "btn-primary");
+      const decline = button("Ablehnen", async () => {
+        try {
+          await rpc("sterni_quiz_decline", { duel_id: incoming.id });
+          notice("Du hast die Herausforderung abgelehnt.");
+          void sync();
+        } catch (error) {
+          notice(error.message);
+        }
+      });
+      notice(incoming.opponent_name + " fordert dich zum Duell heraus.", [accept, decline]);
+    } else if (outgoing) {
+      notice("Warte auf Antwort von " + outgoing.opponent_name + " …");
+    } else if (declined) {
+      notice(declined.opponent_name + " hat das Duell abgelehnt.");
+    } else if (accepted) {
+      notice(accepted.opponent_name + " hat das Duell angenommen.");
+      if (startedDuelId !== accepted.id) {
+        startedDuelId = accepted.id;
+        playRound(accepted);
+      }
+    } else {
+      notice();
+    }
     if (pendingResult?.memberId === currentMember.id) {
       const duel = snapshot.duels.find((entry) => entry.id === pendingResult.id);
       if (duel?.my_score != null && !element("quiz-result").hidden) {
@@ -203,12 +261,14 @@ window.STERNI_QUIZ_ONLINE = (() => {
       return;
     }
     currentMember = null;
+    startedDuelId = null;
     lastSnapshot = "";
     clearSelection();
     renderOnlineMembers([]);
     element("quiz-online-setup").hidden = true;
     element("quiz-online-empty").hidden = true;
     for (const id of ["quiz-online-opponents", "quiz-online-leaderboard"]) element(id).replaceChildren();
+    notice();
   }
 
   async function sync() {
@@ -243,7 +303,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
         duel_id: request.id, target: choice.member.id, topic: request.category, question_seed: request.seed
       });
       if (currentMember?.id === owner.id && selected === choice) {
-        playRound({ ...request, id, my_score: null, opponent_name: choice.member.name, opponent_score: null });
+        notice("Warte auf Antwort von " + choice.member.name + " …");
       }
       void sync();
     } catch (error) {

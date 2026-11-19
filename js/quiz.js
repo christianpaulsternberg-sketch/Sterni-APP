@@ -292,7 +292,7 @@ window.STERNI_QUIZ = (() => {
       pool = pool.concat(shuffle(allQ.filter((q) => q.category !== catId), rng));
     }
 
-    const questions = pool.slice(0, 10).map((q) => {
+    const questions = pool.slice(0, 5).map((q) => {
       const mixed = shuffle(q.options.map((text, idx) => ({ text, isCorrect: idx === q.correct })), rng);
       return {
         ...q,
