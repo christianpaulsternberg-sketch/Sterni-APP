@@ -1,0 +1,74 @@
+#live-quiz {
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+#live-quiz-screen,
+.live-quiz-options,
+.live-quiz-join {
+  display: grid;
+  gap: 0.75rem;
+}
+
+#live-quiz-screen :is(h2, p),
+#live-quiz-message {
+  margin: 0;
+}
+
+#live-quiz-screen h2 {
+  text-transform: none;
+}
+
+#live-quiz-message:not(:empty) {
+  margin-top: 0.75rem;
+}
+
+#live-quiz-screen :is(button, a, input) {
+  min-height: 48px;
+  width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#live-quiz-screen input {
+  font-size: 1rem;
+  margin-top: 0.3rem;
+}
+
+.live-quiz-options button {
+  justify-content: flex-start;
+  text-align: left;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+
+.live-quiz-options button:disabled {
+  opacity: 0.85;
+}
+
+.live-quiz-options small {
+  font-weight: 700;
+}
+
+.live-quiz-code {
+  font-size: 1.5rem;
+  letter-spacing: 0.12em;
+}
+
+.live-quiz-score {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.live-quiz-leave {
+  justify-self: start;
+  max-width: 14rem;
+}
+
+.quiz-previous {
+  max-width: 42rem;
+  margin: 1rem auto;
+}

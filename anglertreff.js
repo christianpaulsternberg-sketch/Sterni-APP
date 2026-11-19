@@ -57,7 +57,18 @@ async function membership(){
  if(!result?.length){close();throw Error('Du bist noch nicht für den Anglertreff freigeschaltet. Bitte Christian ansprechen.');}
 }
 async function enter(){
- if(!demo){await membership();storeSession();const admins=await request('/rest/v1/treff_admins?select=id&id=eq.'+user.id);isAdmin=!!admins?.length;}
+ if(!demo){
+  await membership();storeSession();
+  const quizCode=new URL(location.href).searchParams.get('quiz');
+  if(quizCode==='starten'||/^[0-9A-F]{8}$/.test(quizCode)){
+    const quiz=new URL('./',location.href);
+    quiz.searchParams.set('duell',quizCode);
+    quiz.hash='quiz';
+    location.replace(quiz.href);
+    return;
+  }
+  const admins=await request('/rest/v1/treff_admins?select=id&id=eq.'+user.id);isAdmin=!!admins?.length;
+ }
  $('#treff-admin').hidden=!isAdmin;$('#treff-admin-shortcut').hidden=!isAdmin;$('#treff-change-password').hidden=demo;
  $('#treff-entry').hidden=true;$('#treff-password').hidden=true;$('#treff-session').hidden=false;$('#treff-content').hidden=false;$('#treff-demo-switch').hidden=!demo;
  $('#treff-user').textContent='Angemeldet als '+(demo?(user.id==='christian'?'Christian (Test)':'Angelfreund (Test)'):user.email);
@@ -308,7 +319,12 @@ async function init(){
 
  $('#treff-access-help').hidden=!configured;
  const hash=new URLSearchParams(location.hash.slice(1)),query=new URLSearchParams(location.search);
- if(location.hash||location.search)history.replaceState(null,'',location.pathname);
+ if(location.hash||location.search){
+  const url=new URL(location.pathname,location.origin);
+  const quizCode=query.get('quiz');
+  if(quizCode==='starten'||/^[0-9A-F]{8}$/.test(quizCode))url.searchParams.set('quiz',quizCode);
+  history.replaceState(null,'',url);
+ }
  if(hash.get('error')||query.get('error'))throw Error('Dieser Link ist ungültig oder abgelaufen. Bitte einen neuen Link anfordern.');
  if(configured&&(hash.get('token_hash')||query.get('token_hash')||hash.get('access_token'))){offerLink(linkParts(hash,query));return;}
  if(configured){try{const saved=localStorage.getItem(sessionKey)||sessionStorage.getItem(sessionKey);if(saved){session=JSON.parse(saved);remember=!!localStorage.getItem(sessionKey);user=await request('/auth/v1/user');await enter();}}catch(error){close(true);status(error.message||'Bitte erneut versuchen.');}}

@@ -100,6 +100,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
     location.hash = "#quiz";
     window.STERNI_QUIZ.startOnlineRound(duel, currentMember);
     requestAnimationFrame(() => {
+      element("quiz-play").closest("details").open = true;
       const question = element("quiz-question-text");
       question.tabIndex = -1;
       question.focus();
@@ -282,5 +283,5 @@ window.STERNI_QUIZ_ONLINE = (() => {
     void sync();
   });
 
-  return { finish, clearResult() { pendingResult = null; } };
+  return { rpc, hasSession: storedSession, finish, clearResult() { pendingResult = null; } };
 })();
