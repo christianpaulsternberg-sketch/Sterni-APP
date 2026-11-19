@@ -119,8 +119,14 @@ window.STERNI_QUIZ_ONLINE = (() => {
     window.dispatchEvent(new CustomEvent("sterni-live-duel", { detail: id }));
   }
 
-  function showInvitation(invitation) {
-    const id = invitation?.id ?? null;
+  function trackedDuels() {
+    const key = "sterni-pending-duels:" + currentMember.id;
+    const ids = new Set(JSON.parse(sessionStorage.getItem(key) || "[]"));
+    return { ids, save() { sessionStorage.setItem(key, JSON.stringify([...ids])); } };
+  }
+
+  function showInvitation(invitation, declined = false) {
+    const id = invitation ? (declined ? "declined:" : "incoming:") + invitation.id : null;
     if (decisionPending || invitationId === id) return;
     invitationId = id;
     if (!invitation) {
@@ -129,11 +135,25 @@ window.STERNI_QUIZ_ONLINE = (() => {
     }
     const title = document.createElement("h2");
     title.id = "quiz-invitation-title";
-    title.textContent = invitation.opponent_name + " fordert dich zum Duell heraus.";
+    title.textContent = invitation.opponent_name + (declined
+      ? " hat das Duell abgelehnt."
+      : " fordert dich zum Duell heraus.");
     const status = document.createElement("p");
     status.setAttribute("role", "status");
     const controls = document.createElement("div");
     controls.className = "action-row";
+    if (declined) {
+      controls.append(button("Runde beenden", () => {
+        const tracked = trackedDuels();
+        tracked.ids.delete(invitation.id);
+        tracked.save();
+        showInvitation();
+        void sync();
+      }, "btn-primary"));
+      dialog.replaceChildren(title, controls);
+      if (!dialog.open) dialog.showModal();
+      return;
+    }
     const accept = button("Duell annehmen", () => decide(true), "btn-primary");
     const decline = button("Ablehnen", () => decide(false));
     controls.append(accept, decline);
@@ -145,10 +165,10 @@ window.STERNI_QUIZ_ONLINE = (() => {
       decisionPending = accept.disabled = decline.disabled = true;
       status.textContent = "";
       try {
-        await rpc(accepted ? "sterni_quiz_accept" : "sterni_quiz_decline", { duel_id: id });
+        await rpc(accepted ? "sterni_quiz_accept" : "sterni_quiz_decline", { duel_id: invitation.id });
         dialog.close();
         invitationId = null;
-        if (accepted) openLiveDuel(id);
+        if (accepted) openLiveDuel(invitation.id);
         else if (!onAnglertreff) notice("Du hast die Herausforderung abgelehnt.");
       } catch (error) {
         status.textContent = error.message;
@@ -208,7 +228,15 @@ window.STERNI_QUIZ_ONLINE = (() => {
     if (currentMember?.id !== snapshot.me.id) openedDuels.clear();
     currentMember = snapshot.me;
     const incoming = snapshot.duels.find((duel) => duel.incoming && !duel.accepted_at && !duel.declined_at && duel.my_score === null);
-    showInvitation(incoming);
+    const tracked = trackedDuels();
+    for (const duel of snapshot.duels) {
+      if (duel.incoming) continue;
+      if (duel.accepted_at) tracked.ids.delete(duel.id);
+      else if (!duel.declined_at) tracked.ids.add(duel.id);
+    }
+    tracked.save();
+    const declined = snapshot.duels.find((duel) => !duel.incoming && duel.declined_at && tracked.ids.has(duel.id));
+    showInvitation(incoming || declined, !incoming && Boolean(declined));
     if (onAnglertreff) return;
 
     const opponents = snapshot.online.filter((member) => member.id !== currentMember.id);
@@ -216,12 +244,10 @@ window.STERNI_QUIZ_ONLINE = (() => {
     element("quiz-online-empty").hidden = opponents.length > 0;
     window.STERNI_QUIZ.updateOnlineRound(snapshot.duels);
     const outgoing = snapshot.duels.find((duel) => !duel.incoming && !duel.accepted_at && !duel.declined_at && duel.my_score === null);
-    const declined = snapshot.duels.find((duel) => !duel.incoming && duel.declined_at && duel.my_score === null);
     const active = snapshot.duels.find((duel) => duel.live && !duel.live_finished);
     if (active && !incoming) openLiveDuel(active.id);
     if (outgoing) notice("Warte auf Antwort von " + outgoing.opponent_name + " …");
-    else if (active || !declined) notice();
-    else notice(declined.opponent_name + " hat das Duell abgelehnt.");
+    else notice();
     if (pendingResult?.memberId === currentMember.id) {
       const duel = snapshot.duels.find((entry) => entry.id === pendingResult.id);
       if (duel?.my_score != null && !element("quiz-result").hidden) {
@@ -286,12 +312,17 @@ window.STERNI_QUIZ_ONLINE = (() => {
 
   async function start(member, submit) {
     if (!currentMember || challengePending) return;
+    const memberId = currentMember.id;
     challengePending = submit.disabled = true;
     try {
-      await rpc("sterni_quiz_create", {
+      const id = await rpc("sterni_quiz_create", {
         duel_id: crypto.randomUUID(), target: member.id, topic: "all",
         question_seed: crypto.getRandomValues(new Uint32Array(1))[0] % 2147483647
       });
+      if (currentMember?.id !== memberId) return;
+      const tracked = trackedDuels();
+      tracked.ids.add(id);
+      tracked.save();
       notice("Warte auf Antwort von " + member.name + " …");
     } catch (error) {
       window.STERNI_APP?.toast(error.message);

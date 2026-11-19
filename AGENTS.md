@@ -10,3 +10,7 @@
 8. Veröffentliche Änderungen nur im Rahmen der erteilten Berechtigungen.
 9. Frage nur bei sicherheitskritischen, irreversiblen oder nicht autorisierten Aktionen nach.
 10. Informiere Christian nach Abschluss kurz über das Ergebnis.
+
+## Wissensquiz
+
+- Wenn ein Mitspieler ein direktes Online-Duell ablehnt, zeige dem Herausforderer sofort einen sichtbaren Dialog mit dem Namen des Mitspielers und der Schaltfläche „Runde beenden“. Nach dem Schließen darf dieselbe Ablehnung nicht erneut erscheinen. Verwende den Dialogstil des Wissensquiz.
