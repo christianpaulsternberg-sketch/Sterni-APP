@@ -142,20 +142,22 @@ window.STERNI_APP = (() => {
     });
 
     const jokes = window.STERNI_DATA.ANGLERWITZE;
+    const todayKey = () => new Intl.DateTimeFormat("sv-SE", {timeZone:"Europe/Berlin",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+    const todayJoke = () => window.STERNI_DAILY_JOKES?.[todayKey()] || jokes[jokeIdx];
     const calendarDay = () => {
       const now = new Date();
-      return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000;
+      return Date.parse(todayKey() + "T00:00:00Z") / 86400000;
     };
     let jokeDay = calendarDay();
     let jokeIdx = jokeDay % jokes.length;
     const jokeEl = document.getElementById("anglerwitz");
-    if (jokeEl) jokeEl.textContent = jokes[jokeIdx];
+    if (jokeEl) jokeEl.textContent = todayJoke();
     document.addEventListener("visibilitychange", () => {
       const day = calendarDay();
       if (document.hidden || day === jokeDay) return;
       jokeDay = day;
       jokeIdx = day % jokes.length;
-      if (jokeEl) jokeEl.textContent = jokes[jokeIdx];
+      if (jokeEl) jokeEl.textContent = todayJoke();
     });
 
     document.getElementById("next-joke-btn")?.addEventListener("click", () => {
