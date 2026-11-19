@@ -55,13 +55,12 @@ window.STERNI_QUIZ_ONLINE = (() => {
     return navigator.locks ? navigator.locks.request(sessionKey, refresh) : refresh();
   }
 
-  async function rpc(name, args = {}) {
+  async function authenticatedFetch(path, options = {}) {
     let saved = storedSession();
     if (!saved) throw Error("Bitte im Anglertreff anmelden.");
-    const send = (token) => fetch(config.url + "/rest/v1/rpc/" + name, {
-      method: "POST", cache: "no-store",
-      headers: { apikey: config.publishableKey, Authorization: "Bearer " + token, "Content-Type": "application/json" },
-      body: JSON.stringify(args),
+    const send = (token) => fetch(config.url + "/rest/v1/" + path, {
+      ...options, cache: "no-store",
+      headers: { ...options.headers, apikey: config.publishableKey, Authorization: "Bearer " + token },
       signal: AbortSignal.timeout(12000)
     });
     let response = await send(saved.session.access_token);
@@ -70,6 +69,15 @@ window.STERNI_QUIZ_ONLINE = (() => {
       if (!saved) throw Error("Bitte erneut im Anglertreff anmelden.");
       response = await send(saved.session.access_token);
     }
+    return response;
+  }
+
+  async function rpc(name, args = {}) {
+    const response = await authenticatedFetch("rpc/" + name, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(args)
+    });
     const value = await response.json();
     if (!response.ok) {
       const message = ["P0001", "42501"].includes(value.code) ? value.message : null;
@@ -414,5 +422,5 @@ window.STERNI_QUIZ_ONLINE = (() => {
     void sync();
   });
 
-  return { rpc, hasSession: storedSession, finish, clearResult() { pendingResult = null; } };
+  return { rpc, authenticatedFetch, hasSession: storedSession, finish, clearResult() { pendingResult = null; } };
 })();

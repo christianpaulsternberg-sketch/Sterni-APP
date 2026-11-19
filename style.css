@@ -450,6 +450,18 @@ h3 {
   color: var(--blue);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  #treff-tile.has-new-photo .tile-icon {
+    animation: treff-photo-wiggle 1.2s ease-in-out infinite;
+    transform-origin: center;
+  }
+}
+
+@keyframes treff-photo-wiggle {
+  0%, 100% { transform: rotate(-12deg) translateX(-2px); }
+  50% { transform: rotate(12deg) translateX(2px); }
+}
+
 .tile-badge {
   font-size: 0.72rem;
   font-weight: 700;
