@@ -20,6 +20,46 @@ revoke all on treff_private.quiz_sessions from public, anon, authenticated;
 create index if not exists quiz_sessions_member_expiry
   on treff_private.quiz_sessions(member_id, available_until desc);
 
+-- Auch bei einer bereits installierten App steht die neue, gemischte
+-- Fragenbank nach dem erneuten Ausführen dieser Migration bereit.
+create or replace function treff_private.live_quiz_questions(excluded jsonb) returns jsonb
+language sql volatile set search_path = '' as $$
+  with bank(category, question, options, correct) as (values
+    ('angeln', 'Wie viele Barteln hat der Europäische Wels?', array['Zwei', 'Sechs', 'Vier', 'Keine'], 2),
+    ('angeln', 'Welches Merkmal unterscheidet den Zander vom Flussbarsch?', array['Lange Fangzähne im Maul', 'Zwei Barteln', 'Schuppenlose Haut', 'Eine Rückenflosse'], 1),
+    ('angeln', 'Wozu dient ein Kescher beim Angeln?', array['Zum Auswerfen', 'Zum Landen eines Fisches', 'Zum Messen der Schnur', 'Zum Festmachen des Boots'], 2),
+    ('umwelt', 'Welches Gas trägt am stärksten zum menschengemachten Treibhauseffekt bei?', array['Sauerstoff', 'Stickstoff', 'Kohlendioxid', 'Helium'], 3),
+    ('umwelt', 'Was gehört in Deutschland in die Biotonne?', array['Glasflaschen', 'Küchen- und Gartenabfälle', 'Batterien', 'Verpackungsfolie'], 2),
+    ('umwelt', 'Warum sind Moore für den Klimaschutz wichtig?', array['Sie speichern viel Kohlenstoff', 'Sie erzeugen Strom', 'Sie filtern Meerwasser', 'Sie verhindern Wind'], 1),
+    ('natur', 'Welches Säugetier kann als einziges aktiv fliegen?', array['Eichhörnchen', 'Fledermaus', 'Pinguin', 'Igel'], 2),
+    ('natur', 'Wie nennt man die Verwandlung einer Raupe zum Schmetterling?', array['Metamorphose', 'Photosynthese', 'Migration', 'Symbiose'], 1),
+    ('natur', 'Welcher Baum trägt Eicheln?', array['Buche', 'Kiefer', 'Eiche', 'Birke'], 3),
+    ('wissenschaft', 'Welche Einheit misst elektrische Spannung?', array['Watt', 'Volt', 'Ohm', 'Ampere'], 2),
+    ('wissenschaft', 'Was ist die kleinste Einheit eines chemischen Elements?', array['Zelle', 'Atom', 'Molekül', 'Proton'], 2),
+    ('wissenschaft', 'Welche Energiequelle nutzt eine Solarzelle?', array['Wind', 'Sonnenlicht', 'Erdwärme', 'Wasserströmung'], 2),
+    ('geographie', 'Welcher Fluss fließt durch Berlin?', array['Elbe', 'Oder', 'Spree', 'Rhein'], 3),
+    ('geographie', 'Auf welchem Kontinent liegt Ägypten überwiegend?', array['Europa', 'Afrika', 'Asien', 'Südamerika'], 2),
+    ('geschichte', 'In welchem Jahr fiel die Berliner Mauer?', array['1979', '1989', '1999', '2009'], 2),
+    ('geschichte', 'Wie hieß die erste deutsche Demokratie ab 1919?', array['Weimarer Republik', 'Deutscher Bund', 'Kaiserreich', 'DDR'], 1),
+    ('allgemein', 'Wie viele Minuten hat eine Stunde?', array['50', '60', '80', '100'], 2),
+    ('allgemein', 'Welche Farbe entsteht aus Blau und Gelb?', array['Grün', 'Violett', 'Orange', 'Rot'], 1),
+    ('allgemein', 'Wie viele Seiten hat ein Würfel?', array['Vier', 'Fünf', 'Sechs', 'Acht'], 3)
+  ), available as (
+    select b.* from bank b where not exists (
+      select 1 from jsonb_array_elements(coalesce(excluded, '[]'::jsonb)) old
+      where old ->> 'text' = b.question
+    )
+  ), per_category as (
+    select distinct on (category) * from available order by category, random()
+  ), selected as (
+    select * from per_category order by random() limit 5
+  )
+  select jsonb_agg(jsonb_build_object('category', category, 'text', question,
+    'options', options, 'correct', correct)) from selected;
+$$;
+
+revoke all on function treff_private.live_quiz_questions(jsonb) from public, anon, authenticated;
+
 create or replace function treff_private.quiz_available(player uuid) returns boolean
 language sql volatile set search_path = '' as $$
   select exists (
@@ -131,20 +171,46 @@ begin
           coalesce(q.ended_at, case when l.left_by is not null and l.round <= 5 then l.created_at end) as ended_at,
           coalesce(q.end_reason, case when l.left_by is not null and l.round <= 5 then 'left_duel' end) as end_reason,
           coalesce(q.ended_by, l.left_by) = me as ended_by_me,
+          a.display_name as challenger_name,
+          b.display_name as challenged_name,
           case when q.challenger = me then b.display_name else a.display_name end as opponent_name,
           case when q.challenger = me then q.challenger_score else q.opponent_score end as my_score,
           case when q.challenger = me then q.opponent_score else q.challenger_score end as opponent_score
+          ,case
+            when q.declined_at is not null then 'abgebrochen'
+            when q.ended_at is not null or (l.left_by is not null and l.round <= 5) then 'abgebrochen'
+            when q.challenger_score is not null and q.opponent_score is not null then 'abgeschlossen'
+            when q.accepted_at is not null and l.id is not null then 'laufend'
+            else 'eingeladen'
+          end as status
         from treff_private.quiz_duels q
         left join treff_private.live_quiz l on l.id = q.id
         join public.treff_members a on a.id = q.challenger
         join public.treff_members b on b.id = q.opponent
-        where (q.challenger = me or q.opponent = me) and q.created_at >= now() - interval '7 days'
+        where (q.challenger = me or q.opponent = me)
         order by (q.declined_at is not null or q.ended_at is not null
           or coalesce(l.round = 6 or l.left_by is not null, false)), q.created_at desc
-        limit 30
+        limit 100
       ) d
     ), '[]'::jsonb),
-    'leaderboard', '[]'::jsonb
+    'leaderboard', coalesce((
+      select jsonb_agg(to_jsonb(r) order by r.wins desc, r.points desc, r.played desc, r.name, r.id)
+      from (
+        select m.id, m.display_name as name, count(*)::integer as played,
+          count(*) filter (where s.own > s.other)::integer as wins,
+          count(*) filter (where s.own < s.other)::integer as losses,
+          count(*) filter (where s.own = s.other)::integer as draws,
+          coalesce(sum(s.own), 0)::integer as points
+        from treff_private.quiz_duels q
+        cross join lateral (values
+          (q.challenger, q.challenger_score, q.opponent_score),
+          (q.opponent, q.opponent_score, q.challenger_score)
+        ) s(member_id, own, other)
+        join public.treff_members m on m.id = s.member_id and m.active
+        where s.own is not null and s.other is not null
+        group by m.id, m.display_name
+      ) r
+    ), '[]'::jsonb)
   );
 end;
 $$;
@@ -308,6 +374,13 @@ begin
         raise exception 'Dieses Duell ist nicht mehr verfügbar.';
       end if;
       game.guest := me;
+      -- Geteilte Einladungslinks besitzen noch keinen Duell-Datensatz. Beim
+      -- Beitritt wird er angelegt, damit auch diese Runde in Historie und
+      -- Rangliste landet; direkte Herausforderungen treffen auf den bereits
+      -- vorhandenen Datensatz und bleiben unverändert.
+      insert into treff_private.quiz_duels(id, challenger, opponent, category, seed, accepted_at)
+      values (game.id, game.host, me, 'all', 0, now())
+      on conflict (id) do nothing;
     end if;
   else
     select * into game from treff_private.live_quiz where id = target_id for update;
@@ -350,8 +423,12 @@ begin
           if is_host then game.host_ready := true; else game.guest_ready := true; end if;
           if game.host_ready and game.guest_ready then
             insert into treff_private.live_quiz(id, host, guest, questions, guest_seen)
-            values (gen_random_uuid(), game.host, game.guest, treff_private.live_quiz_questions(), now())
+            values (gen_random_uuid(), game.host, game.guest,
+              treff_private.live_quiz_questions(game.questions), now())
             returning id into game.rematch_id;
+            insert into treff_private.quiz_duels(id, challenger, opponent, category, seed, accepted_at)
+            values (game.rematch_id, game.host, game.guest, 'all', 0, now())
+            on conflict (id) do nothing;
           end if;
         end if;
       else null;
@@ -383,6 +460,21 @@ begin
          count(*) filter (where other_answers[i] = (game.questions -> (i - 1) ->> 'correct')::integer)
     into own_score, other_score
     from generate_series(1, least(cardinality(own_answers), cardinality(other_answers))) as index(i);
+
+  -- Sobald beide alle fünf Fragen abgeschlossen haben, wird genau einmal das
+  -- verbindliche Ergebnis gespeichert. COALESCE macht erneute Statusabfragen
+  -- und doppelte Klicks idempotent.
+  if game.round = 6 and game.left_by is null then
+    update treff_private.quiz_duels q set
+      accepted_at = coalesce(q.accepted_at, now()),
+      challenger_score = coalesce(q.challenger_score,
+        (select count(*) filter (where game.host_answers[i] = (game.questions -> (i - 1) ->> 'correct')::integer) * 10
+         from generate_series(1, 5) as index(i))),
+      opponent_score = coalesce(q.opponent_score,
+        (select count(*) filter (where game.guest_answers[i] = (game.questions -> (i - 1) ->> 'correct')::integer) * 10
+         from generate_series(1, 5) as index(i)))
+    where q.id = game.id and q.challenger = game.host and q.opponent = game.guest;
+  end if;
 
   return jsonb_build_object(
     'id', game.id, 'code', game.code, 'me', own_name, 'opponent', other_name, 'round', game.round,

@@ -213,13 +213,51 @@ window.STERNI_QUIZ_ONLINE = (() => {
     const heading = document.createElement("h3");
     heading.textContent = "Rangliste der Online-Duelle";
     const list = document.createElement("ol");
-    for (const entry of entries) {
+    if (!entries.length) {
+      const empty = document.createElement("p");
+      empty.className = "muted small-meta";
+      empty.textContent = "Noch keine abgeschlossenen Online-Duelle.";
+      target.hidden = false;
+      target.replaceChildren(heading, empty);
+      return;
+    }
+    entries.forEach((entry, index) => {
       const row = document.createElement("li");
-      row.textContent = entry.name + " · " + entry.played + " Duelle · " + entry.wins + " Siege · "
-        + entry.losses + " Niederlagen · " + entry.draws + " Unentschieden · " + entry.points + " Punkte";
+      row.textContent = (index + 1) + ". " + entry.name + " · " + entry.played + " Duelle · "
+        + entry.wins + " Siege · " + entry.losses + " Niederlagen · " + entry.draws
+        + " Unentschieden · " + entry.points + " Punkte";
+      list.append(row);
+    });
+    target.hidden = false;
+    target.replaceChildren(heading, list);
+  }
+
+  function renderHistory(duels) {
+    const target = element("quiz-duel-history");
+    const heading = document.createElement("h3");
+    heading.textContent = "Duellhistorie";
+    if (!duels.length) {
+      const empty = document.createElement("p");
+      empty.className = "muted small-meta";
+      empty.textContent = "Noch keine Duelle vorhanden.";
+      target.replaceChildren(heading, empty);
+      return;
+    }
+    const list = document.createElement("ul");
+    list.className = "stack-list";
+    for (const duel of duels) {
+      const row = document.createElement("li");
+      const when = new Date(duel.created_at).toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short" });
+      const score = duel.my_score === null ? "Punkte offen" : duel.my_score + " : "
+        + (duel.opponent_score === null ? "offen" : duel.opponent_score);
+      const outcome = duel.status === "abgeschlossen"
+        ? (duel.my_score === duel.opponent_score ? "Unentschieden" : duel.my_score > duel.opponent_score ? "Gewonnen" : "Verloren")
+        : duel.status === "abgebrochen" ? "Abgebrochen" : duel.status === "laufend" ? "Laufend" : "Einladung offen";
+      row.textContent = (duel.challenger_name || "Spieler 1") + " gegen "
+        + (duel.challenged_name || duel.opponent_name) + " · " + when + " · " + score
+        + " · " + outcome + " (" + duel.status + ")";
       list.append(row);
     }
-    target.hidden = false;
     target.replaceChildren(heading, list);
   }
 
@@ -290,8 +328,8 @@ window.STERNI_QUIZ_ONLINE = (() => {
     const leaderboard = element("quiz-online-leaderboard");
     members.hidden = opponents.length === 0;
     members.replaceChildren();
-    leaderboard.hidden = true;
-    leaderboard.replaceChildren();
+    renderLeaderboard(snapshot.leaderboard || []);
+    renderHistory(snapshot.duels || []);
     for (const member of opponents) {
       const row = document.createElement("li");
       row.className = "quiz-online-row";
@@ -318,7 +356,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
     renderOnlineMembers([]);
     element("quiz-online-setup").hidden = true;
     element("quiz-online-empty").hidden = true;
-    for (const id of ["quiz-online-opponents", "quiz-online-leaderboard"]) element(id).replaceChildren();
+    for (const id of ["quiz-online-opponents", "quiz-online-leaderboard", "quiz-duel-history"]) element(id).replaceChildren();
     notice();
   }
 

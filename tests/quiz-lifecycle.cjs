@@ -81,6 +81,30 @@ async function test() {
     const score = await a.game("state", completed);
     assert.equal(score.myScore, (await b.game("state", completed)).opponentScore);
     assert.equal((await state(a, completed)).live_finished, true);
+    const completedSnapshot = await a.snapshot();
+    const completedHistory = completedSnapshot.duels.find((duel) => duel.id === completed);
+    assert.equal(completedHistory.status, "abgeschlossen");
+    assert.equal(completedHistory.challenger_name, "Christian");
+    assert.equal(completedHistory.challenged_name, "Cordula");
+    assert.equal(completedSnapshot.leaderboard.length, 2);
+    assert.equal(completedSnapshot.leaderboard.reduce((sum, entry) => sum + entry.played, 0), 2);
+
+    const firstQuestions = (await db.query("select questions from treff_private.live_quiz where id = $1", [completed])).rows[0].questions;
+    const categories = new Set(firstQuestions.map((question) => question.category));
+    assert.equal(firstQuestions.length, 5);
+    assert.equal(new Set(firstQuestions.map((question) => question.text)).size, 5);
+    assert.equal(categories.size, 5);
+    await a.game("rematch", completed);
+    const rematchStart = await b.game("rematch", completed);
+    assert.ok(rematchStart.rematch);
+    const rematchQuestions = (await db.query("select questions from treff_private.live_quiz where id = $1", [rematchStart.rematch])).rows[0].questions;
+    assert.equal(rematchQuestions.length, 5);
+    assert.equal(rematchQuestions.filter((question) => firstQuestions.some((old) => old.text === question.text)).length, 0);
+    assert.ok((await state(a, rematchStart.rematch)).accepted_at);
+    await a.game("leave", rematchStart.rematch);
+    // Die folgenden Lebenszyklusfälle sollen nicht am absichtlichen
+    // Einladungs-Limit des Produktivcodes hängen.
+    await db.query("update treff_private.quiz_duels set created_at = clock_timestamp() - interval '2 minutes'");
 
     const declined = randomUUID();
     await a.create(b, declined);

@@ -23,29 +23,52 @@ alter table treff_private.live_quiz enable row level security;
 revoke all on treff_private.live_quiz from public, anon, authenticated;
 create index if not exists live_quiz_host_created on treff_private.live_quiz(host, created_at desc);
 
+-- Jede Runde enthält fünf verschiedene Wissensgebiete.  Die optionale
+-- Ausschlussliste verhindert Wiederholungen in einer Revanche.
+create or replace function treff_private.live_quiz_questions(excluded jsonb) returns jsonb
+language sql volatile set search_path = '' as $$
+  with bank(category, question, options, correct) as (values
+    ('angeln', 'Wie viele Barteln hat der Europäische Wels?', array['Zwei', 'Sechs', 'Vier', 'Keine'], 2),
+    ('angeln', 'Welches Merkmal unterscheidet den Zander vom Flussbarsch?', array['Lange Fangzähne im Maul', 'Zwei Barteln', 'Schuppenlose Haut', 'Eine Rückenflosse'], 1),
+    ('angeln', 'Wozu dient ein Kescher beim Angeln?', array['Zum Auswerfen', 'Zum Landen eines Fisches', 'Zum Messen der Schnur', 'Zum Festmachen des Boots'], 2),
+    ('umwelt', 'Welches Gas trägt am stärksten zum menschengemachten Treibhauseffekt bei?', array['Sauerstoff', 'Stickstoff', 'Kohlendioxid', 'Helium'], 3),
+    ('umwelt', 'Was gehört in Deutschland in die Biotonne?', array['Glasflaschen', 'Küchen- und Gartenabfälle', 'Batterien', 'Verpackungsfolie'], 2),
+    ('umwelt', 'Warum sind Moore für den Klimaschutz wichtig?', array['Sie speichern viel Kohlenstoff', 'Sie erzeugen Strom', 'Sie filtern Meerwasser', 'Sie verhindern Wind'], 1),
+    ('natur', 'Welches Säugetier kann als einziges aktiv fliegen?', array['Eichhörnchen', 'Fledermaus', 'Pinguin', 'Igel'], 2),
+    ('natur', 'Wie nennt man die Verwandlung einer Raupe zum Schmetterling?', array['Metamorphose', 'Photosynthese', 'Migration', 'Symbiose'], 1),
+    ('natur', 'Welcher Baum trägt Eicheln?', array['Buche', 'Kiefer', 'Eiche', 'Birke'], 3),
+    ('wissenschaft', 'Welche Einheit misst elektrische Spannung?', array['Watt', 'Volt', 'Ohm', 'Ampere'], 2),
+    ('wissenschaft', 'Was ist die kleinste Einheit eines chemischen Elements?', array['Zelle', 'Atom', 'Molekül', 'Proton'], 2),
+    ('wissenschaft', 'Welche Energiequelle nutzt eine Solarzelle?', array['Wind', 'Sonnenlicht', 'Erdwärme', 'Wasserströmung'], 2),
+    ('geographie', 'Welcher Fluss fließt durch Berlin?', array['Elbe', 'Oder', 'Spree', 'Rhein'], 3),
+    ('geographie', 'Auf welchem Kontinent liegt Ägypten überwiegend?', array['Europa', 'Afrika', 'Asien', 'Südamerika'], 2),
+    ('geschichte', 'In welchem Jahr fiel die Berliner Mauer?', array['1979', '1989', '1999', '2009'], 2),
+    ('geschichte', 'Wie hieß die erste deutsche Demokratie ab 1919?', array['Weimarer Republik', 'Deutscher Bund', 'Kaiserreich', 'DDR'], 1),
+    ('allgemein', 'Wie viele Minuten hat eine Stunde?', array['50', '60', '80', '100'], 2),
+    ('allgemein', 'Welche Farbe entsteht aus Blau und Gelb?', array['Grün', 'Violett', 'Orange', 'Rot'], 1),
+    ('allgemein', 'Wie viele Seiten hat ein Würfel?', array['Vier', 'Fünf', 'Sechs', 'Acht'], 3)
+  ), available as (
+    select b.* from bank b
+    where not exists (
+      select 1 from jsonb_array_elements(coalesce(excluded, '[]'::jsonb)) old
+      where old ->> 'text' = b.question
+    )
+  ), per_category as (
+    select distinct on (category) * from available order by category, random()
+  ), selected as (
+    select * from per_category order by random() limit 5
+  )
+  select jsonb_agg(jsonb_build_object('category', category, 'text', question,
+    'options', options, 'correct', correct)) from selected;
+$$;
+
 create or replace function treff_private.live_quiz_questions() returns jsonb
 language sql volatile set search_path = '' as $$
-  select jsonb_agg(
-    jsonb_build_object('text', question, 'options', options, 'correct', correct)
-    order by random()
-  )
-  from (
-    select * from (values
-      ('Wie viele Barteln hat der Europäische Wels?', array['Zwei', 'Sechs', 'Vier', 'Keine'], 2),
-      ('Welcher Knoten eignet sich zum Verbinden von Geflecht und dickerem Fluorocarbon?', array['Arborknoten', 'Einfacher Überhandknoten', 'Albrightknoten', 'Springerschlaufe'], 3),
-      ('Welches Merkmal hilft, einen Zander vom Flussbarsch zu unterscheiden?', array['Lange Fangzähne im Maul', 'Zwei Barteln', 'Eine einzige Rückenflosse', 'Schuppenlose Haut'], 1),
-      ('Was macht eine Pose beim Angeln sichtbar?', array['Die Wassertemperatur', 'Einen Biss am Köder', 'Die Windrichtung', 'Den Sauerstoffgehalt'], 2),
-      ('Wozu dient ein Kescher beim Angeln?', array['Zum Abmessen der Schnur', 'Zum Auswerfen', 'Zum Festmachen des Bootes', 'Zum Landen des Fisches'], 4),
-      ('Welcher Verschluss erlaubt den schnellen Wechsel eines Kunstköders?', array['Ein Einhänger (Snap)', 'Ein Stopperknoten', 'Ein Schrotblei', 'Ein Klemmblei'], 1),
-      ('Wie heißt die Schnur zwischen Hauptschnur und Haken?', array['Backing', 'Rutenspitze', 'Vorfach', 'Spule'], 3),
-      ('Wie heißt die Bremse, die bei Zug Schnur von der Rolle freigibt?', array['Rücklaufsperre', 'Spulenbremse', 'Schnurclip', 'Rollenbügel'], 2)
-    ) as bank(question, options, correct)
-    order by random()
-    limit 5
-  ) as selected;
+  select treff_private.live_quiz_questions('[]'::jsonb);
 $$;
 
 revoke all on function treff_private.live_quiz_questions() from public, anon, authenticated;
+revoke all on function treff_private.live_quiz_questions(jsonb) from public, anon, authenticated;
 
 create or replace function public.sterni_live_quiz(
   action text, target_id uuid default null, invite_code text default null,
