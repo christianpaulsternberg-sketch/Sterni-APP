@@ -19,7 +19,7 @@ async function test() {
       $$;
     `);
     for (const migration of ["online-quiz", "live-quiz", "quiz-duel-requests", "live-quiz-challenges",
-      "quiz-duel-lifecycle"]) {
+      "quiz-duel-lifecycle", "quiz-duel-reliability"]) {
       await db.exec(fs.readFileSync(path.join(__dirname, "..", "db", migration + ".sql"), "utf8"));
     }
 

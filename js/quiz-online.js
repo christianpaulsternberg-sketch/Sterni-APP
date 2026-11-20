@@ -451,6 +451,7 @@ window.STERNI_QUIZ_ONLINE = (() => {
     window.addEventListener("pageshow", sync);
     window.addEventListener("pagehide", leavePresence);
     window.addEventListener("online", sync);
+    window.addEventListener("sterni-duel-finished", sync);
     window.addEventListener("sterni-session-changed", sync);
     window.addEventListener("storage", (event) => {
       if (event.key === sessionKey) void sync();

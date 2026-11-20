@@ -226,6 +226,7 @@
     try {
       const payload = { action, target_id: gameId, ...args };
       setGame(await api.rpc("sterni_live_quiz", payload));
+      if (game.round === 6 && !game.left) window.dispatchEvent(new Event("sterni-duel-finished"));
       if (action === "join" || action === "create") clearInvitation();
       if (game.rematch && !game.left) {
         setGame(await api.rpc("sterni_live_quiz", { action: "state", target_id: game.rematch }));
