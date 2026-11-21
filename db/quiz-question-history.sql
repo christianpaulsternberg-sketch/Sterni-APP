@@ -5,6 +5,7 @@ create table if not exists treff_private.quiz_question_history (
   member_id uuid not null references public.treff_members(id) on delete cascade,
   concept_id text not null check (concept_id ~ '^[a-z0-9][a-z0-9._-]{2,159}$'),
   question_id text not null check (question_id ~ '^[a-z0-9][a-z0-9._-]{2,159}$'),
+  question_text text not null default '',
   shown_at timestamptz not null default clock_timestamp(),
   source text not null check (source in ('duel', 'rematch', 'solo', 'legacy')),
   round_id uuid,
@@ -18,12 +19,15 @@ create index if not exists quiz_question_history_member_seen
 -- Bereits gezeigte Fragen bleiben dauerhaft gesperrt. Neue Runden werden erst
 -- nach der Reservierung mit der aktuellen Fragenbank befüllt.
 alter table treff_private.live_quiz add column if not exists questions_reserved boolean not null default false;
-update treff_private.live_quiz set questions_reserved = true where questions_reserved = false and created_at < clock_timestamp() - interval '5 minutes';
+update treff_private.live_quiz
+set questions_reserved = true
+where questions_reserved = false and jsonb_array_length(questions) > 0;
 
-insert into treff_private.quiz_question_history(member_id, concept_id, question_id, source, round_id)
+insert into treff_private.quiz_question_history(member_id, concept_id, question_id, question_text, source, round_id)
 select participant.member_id,
   'legacy-' || md5(lower(regexp_replace(coalesce(item.value->>'text',''), '[^[:alnum:]]', '', 'g'))),
   'legacy-' || md5(lower(regexp_replace(coalesce(item.value->>'text',''), '[^[:alnum:]]', '', 'g'))),
+  lower(coalesce(item.value->>'text','')),
   'legacy', game.id
 from treff_private.live_quiz game
 cross join lateral (values (game.host), (game.guest)) participant(member_id)
@@ -69,7 +73,8 @@ begin
     select v.* from valid v
     where not exists (
       select 1 from treff_private.quiz_question_history h
-      where h.member_id = any(players) and h.concept_id = v.concept_id
+      where h.member_id = any(players)
+        and (h.concept_id = v.concept_id or h.question_text = lower(coalesce(v.value->>'text','')))
     )
   ), per_category as (
     select distinct on (category) * from available
@@ -83,8 +88,8 @@ begin
     raise exception 'Nicht genügend neue Fragen verfügbar. Bitte ergänze den Fragenpool; alte Fragen werden nicht wiederholt.';
   end if;
 
-  insert into treff_private.quiz_question_history(member_id, concept_id, question_id, source, round_id)
-  select player, picked.value->>'concept_id', picked.value->>'id', use_source, use_round
+  insert into treff_private.quiz_question_history(member_id, concept_id, question_id, question_text, source, round_id)
+  select player, picked.value->>'concept_id', picked.value->>'id', lower(coalesce(picked.value->>'text','')), use_source, use_round
   from unnest(players) player
   cross join lateral jsonb_array_elements(chosen) picked(value);
   return chosen;
@@ -101,7 +106,8 @@ begin
   end if;
   if not game.questions_reserved then
     selected := treff_private.reserve_quiz_questions(array[game.host, game.guest], question_bank, 5,
-      case when game.rematch_id is not null then 'rematch' else 'duel' end, game.id);
+      case when exists (select 1 from treff_private.live_quiz prior where prior.rematch_id = game.id)
+        then 'rematch' else 'duel' end, game.id);
     update treff_private.live_quiz set questions = selected, questions_reserved = true where id = game.id;
     return jsonb_build_object('prepared', true, 'questions', selected);
   end if;
