@@ -19,6 +19,7 @@
   let pendingDuelId;
   let runningAction;
   let signature = "";
+  const preparedDuels = new Set();
   let autoJoin = Boolean(code);
 
   function node(tag, label, className) {
@@ -225,11 +226,26 @@
     if (action !== "state") panel.setAttribute("aria-busy", "true");
     try {
       const payload = { action, target_id: gameId, ...args };
-      setGame(await api.rpc("sterni_live_quiz", payload));
+      let next = await api.rpc("sterni_live_quiz", payload);
+      // Erst wenn beide Teilnehmer feststehen, reserviert der Server atomar
+      // neue Fragen für beide. Auch eine abgebrochene Runde bleibt dadurch
+      // in der dauerhaften Historie gesperrt.
+      if (next.opponent && next.round <= 5 && !next.left && !preparedDuels.has(next.id)) {
+        await window.STERNI_QUIZ_HISTORY.prepareDuel(next.id);
+        preparedDuels.add(next.id);
+        next = await api.rpc("sterni_live_quiz", { action: "state", target_id: next.id });
+      }
+      setGame(next);
       if (game.round === 6 && !game.left) window.dispatchEvent(new Event("sterni-duel-finished"));
       if (action === "join" || action === "create") clearInvitation();
       if (game.rematch && !game.left) {
-        setGame(await api.rpc("sterni_live_quiz", { action: "state", target_id: game.rematch }));
+        let rematch = await api.rpc("sterni_live_quiz", { action: "state", target_id: game.rematch });
+        if (!preparedDuels.has(rematch.id)) {
+          await window.STERNI_QUIZ_HISTORY.prepareDuel(rematch.id);
+          preparedDuels.add(rematch.id);
+          rematch = await api.rpc("sterni_live_quiz", { action: "state", target_id: rematch.id });
+        }
+        setGame(rematch);
       }
       requestedId = null;
       if (action !== "state" || message.dataset.connection) message.textContent = "";

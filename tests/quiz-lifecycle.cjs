@@ -19,9 +19,18 @@ async function test() {
       $$;
     `);
     for (const migration of ["online-quiz", "live-quiz", "quiz-duel-requests", "live-quiz-challenges",
-      "quiz-duel-lifecycle", "quiz-duel-reliability"]) {
+      "quiz-duel-lifecycle", "quiz-duel-reliability", "quiz-question-history"]) {
       await db.exec(fs.readFileSync(path.join(__dirname, "..", "db", migration + ".sql"), "utf8"));
     }
+
+    const questionBank = Array.from({ length: 100 }, (_, index) => ({
+      id: `test-${index + 1}`,
+      concept_id: `test-concept-${index + 1}`,
+      category: `test-${index % 10}`,
+      text: `Testfrage ${index + 1}`,
+      options: ["Richtig", "Falsch A", "Falsch B", "Falsch C"],
+      correct: 1
+    }));
 
     function player(name) {
       const id = randomUUID();
@@ -41,6 +50,9 @@ async function test() {
           return this.call("public.sterni_quiz_create($1, $2, 'all', 1)", [duel, other.id]);
         },
         accept(duel) { return this.call("public.sterni_quiz_accept($1)", [duel]); },
+        prepare(duel) {
+          return this.call("public.sterni_quiz_prepare_questions($1, $2::jsonb)", [duel, JSON.stringify(questionBank)]);
+        },
         decline(duel) { return this.call("public.sterni_quiz_decline($1)", [duel]); },
         leave() { return this.call("public.sterni_quiz_leave($1)", [session]); },
         reopen() { session = randomUUID(); },
@@ -69,6 +81,7 @@ async function test() {
     await a.create(b, completed);
     assert.equal((await state(b, completed)).incoming, true);
     await b.accept(completed);
+    await b.prepare(completed);
     assert.equal((await state(a, completed)).live, true);
     for (let question = 1; question <= 5; question++) {
       const expected = (await a.game("state", completed)).question;
@@ -97,6 +110,7 @@ async function test() {
     await a.game("rematch", completed);
     const rematchStart = await b.game("rematch", completed);
     assert.ok(rematchStart.rematch);
+    await b.prepare(rematchStart.rematch);
     const rematchQuestions = (await db.query("select questions from treff_private.live_quiz where id = $1", [rematchStart.rematch])).rows[0].questions;
     assert.equal(rematchQuestions.length, 5);
     assert.equal(rematchQuestions.filter((question) => firstQuestions.some((old) => old.text === question.text)).length, 0);
@@ -136,6 +150,7 @@ async function test() {
     const running = randomUUID();
     await b.create(a, running);
     await a.accept(running);
+    await a.prepare(running);
     await a.game("answer", running, 1, 1);
     await a.leave();
     await a.advanceLease("-1 second");
@@ -148,6 +163,7 @@ async function test() {
     const replay = randomUUID();
     await b.create(a, replay);
     await a.accept(replay);
+    await a.prepare(replay);
     await a.game("leave", replay);
     assert.equal((await state(b, replay)).end_reason, "left_duel");
 
@@ -156,7 +172,10 @@ async function test() {
     await a.create(b, expired);
     await ageInvitation(expired, "3 minutes");
     assert.equal((await state(a, expired)).end_reason, "expired");
-    console.log("Bestanden: zwei getrennte Spieleridentitäten, fünf gemeinsame Fragen und alle Lebenszyklusfälle.");
+    const history = await db.query("select member_id, concept_id from treff_private.quiz_question_history where source in ('duel', 'rematch')");
+    assert.equal(history.rows.length, new Set(history.rows.map((row) => row.member_id + ':' + row.concept_id)).size);
+    assert.equal(rematchQuestions.filter((question) => firstQuestions.some((old) => old.concept_id === question.concept_id)).length, 0);
+    console.log("Bestanden: dauerhafte Fragenhistorie, zwei getrennte Spieleridentitäten und alle Lebenszyklusfälle.");
   } finally {
     await db.close();
   }
