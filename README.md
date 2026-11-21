@@ -6,6 +6,12 @@ GitHub Pages stellt die Webdateien aus dem Sterni-APP-Repository bereit. Der Ein
 
 Die lokale Wiederherstellungssammlung unter `.lokale-sterni-sicherung/` enthält vorhandene Anglertreff-Schemadateien, die Verwaltungsfunktion und die lokale Serverkonfigurationsdokumentation. Der Ordner ist in diesem Checkout vom Git-Tracking ausgeschlossen. Cloud-Daten, Konten und Fotos benötigen eine separate Sicherung im Supabase-Projekt. Dienstschlüssel und Produktionsdaten gehören nicht ins öffentliche Repository.
 
+## Anglertreff: Registrierung und Verwaltung
+
+Für die Selbstregistrierung die Migration [db/anglertreff-selbstregistrierung.sql](db/anglertreff-selbstregistrierung.sql) im Supabase SQL Editor ausführen und anschließend die Edge Function aus `supabase/functions/anglertreff-admin/` veröffentlichen. Die Function benötigt die Secrets `SUPABASE_URL` und `SUPABASE_SERVICE_ROLE_KEY`; optional begrenzt `APP_ORIGINS` die erlaubten Web-Ursprünge. Die voreingestellte Produktionsadresse ist ausschließlich GitHub Pages, keine Vercel-Adresse.
+
+In **Authentication → URL Configuration** müssen sowohl die Site URL als auch die Redirect URL aus dem Kommentar am Ende der Migration hinterlegt sein. E-Mail-Bestätigung bleibt aktiviert. Erst dann lassen sich Registrierung, Bestätigung und Passwort-Zurücksetzen produktiv testen. Die Function prüft Administratorrechte bei jeder Aktion serverseitig; der Browser erhält niemals Service-Role-Schlüssel oder E-Mail-Listen anderer Mitglieder.
+
 ## Live-Duell im Wissensquiz
 
 Zwei aktive Anglertreff-Mitglieder spielen fünf gemeinsame Fragen. Der Gastgeber fordert ein angezeigtes Online-Mitglied heraus oder teilt den Link oder achtstelligen Code. Bei einer direkten Herausforderung erscheint im geöffneten Browser ein Dialog. Nach der Annahme greifen beide Spieler auf denselben Spielstand zu. Nach jeder Frage sehen beide die richtige Antwort, sobald beide ihre Antwort abgegeben haben. Beide bestätigen den Wechsel zur nächsten Frage und können nach dem Ergebnis einer Revanche zustimmen.

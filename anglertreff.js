@@ -8,6 +8,12 @@ let invitationRecipient=null,adminLinkType='invite',composeKind='catch',feedFilt
 let selectedPhoto=null,previewUrl=null,photoSequence=0,photoPending=false;
 let busy=false,pendingLink=null,isAdmin=false,remember=false,refreshing=null;
 const sessionKey='petri-treff-session-v1';
+function appRedirectUrl(){
+ const url=new URL('anglertreff.html',location.href);
+ if(url.protocol!=='https:'&&url.hostname!=='localhost'&&url.hostname!=='127.0.0.1')throw Error('Registrierung ist nur über die veröffentlichte HTTPS-Sterni-App möglich.');
+ if(url.hostname.endsWith('.vercel.app'))throw Error('Bitte die veröffentlichte GitHub-Pages-Sterni-App verwenden.');
+ return url.href;
+}
 function storeSession(){
  try{
   const active=remember?localStorage:sessionStorage;
@@ -33,7 +39,7 @@ document.querySelectorAll('[data-filter]').forEach(button=>button.onclick=()=>{f
 function close(retainSession=false){
  $('#treff-admin-shortcut').hidden=true;
  if(!retainSession){try{localStorage.removeItem(sessionKey);sessionStorage.removeItem(sessionKey);window.dispatchEvent(new Event('sterni-session-changed'));}catch{}}
-generation++;invitationRecipient=null;clearPictures();isAdmin=false;pendingLink=null;$('#treff-admin').hidden=true;$('#treff-accept').hidden=true;$('#treff-link-value').value='';$('#treff-admin-link').hidden=true;$('#treff-admin-members').replaceChildren();session=null;user=null;posts=[];comments=[];likes=[];members=[];test.posts=[];test.comments=[];test.likes=[];$('#treff-feed').replaceChildren();$('#treff-content').hidden=true;$('#treff-session').hidden=true;$('#treff-password').hidden=true;$('#treff-entry').hidden=false;$('#treff-login').reset();resetForm();}
+generation++;invitationRecipient=null;clearPictures();isAdmin=false;pendingLink=null;$('#treff-admin').hidden=true;$('#treff-accept').hidden=true;$('#treff-link-value').value='';$('#treff-admin-link').hidden=true;$('#treff-admin-members').replaceChildren();session=null;user=null;posts=[];comments=[];likes=[];members=[];test.posts=[];test.comments=[];test.likes=[];$('#treff-feed').replaceChildren();$('#treff-content').hidden=true;$('#treff-session').hidden=true;$('#treff-password').hidden=true;$('#treff-register-form').hidden=true;$('#treff-forgot-form').hidden=true;$('#treff-entry').hidden=false;$('#treff-login').reset();resetForm();}
 async function request(path,{method='GET',body,token=session?.access_token,raw=false,headers={},retried=false}={}){
  let response;try{response=await fetch(config.url+path,{method,signal:AbortSignal.timeout(20000),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',headers:{apikey:config.publishableKey,...(token?{Authorization:'Bearer '+token}:{}),...(!raw&&body?{'Content-Type':'application/json'}:{}),...headers},body:body===undefined?undefined:raw?body:JSON.stringify(body)});}catch{throw Error('Keine Verbindung zum Anglertreff. Bitte Internet prüfen und erneut versuchen.');}
  if(response.status===401&&session?.refresh_token&&!retried&&token){
@@ -42,8 +48,8 @@ async function request(path,{method='GET',body,token=session?.access_token,raw=f
  if(!response.ok){let failure={};try{failure=await response.json();}catch{}const code=failure.error_code||failure.code;
  if(path.includes('grant_type=refresh_token')&&[400,401,403].includes(response.status)){close();throw Error('Deine Anmeldung ist abgelaufen. Bitte erneut anmelden.');}
  if(code==='invalid_credentials')throw Error('E-Mail oder Passwort stimmen nicht. Bitte beide Eingaben prüfen.');
- if(code==='email_not_confirmed')throw Error('Bitte zuerst deine Einladung bestätigen.');
- if(['otp_expired','access_denied'].includes(code))throw Error('Dieser Link ist ungültig oder abgelaufen. Bitte Christian um einen neuen Link bitten.');
+ if(code==='email_not_confirmed')throw Error('Bitte zuerst den Link in der Bestätigungs-E-Mail öffnen.');
+ if(['otp_expired','access_denied'].includes(code))throw Error('Dieser Link ist ungültig, bereits verwendet oder abgelaufen. Bitte einen neuen Link anfordern.');
  if(code==='weak_password')throw Error('Dieses Passwort erfüllt die Sicherheitsvorgaben des Anmeldedienstes nicht. Bitte ein stärkeres Passwort wählen.');
  if(code==='same_password')throw Error('Bitte ein anderes Passwort als das bisherige wählen.');
  if(response.status===429)throw Error('Zu viele Versuche. Bitte etwas warten.');
@@ -54,7 +60,7 @@ async function request(path,{method='GET',body,token=session?.access_token,raw=f
 }
 async function membership(){
  const result=await request('/rest/v1/treff_members?select=id,display_name&active=eq.true&id=eq.'+user.id);
- if(!result?.length){close();throw Error('Du bist noch nicht für den Anglertreff freigeschaltet. Bitte Christian ansprechen.');}
+ if(!result?.length){close();throw Error('Dein Zugang ist gesperrt oder das Konto wurde entfernt.');}
 }
 async function enter(){
  if(!demo){
@@ -69,7 +75,7 @@ async function enter(){
   }
   const admins=await request('/rest/v1/treff_admins?select=id&id=eq.'+user.id);isAdmin=!!admins?.length;
  }
- $('#treff-admin').hidden=!isAdmin;$('#treff-admin-shortcut').hidden=!isAdmin;$('#treff-change-password').hidden=demo;
+ $('#treff-admin').hidden=!isAdmin;$('#treff-admin-shortcut').hidden=!isAdmin;$('#treff-change-password').hidden=demo;$('#treff-delete-account').hidden=demo;
  $('#treff-entry').hidden=true;$('#treff-password').hidden=true;$('#treff-session').hidden=false;$('#treff-content').hidden=false;$('#treff-demo-switch').hidden=!demo;
  $('#treff-user').textContent='Angemeldet als '+(demo?(user.id==='christian'?'Christian (Test)':'Angelfreund (Test)'):user.email);
  await refresh();
@@ -199,6 +205,21 @@ $('#treff-logout').onclick=()=>guard($('#treff-logout'),async()=>{const token=se
 $('#treff-login').onsubmit=e=>{e.preventDefault();const button=e.target.querySelector('button');guard(button,async()=>{
  const data=new FormData(e.target);remember=!!data.get('remember');demo=false;session=await request('/auth/v1/token?grant_type=password',{method:'POST',body:{email:data.get('email'),password:data.get('password')},token:null});user=session.user;e.target.reset();await enter();
 });};
+$('#treff-register').onclick=()=>{const form=$('#treff-register-form');form.hidden=!form.hidden;$('#treff-forgot-form').hidden=true;};
+$('#treff-forgot').onclick=()=>{const form=$('#treff-forgot-form');form.hidden=!form.hidden;$('#treff-register-form').hidden=true;};
+$('#treff-register-form').onsubmit=e=>{e.preventDefault();guard(e.target.querySelector('button'),async()=>{
+ const data=new FormData(e.target),name=String(data.get('display_name')||'').trim(),password=String(data.get('password')||'');
+ if(!name||name.length>60)throw Error('Bitte einen Anzeigenamen mit höchstens 60 Zeichen eingeben.');
+ if(password!==String(data.get('password_confirm')||''))throw Error('Die beiden Passwörter stimmen nicht überein.');
+ if(password.length<8)throw Error('Bitte mindestens 8 Zeichen verwenden.');
+ await request('/auth/v1/signup',{method:'POST',token:null,body:{email:String(data.get('email')||'').trim(),password,data:{display_name:name},email_redirect_to:appRedirectUrl()}});
+ e.target.reset();e.target.hidden=true;status('Fast geschafft: Bitte bestätige jetzt den Link in deiner E-Mail. Danach kannst du dich direkt anmelden.');
+});};
+$('#treff-forgot-form').onsubmit=e=>{e.preventDefault();guard(e.target.querySelector('button'),async()=>{
+ const data=new FormData(e.target),query=new URLSearchParams({redirect_to:appRedirectUrl()});
+ await request('/auth/v1/recover?'+query,{method:'POST',token:null,body:{email:String(data.get('email')||'').trim()}});
+ e.target.reset();status('Falls zu dieser Adresse ein Konto existiert, wurde ein Link zum Zurücksetzen versandt.');
+});};
 
 $('#treff-password').onsubmit=e=>{e.preventDefault();guard(e.target.querySelector('button'),async()=>{
  const data=new FormData(e.target);if(data.get('password')!==data.get('password_confirm'))throw Error('Die beiden Passwörter stimmen nicht überein.');
@@ -207,14 +228,12 @@ $('#treff-password').onsubmit=e=>{e.preventDefault();guard(e.target.querySelecto
 });};
 function showPassword(flow){$('#treff-entry').hidden=true;$('#treff-accept').hidden=true;$('#treff-content').hidden=true;$('#treff-admin').hidden=true;$('#treff-password').reset();$('#treff-password-title').textContent=flow==='invite'?'Registrierung abschließen':flow==='recovery'?'Neues Passwort festlegen':'Passwort ändern';$('#treff-password').hidden=false;}
 $('#treff-change-password').onclick=()=>showPassword('change');
-$('#treff-register').onclick=()=>{$('#treff-invitation-input').hidden=!$('#treff-invitation-input').hidden;$('#treff-recovery-help').hidden=true;};
-$('#treff-forgot').onclick=()=>{$('#treff-recovery-help').hidden=!$('#treff-recovery-help').hidden;$('#treff-invitation-input').hidden=false;};
 function linkParts(hash,query){
  const type=hash.get('type')||query.get('type')||'invite',token_hash=hash.get('token_hash')||query.get('token_hash'),access_token=hash.get('access_token');
- if(!['invite','recovery'].includes(type)||!token_hash&&!access_token)throw Error('Bitte einen gültigen persönlichen Einladungs- oder Wiederherstellungslink verwenden.');
+ if(!['invite','recovery','signup'].includes(type)||!token_hash&&!access_token)throw Error('Bitte einen gültigen Bestätigungs- oder Wiederherstellungslink verwenden.');
  return {type,token_hash,access_token};
 }
-function offerLink(link){pendingLink=link;$('#treff-entry').hidden=true;$('#treff-accept').hidden=false;$('#treff-accept-title').textContent=link.type==='recovery'?'Passwort wiederherstellen':'Willkommen im Freundeskreis';$('#treff-accept-button').textContent=link.type==='recovery'?'Wiederherstellungslink prüfen':'Einladung prüfen';status('Bitte bestätige deinen persönlichen Link.');}
+function offerLink(link){pendingLink=link;$('#treff-entry').hidden=true;$('#treff-accept').hidden=false;$('#treff-accept-title').textContent=link.type==='recovery'?'Passwort wiederherstellen':link.type==='signup'?'E-Mail bestätigt':'Willkommen im Freundeskreis';$('#treff-accept-button').textContent=link.type==='recovery'?'Wiederherstellungslink prüfen':link.type==='signup'?'Anglertreff öffnen':'Einladung prüfen';status('Bitte bestätige deinen persönlichen Link.');}
 $('#treff-invitation-input').onsubmit=e=>{e.preventDefault();guard(e.target.querySelector('button'),async()=>{
  const value=new URL(new FormData(e.target).get('link'));if(value.origin!==location.origin||value.pathname!==location.pathname)throw Error('Der Link gehört zu einer anderen App-Adresse. Öffne ihn direkt im Browser.');
  const link=linkParts(new URLSearchParams(value.hash.slice(1)),value.searchParams);e.target.reset();offerLink(link);
@@ -222,7 +241,9 @@ $('#treff-invitation-input').onsubmit=e=>{e.preventDefault();guard(e.target.quer
 $('#treff-accept-button').onclick=()=>guard($('#treff-accept-button'),async()=>{
  try{if(!pendingLink)throw Error('Bitte einen neuen Link öffnen.');const link=pendingLink;pendingLink=null;demo=false;remember=true;
  if(link.access_token)session={access_token:link.access_token};else session=await request('/auth/v1/verify',{method:'POST',token:null,body:{token_hash:link.token_hash,type:link.type}});
- user=await request('/auth/v1/user');await membership();showPassword(link.type);status('Link bestätigt. Lege jetzt selbst dein persönliches Passwort fest.');
+ user=await request('/auth/v1/user');await membership();
+ if(link.type==='signup'){await enter();status('E-Mail bestätigt. Willkommen im Anglertreff!');}
+ else {showPassword(link.type);status('Link bestätigt. Lege jetzt selbst dein persönliches Passwort fest.');}
  }catch(error){close();throw error;}
 });
 async function adminCall(data){
@@ -240,10 +261,15 @@ function renderAdminMembers(people, canManage=false){
   row.append(node('strong',person.display_name),node('p',person.active?'Zugang aktiv':'Zugang gesperrt'));
   if(canManage){
    if(person.email)row.append(node('p','E-Mail: '+person.email,'treff-member-email'));
+   if(person.joined_at)row.append(node('p','Registriert am '+new Date(person.joined_at).toLocaleDateString('de-DE')));
    if(person.id!==user.id)row.append(action(person.active?'Zugang sperren':'Zugang wieder freigeben',async()=>{
     if(!confirm(person.display_name+': Zugang '+(person.active?'sperren?':'freigeben?')))return;
     await adminCall({action:person.active?'suspend':'restore',id:person.id});
     await loadAdmin();status('Mitgliedschaft aktualisiert.');
+   }));
+   if(person.id!==user.id)row.append(action('Mitglied dauerhaft entfernen',async()=>{
+    if(!confirm('Mitglied „'+person.display_name+'“ samt Konto, Beiträgen, Kommentaren und Fotos dauerhaft entfernen? Diese Aktion kann nicht rückgängig gemacht werden.'))return;
+    await adminCall({action:'delete',id:person.id});await loadAdmin();status('Mitglied dauerhaft entfernt.');
    }));
    if(person.active&&person.email){
     const feedback=node('p');
@@ -251,7 +277,7 @@ function renderAdminMembers(people, canManage=false){
     row.append(action('Wiederherstellungslink per E-Mail senden',async()=>{
      feedback.textContent='Versand wird angefragt …';
      try{
-      const redirectTo=new URL(location.pathname,location.origin).href;
+      const redirectTo=appRedirectUrl();
       const query=new URLSearchParams({redirect_to:redirectTo});
       await request('/auth/v1/recover?'+query,{method:'POST',token:null,body:{email:person.email}});
       feedback.textContent='Versand an die hinterlegte E-Mail-Adresse wurde angefragt.';
@@ -264,6 +290,10 @@ function renderAdminMembers(people, canManage=false){
   root.append(row);
  }
 }
+$('#treff-delete-account').onclick=()=>guard($('#treff-delete-account'),async()=>{
+ if(!confirm('Dein Konto sowie deine Beiträge, Kommentare und Fotos dauerhaft löschen? Diese Aktion kann nicht rückgängig gemacht werden.'))return;
+ await adminCall({action:'self_delete'});close();status('Dein Konto wurde dauerhaft gelöscht.');
+});
 async function loadAdmin(existing){
  const adminId=user.id;
  const list=existing || await request('/rest/v1/treff_members?select=id,display_name,active&order=display_name.asc');
@@ -313,9 +343,9 @@ function clearAdminLink(){invitationRecipient=null;adminLinkType='invite';$('#tr
 $('#treff-clear-link').onclick=clearAdminLink;
 async function init(){
  resetForm();$('#treff-login').hidden=!configured;$('#treff-demo').hidden=hasConfig;
- $('#treff-mode').className='treff-badge';$('#treff-mode').textContent=configured?'Privater Anglertreff · Zugang nur für freigeschaltete Mitglieder':'Testversion · Gemeinsamer Dienst noch nicht eingerichtet';
+ $('#treff-mode').className='treff-badge';$('#treff-mode').textContent=configured?'Anglertreff · Registrierung mit bestätigter E-Mail':'Testversion · Gemeinsamer Dienst noch nicht eingerichtet';
  if(hasConfig&&!configured){$('#treff-mode').textContent='Dienstkonfiguration unvollständig oder ungültig';status('Bitte die öffentlichen Projektangaben prüfen lassen. Kein Zugriff auf private Daten.');return;}
- if(configured)$('#treff-privacy').textContent='Beiträge und Fotos liegen im eingerichteten Supabase-Projekt. Nur freigeschaltete Mitglieder dürfen sie abrufen. Mit „Auf diesem Gerät angemeldet bleiben“ werden Sitzungstoken im lokalen Browserspeicher gespeichert und automatisch erneuert. Abmelden entfernt sie. Gelöschte Browserdaten oder eine ungültige Sitzung erfordern eine neue Anmeldung. Die App speichert keine Passwörter. Eigene Beiträge und Kommentare kannst du löschen; für Konto- und vollständige Datenlöschung Christian ansprechen.';
+ if(configured)$('#treff-privacy').textContent='Beiträge und Fotos liegen im eingerichteten Supabase-Projekt. Nur aktive Mitglieder dürfen sie abrufen. Mit „Auf diesem Gerät angemeldet bleiben“ werden Sitzungstoken im lokalen Browserspeicher gespeichert und automatisch erneuert. Abmelden entfernt sie. Die App speichert keine Passwörter. Eigene Beiträge und Kommentare kannst du löschen; dein Konto kannst du nach Anmeldung dauerhaft löschen.';
 
  $('#treff-access-help').hidden=!configured;
  const hash=new URLSearchParams(location.hash.slice(1)),query=new URLSearchParams(location.search);
