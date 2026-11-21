@@ -1293,7 +1293,7 @@ details[open] > summary::after {
   border: 1px solid #d7e5f3;
   border-radius: 0.55rem;
 }
-#wissen-knoten .knot-gallery svg rect {
+#wissen-knoten .knot-gallery svg rect:not(.head) {
   fill: #ffffff !important;
 }
 #wissen-knoten .knot-gallery svg [stroke="#2c6a55"],
@@ -1326,6 +1326,43 @@ details[open] > summary::after {
 }
 #wissen-knoten .knot-gallery figcaption span {
   color: #53687d;
+}
+#wissen-knoten .knot-gallery svg .paper { fill: #fff; }
+#wissen-knoten .knot-gallery svg .head { fill: #12375f; }
+#wissen-knoten .knot-gallery svg .step-label {
+  fill: #fff;
+  font: 800 12px/1 DM Sans, sans-serif;
+  letter-spacing: 0.1em;
+}
+#wissen-knoten .knot-gallery svg .knot-title {
+  fill: #48647e;
+  font: 700 11px/1 DM Sans, sans-serif;
+}
+#wissen-knoten .knot-gallery svg .line,
+#wissen-knoten .knot-gallery svg .hardware,
+#wissen-knoten .knot-gallery svg .motion {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#wissen-knoten .knot-gallery svg .line {
+  stroke: #1777d1;
+  stroke-width: 4.5;
+}
+#wissen-knoten .knot-gallery svg .line.secondary {
+  stroke: #62a9e8;
+}
+#wissen-knoten .knot-gallery svg .hardware {
+  stroke: #263746;
+  stroke-width: 4.5;
+}
+#wissen-knoten .knot-gallery svg .motion {
+  stroke: #f06a24;
+  stroke-width: 3.5;
+}
+#wissen-knoten .knot-gallery svg .legend-text {
+  fill: #64788a;
+  font: 600 10px/1 DM Sans, sans-serif;
 }
 #wissen-knoten .knot-legend {
   padding: 0.5rem 0.65rem;
