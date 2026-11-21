@@ -234,7 +234,7 @@ function linkParts(hash,query){
  return {type,token_hash,access_token};
 }
 function offerLink(link){pendingLink=link;$('#treff-entry').hidden=true;$('#treff-accept').hidden=false;$('#treff-accept-title').textContent=link.type==='recovery'?'Passwort wiederherstellen':link.type==='signup'?'E-Mail bestätigt':'Willkommen im Freundeskreis';$('#treff-accept-button').textContent=link.type==='recovery'?'Wiederherstellungslink prüfen':link.type==='signup'?'Anglertreff öffnen':'Einladung prüfen';status('Bitte bestätige deinen persönlichen Link.');}
-$('#treff-invitation-input').onsubmit=e=>{e.preventDefault();guard(e.target.querySelector('button'),async()=>{
+const invitationInput=$('#treff-invitation-input');if(invitationInput)invitationInput.onsubmit=e=>{e.preventDefault();guard(e.target.querySelector('button'),async()=>{
  const value=new URL(new FormData(e.target).get('link'));if(value.origin!==location.origin||value.pathname!==location.pathname)throw Error('Der Link gehört zu einer anderen App-Adresse. Öffne ihn direkt im Browser.');
  const link=linkParts(new URLSearchParams(value.hash.slice(1)),value.searchParams);e.target.reset();offerLink(link);
 });};
