@@ -1254,6 +1254,95 @@ details[open] > summary::after {
   font-size: 0.88rem;
 }
 
+/* Knotengrafiken: klare Schrittansicht mit hoher Lesbarkeit */
+#wissen-knoten .knot-gallery {
+  counter-reset: knot-step;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+#wissen-knoten .knot-gallery figure {
+  position: relative;
+  overflow: hidden;
+  padding: 0.7rem;
+  background: linear-gradient(160deg, #ffffff 0%, #f4f9ff 100%);
+  border: 1px solid #bed3ea;
+  border-radius: 0.8rem;
+  box-shadow: 0 7px 18px rgba(5, 31, 58, 0.2);
+  counter-increment: knot-step;
+}
+#wissen-knoten .knot-gallery figure::before {
+  content: counter(knot-step);
+  position: absolute;
+  z-index: 2;
+  top: 0.55rem;
+  left: 0.55rem;
+  display: grid;
+  width: 1.8rem;
+  height: 1.8rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #12375f;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 5px rgba(5, 31, 58, 0.28);
+}
+#wissen-knoten .knot-gallery svg {
+  padding: 0.2rem;
+  background: #ffffff;
+  border: 1px solid #d7e5f3;
+  border-radius: 0.55rem;
+}
+#wissen-knoten .knot-gallery svg rect {
+  fill: #ffffff !important;
+}
+#wissen-knoten .knot-gallery svg [stroke="#2c6a55"],
+#wissen-knoten .knot-gallery svg [stroke="#96aa82"] {
+  stroke: #1777d1 !important;
+}
+#wissen-knoten .knot-gallery svg [fill="#2c6a55"] {
+  fill: #1777d1 !important;
+}
+#wissen-knoten .knot-gallery svg [stroke="#c07842"],
+#wissen-knoten .knot-gallery svg [stroke="#b36b32"],
+#wissen-knoten .knot-gallery svg [stroke="#976039"],
+#wissen-knoten .knot-gallery svg [stroke="#96613d"],
+#wissen-knoten .knot-gallery svg [stroke="#65442b"] {
+  stroke: #f06a24 !important;
+}
+#wissen-knoten .knot-gallery svg [fill="#c07842"],
+#wissen-knoten .knot-gallery svg [fill="#b36b32"],
+#wissen-knoten .knot-gallery svg [fill="#976039"],
+#wissen-knoten .knot-gallery svg [fill="#96613d"],
+#wissen-knoten .knot-gallery svg [fill="#65442b"] {
+  fill: #f06a24 !important;
+}
+#wissen-knoten .knot-gallery figcaption {
+  margin: 0.65rem 0.1rem 0.1rem;
+  color: #15314d;
+}
+#wissen-knoten .knot-gallery figcaption b {
+  color: #12375f;
+}
+#wissen-knoten .knot-gallery figcaption span {
+  color: #53687d;
+}
+#wissen-knoten .knot-legend {
+  padding: 0.5rem 0.65rem;
+  border-left: 3px solid #1777d1;
+  border-radius: 0 0.45rem 0.45rem 0;
+  background: #eef6ff;
+  color: #29445f;
+}
+#wissen-knoten .knot-legend span:first-child {
+  color: #1777d1;
+  font-weight: 700;
+}
+#wissen-knoten .knot-legend span:nth-child(2) {
+  color: #d95c1b;
+  font-weight: 700;
+}
+
 .hourly-strip {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(98px, 1fr));
