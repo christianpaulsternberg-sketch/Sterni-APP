@@ -13,6 +13,11 @@ const knotNames = [
   'Rapalaknoten', 'Arborknoten', 'Springerschlaufe', 'Snellknoten'
 ];
 knotNames.forEach(name => assert.match(html, new RegExp(name), `Knoten fehlt: ${name}`));
+const knotBlocks = [...html.matchAll(/<details class="wissen-item">([\s\S]*?)<\/details>/g)]
+  .filter(match => knotNames.some(name => match[1].includes(name)));
+assert.equal(knotBlocks.length, knotNames.length, 'Nicht alle Knotenbereiche gefunden');
+knotBlocks.forEach(block => assert.ok((block[1].match(/<figure>/g) || []).length >= 4,
+  'Jeder Knoten benötigt mindestens vier Arbeitsschritte'));
 ['back', 'play', 'slow', 'next', 'zoom', '3d'].forEach(action =>
   assert.match(script, new RegExp(`'${action}'`), `Steuerung fehlt: ${action}`));
 assert.match(script, /slow \? 5200 : 2600/, 'Zeitlupe verwendet keine längere Schrittzeit');
