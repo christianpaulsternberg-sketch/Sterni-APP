@@ -1218,6 +1218,22 @@ details[open] > summary::after {
   text-decoration: none;
 }
 
+.wissen-fish-visual {
+  display: grid;
+  place-items: center;
+  min-height: 8rem;
+  margin: 0 0 0.45rem;
+  padding: 0.5rem;
+  border: 1px solid #32323b;
+  border-radius: 0.65rem;
+  background: #191921;
+}
+.wissen-fish-visual svg {
+  display: block;
+  width: min(100%, 260px);
+  height: auto;
+}
+
 .calc-result {
   margin-top: 0.85rem;
   padding: 0.75rem 0.9rem;

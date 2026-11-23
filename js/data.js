@@ -730,7 +730,16 @@ window.STERNI_DATA = (() => {
     { name: "Brasse & Rotauge", method: "Feederangeln, Stipprute, leichte Pose", bait: "Maden, Pinkies, Mais, Mistwurm + Grundfutter", tip: "Feine Vorfächer (0,12–0,16 mm) und sensible Feederspitzen bringen deutlich mehr Bisse." },
     { name: "Schleie", method: "Leichte Posenmontage am Grund", bait: "Mistwurm, Mais, Maden, Teig", tip: "Frühmorgens an Seerosenfeldern nach aufsteigenden Bläschenketten suchen." },
     { name: "Aal", method: "Grund- oder Posenmontage in Ufernähe", bait: "Tauwurm, kleiner Köderfisch / Fischfetzen", tip: "Nachts direkt vor Steinpackungen oder Schilfkanten ablegen; Bremse sauber einstellen." },
-    { name: "Forelle", method: "Spinnfischen, Fliegenfischen, Sbirolino", bait: "Kleine Wobbler, Spinner, Spoons, Nymphen, Bienenmaden", tip: "Gegen die Strömung waten bzw. werfen, damit Fische dich nicht frühzeitig sehen." }
+    { name: "Forelle", method: "Spinnfischen, Fliegenfischen, Sbirolino", bait: "Kleine Wobbler, Spinner, Spoons, Nymphen, Bienenmaden", tip: "Gegen die Strömung waten bzw. werfen, damit Fische dich nicht frühzeitig sehen." },
+    { name: "Wels", method: "Ansitzangeln, Grundmontage, Bojenmontage", bait: "Tauwurmbündel, Köderfisch, Tintenfisch oder Pellets", tip: "In tiefen Rinnen, an Strömungskanten und unter überhängenden Ufern suchen; schwere Geräte und sichere Landung einplanen." },
+    { name: "Rotfeder", method: "Feines Posenangeln im Mittelwasser", bait: "Maden, Brotflocke, Mais und kleine Würmer", tip: "Kraut- und Seerosenkanten befischen; die Rotfeder steht oft höher als das Rotauge." },
+    { name: "Rotauge", method: "Stippen, leichte Pose, Feedern", bait: "Maden, Pinkies, Brotflocke und Mais", tip: "Mit kleiner Futtermenge beginnen und die Tiefe so wählen, dass der Köder knapp über Grund läuft." },
+    { name: "Döbel", method: "Leichtes Spinnfischen oder treibende Pose", bait: "Brot, Kirsche, Käse, kleine Wobbler und Spinner", tip: "Unauffällig an Brücken, überhängenden Bäumen und Strömungskanten präsentieren." },
+    { name: "Nase", method: "Feines Grund- oder Posenangeln", bait: "Brotteig, Maden, kleine Würmer und pflanzliche Köder", tip: "Kiesige Flachwasserbereiche und strömende Rinnen sind typische Standplätze; lokale Schutzregeln beachten." },
+    { name: "Rapfen", method: "Schnelles Spinnfischen im Freiwasser", bait: "Schlanke Blinker, Stickbaits und schnell geführte Wobbler", tip: "Raubende Schwärme an Strömungskanten und unter Wehren gezielt anwerfen." },
+    { name: "Quappe", method: "Nächtliches Grundangeln", bait: "Tau- oder Rotwurm, Fischfetzen", tip: "Kalte Monate und tiefe, steinige Flussbereiche sind typisch; nachts besonders vorsichtig landen." },
+    { name: "Stör", method: "Grundangeln in Teichen und Angelanlagen", bait: "Pellets, Boilies, Tauwurm und Fischfetzen", tip: "Nur dort angeln, wo der Besatz erlaubt ist; Fische wegen der empfindlichen Haut nass und schonend behandeln." },
+    { name: "Äsche", method: "Fliegenfischen und leichtes Spinnfischen", bait: "Trockenfliegen, Nymphen und kleine Insektenimitate", tip: "Klares, sauerstoffreiches Wasser und kiesige Rinnen bevorzugen; Schonzeiten und Entnahmeverbote prüfen." }
   ];
 
   const GRUNDLAGEN_GUIDES = [

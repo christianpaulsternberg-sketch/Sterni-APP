@@ -396,12 +396,14 @@ window.STERNI_APP = (() => {
   }
 
   // ==================== SPOTS & ODER PROFILE ====================
-  function makeFishSvg(name) {
-    return `<svg viewBox="0 0 120 56" width="96" height="44" fill="none" stroke="#ff6265" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M10 28c16-16 48-18 74-7l20-10-6 17 6 17-20-10c-26 11-58 9-74-7Z" fill="#23191d"/>
-      <path d="M40 13l12-8 10 8"/>
-      <circle cx="27" cy="25" r="2.2" fill="#f2f2ef" stroke="none"/>
-      <text x="60" y="53" text-anchor="middle" fill="#aaaab3" stroke="none" font-size="8">${name}</text>
+  function makeFishSvg(name, size = "small") {
+    const large = size === "large";
+    return `<svg viewBox="0 0 220 100" width="${large ? 260 : 120}" height="${large ? 120 : 56}" fill="none" stroke="#ff6265" stroke-width="${large ? 3 : 2.2}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M18 50c27-29 86-34 132-12l36-19-10 31 10 31-36-19C104 84 45 79 18 50Z" fill="#23191d"/>
+      <path d="M72 27l24-19 20 18M112 73l18 15 17-21"/>
+      <path d="M139 37q-18 13 0 26M45 39q14 11 0 22" stroke="#ff9193" opacity=".8"/>
+      <circle cx="50" cy="44" r="3.5" fill="#f2f2ef" stroke="none"/>
+      <text x="110" y="96" text-anchor="middle" fill="#d7d2d6" stroke="none" font-size="${large ? 12 : 8}">${name}</text>
     </svg>`;
   }
 
@@ -525,6 +527,8 @@ window.STERNI_APP = (() => {
 
   // ==================== WISSENSWERTES ====================
   function initWissen() {
+    // Knoten gehören ausschließlich ins Angelknoten-Lexikon, nicht in Wissenswertes.
+    document.getElementById("wissen-knoten")?.remove();
     // 1. Schnur-Rechner
     const lineInputs = ["line-cap-len", "line-cap-dia", "line-main-dia", "line-main-len", "line-backing-dia"];
     const calcLine = () => {
@@ -664,6 +668,8 @@ window.STERNI_APP = (() => {
       d.innerHTML = `
         <summary>${f.name}</summary>
         <div class="details-body">
+          <div class="wissen-fish-visual" role="img" aria-label="Illustration von ${f.name}">${makeFishSvg(f.name, "large")}</div>
+          <p class="small-meta muted">Illustrative Fischdarstellung · typische Merkmale können je nach Alter und Gewässer variieren.</p>
           <p><strong>Methode:</strong> ${f.method}</p>
           <p><strong>Köder:</strong> ${f.bait}</p>
           <p><strong>Praxis-Tipp:</strong> ${f.tip}</p>
