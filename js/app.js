@@ -685,7 +685,7 @@ window.STERNI_APP = (() => {
       d.dataset.search = `${f.name} ${f.method} ${f.bait} ${f.tip}`.toLowerCase();
       const photoUrl = FISH_IMAGE_URLS[f.name] || "";
       const photoMarkup = photoUrl
-        ? `<img class="wissen-fish-photo" src="${photoUrl}" alt="${f.name}" loading="lazy">`
+        ? `<img class="wissen-fish-photo" src="${photoUrl}" alt="${f.name}">`
         : `<div class="wissen-fish-fallback">${makeFishSvg(f.name, "large")}</div>`;
       d.innerHTML = `
         <summary>${f.name}</summary>
