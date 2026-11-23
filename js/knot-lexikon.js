@@ -92,25 +92,16 @@
     return `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><strong>Knoten</strong></div><div class="knot-section-head"><button class="btn-outline btn-sm" data-knot-back="#knoten">← Alle Kategorien</button><h2>${safe(category.name)} <span>(${category.knots.length})</span></h2></div><div class="knot-card-grid">${category.knots.map((item, i) => { const knot = knots.find((entry) => entry.categoryIndex === index && entry.name === item[0]); return `<a class="knot-card" href="#knoten-knot-${knot.id}"><span class="knot-card-icon">${category.icon}</span><span><strong>${safe(knot.name)}</strong><small>${safe(knot.use)}</small></span><span class="knot-card-arrow">›</span></a>`; }).join('')}</div>`;
   }
   function knotView(knot) {
-    let step = 0;
     const content = document.getElementById('knot-view-content');
-    const renderStep = () => {
-      const [heading, text] = stepText(knot, step);
-      content.querySelector('.knot-step-image').innerHTML = diagram(knot, step, step === 3);
-      content.querySelector('.knot-step-title').textContent = `${step + 1}. ${heading}`;
-      content.querySelector('.knot-step-copy').textContent = text;
-      content.querySelector('.knot-step-count').textContent = `Schritt ${step + 1} von 4`;
-      content.querySelector('.knot-prev').disabled = step === 0;
-      content.querySelector('.knot-next').disabled = step === 3;
-    };
     const knotPosition = knots.indexOf(knot);
     const previousKnot = knots[(knotPosition - 1 + knots.length) % knots.length];
     const nextKnot = knots[(knotPosition + 1) % knots.length];
-    content.innerHTML = `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><a href="#knoten-kat-${knot.categoryIndex}">${safe(knot.category)}</a><span>›</span><strong>${safe(knot.name)}</strong></div><article class="knot-detail"><div class="knot-detail-head"><div><p class="eyebrow">${safe(knot.category)}</p><h2>${safe(knot.name)}</h2><p>${safe(knot.summary)}</p><span class="pill-tag">Einsatz: ${safe(knot.use)}</span></div><button type="button" class="btn-outline btn-sm knot-lightbox">Bild vergrößern</button></div><div class="knot-legend"><span class="legend-fixed">━ Stehende Schnur</span><span class="legend-moving">━ Freies Ende / Bewegung</span></div><div class="knot-step-image" tabindex="0"></div><div class="knot-step-text"><strong class="knot-step-title"></strong><p class="knot-step-copy"></p></div><div class="knot-step-controls"><button class="btn-outline knot-prev">← Vorheriger Schritt</button><span class="knot-step-count" aria-live="polite"></span><button class="btn-primary knot-next">Nächster Schritt →</button></div><div class="knot-detail-actions"><a class="btn-outline btn-sm" href="#knoten-knot-${previousKnot.id}">← Vorheriger Knoten</a><a class="btn-outline btn-sm" href="#knoten-kat-${knot.categoryIndex}">Zur Kategorie</a><a class="btn-primary btn-sm" href="#knoten-knot-${nextKnot.id}">Nächster Knoten →</a></div></article>`;
-    content.querySelector('.knot-prev').addEventListener('click', () => { step -= 1; renderStep(); });
-    content.querySelector('.knot-next').addEventListener('click', () => { step += 1; renderStep(); });
-    content.querySelector('.knot-lightbox').addEventListener('click', () => { const dialog = document.getElementById('lightbox-dialog'); const body = document.getElementById('lightbox-body'); body.innerHTML = content.querySelector('.knot-step-image').innerHTML; dialog?.showModal(); });
-    renderStep();
+    const cards = [0, 1, 2, 3].map((step) => {
+      const [heading, text] = stepText(knot, step);
+      return `<article class="knot-step-card"><div class="knot-step-image" tabindex="0" role="button" aria-label="${safe(knot.name)}, Schritt ${step + 1}, vergrößern">${diagram(knot, step, step === 3)}</div><div class="knot-step-text"><strong class="knot-step-title">${step + 1}. ${safe(heading)}</strong><p class="knot-step-copy">${safe(text)}</p></div></article>`;
+    }).join('');
+    content.innerHTML = `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><a href="#knoten-kat-${knot.categoryIndex}">${safe(knot.category)}</a><span>›</span><strong>${safe(knot.name)}</strong></div><article class="knot-detail"><div class="knot-detail-head"><div><p class="eyebrow">${safe(knot.category)}</p><h2>${safe(knot.name)}</h2><p>${safe(knot.summary)}</p><span class="pill-tag">Einsatz: ${safe(knot.use)}</span></div></div><div class="knot-legend"><span class="legend-fixed">━ Stehende Schnur</span><span class="legend-moving">━ Freies Ende / Bewegung</span><span class="legend-arrow">↗ Bewegungsrichtung</span></div><div class="knot-step-grid">${cards}</div><div class="knot-detail-actions"><a class="btn-outline btn-sm" href="#knoten-knot-${previousKnot.id}">← Vorheriger Knoten</a><a class="btn-outline btn-sm" href="#knoten-kat-${knot.categoryIndex}">Zur Kategorie</a><a class="btn-primary btn-sm" href="#knoten-knot-${nextKnot.id}">Nächster Knoten →</a></div></article>`;
+    content.querySelectorAll('.knot-step-image').forEach((image) => image.addEventListener('click', () => { const dialog = document.getElementById('lightbox-dialog'); const body = document.getElementById('lightbox-body'); body.innerHTML = image.innerHTML; dialog?.showModal(); }));
   }
   function route(hash) {
     const content = document.getElementById('knot-view-content');
