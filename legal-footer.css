@@ -1,2 +1,47 @@
-footer.app-legal-footer{display:block;box-sizing:border-box;width:100%;max-width:none;margin:0 auto;padding:16px 12px calc(18px + env(safe-area-inset-bottom,0px));border:0;border-top:1px solid #59515d;border-radius:0;background:#141318;color:#e7e2ea;font:12px/1.6 system-ui,-apple-system,Segoe UI,sans-serif;text-align:center;overflow-wrap:normal}footer.app-legal-footer h2{font:700 14px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;color:#fff5f2;letter-spacing:0;text-transform:none;margin:0 0 8px}footer.app-legal-footer nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;gap:4px;margin:0;padding:0;overflow:visible}footer.app-legal-footer a{display:flex;justify-content:center;align-items:center;min-height:44px;color:#ffb8b9;font:600 12px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;text-decoration:underline;text-underline-offset:3px;white-space:normal;word-break:normal;hyphens:none}footer.app-legal-footer a:focus-visible{outline:3px solid #ffcb87;outline-offset:2px}footer.app-legal-footer p{margin:10px 0 0;color:#d6d0dc;font:12px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}footer.app-legal-footer strong{color:#fff5f2;font-weight:700}.has-app-route footer.app-legal-footer{margin-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
-footer.app-legal-footer{padding:10px 10px calc(12px + env(safe-area-inset-bottom,0px));font-size:11px}footer.app-legal-footer h2{font-size:11px;margin-bottom:4px}footer.app-legal-footer a{font-size:11px;font-weight:400;min-height:44px}footer.app-legal-footer p{font-size:11px;line-height:1.5;margin-top:6px}
+footer.app-legal-footer {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.85rem max(1rem, var(--content-inset, 1rem)) calc(1rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border, #59515d);
+  background: var(--surface, #141318);
+}
+.app-footer-actions {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.app-footer-actions a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border, #59515d);
+  border-radius: 0.75rem;
+  background: var(--surface-raised, #211d23);
+  color: var(--ink, #f4eef4);
+  font: 700 0.85rem/1.35 var(--body, system-ui, sans-serif);
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+.app-footer-actions a:hover,
+.app-footer-actions a:active,
+.app-footer-actions a:focus-visible {
+  border-color: var(--accent, #ff4549);
+  background: linear-gradient(140deg, #3c282f, #1c181e);
+  transform: translateY(-2px);
+}
+.app-footer-actions a:focus-visible { outline: 3px solid #ffcb87; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .app-footer-actions a { transition: none; }
+  .app-footer-actions a:hover, .app-footer-actions a:active { transform: none; }
+}
+@media (max-width: 420px) {
+  .app-footer-actions { gap: 0.45rem; }
+  .app-footer-actions a { min-height: 48px; padding-inline: 0.5rem; font-size: 0.76rem; }
+}
