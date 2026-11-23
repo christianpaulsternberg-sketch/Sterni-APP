@@ -396,6 +396,24 @@ window.STERNI_APP = (() => {
   }
 
   // ==================== SPOTS & ODER PROFILE ====================
+  const FISH_IMAGE_URLS = {
+    "Zander": "assets/fish/zander.jpg",
+    "Barsch": "assets/fish/barsch.jpg",
+    "Hecht": "assets/fish/hecht.jpg",
+    "Karpfen": "assets/fish/karpfen.jpg",
+    "Aal": "assets/fish/aal.jpg",
+    "Forelle": "assets/fish/forelle.jpg",
+    "Wels": "assets/fish/wels.jpg",
+    "Rotfeder": "assets/fish/rotfeder.jpg",
+    "Rotauge": "assets/fish/rotauge.jpg",
+    "Schleie": "assets/fish/schleie.jpg",
+    "Döbel": "assets/fish/doebel.jpg",
+    "Nase": "assets/fish/nase.jpg",
+    "Rapfen": "assets/fish/rapfen.jpg",
+    "Quappe": "assets/fish/quappe.jpg",
+    "Äsche": "assets/fish/aesche.jpg",
+  };
+
   function makeFishSvg(name, size = "small") {
     const large = size === "large";
     return `<svg viewBox="0 0 220 100" width="${large ? 260 : 120}" height="${large ? 120 : 56}" fill="none" stroke="#ff6265" stroke-width="${large ? 3 : 2.2}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -668,8 +686,11 @@ window.STERNI_APP = (() => {
       d.innerHTML = `
         <summary>${f.name}</summary>
         <div class="details-body">
-          <div class="wissen-fish-visual" role="img" aria-label="Illustration von ${f.name}">${makeFishSvg(f.name, "large")}</div>
-          <p class="small-meta muted">Illustrative Fischdarstellung · typische Merkmale können je nach Alter und Gewässer variieren.</p>
+          <div class="wissen-fish-visual" role="img" aria-label="Bild von ${f.name}">
+            <img class="wissen-fish-photo" src="${FISH_IMAGE_URLS[f.name] || ""}" alt="${f.name}" loading="lazy" onload="this.closest('.wissen-fish-visual').classList.add('has-photo')" onerror="this.hidden=true">
+            <div class="wissen-fish-fallback">${makeFishSvg(f.name, "large")}</div>
+          </div>
+          <p class="small-meta muted">Fischfoto: Wikimedia Commons, sofern geladen. Die lokale Zeichnung dient als Fallback; typische Merkmale können je nach Alter und Gewässer variieren.</p>
           <p><strong>Methode:</strong> ${f.method}</p>
           <p><strong>Köder:</strong> ${f.bait}</p>
           <p><strong>Praxis-Tipp:</strong> ${f.tip}</p>

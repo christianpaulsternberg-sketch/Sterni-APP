@@ -1233,6 +1233,16 @@ details[open] > summary::after {
   width: min(100%, 260px);
   height: auto;
 }
+.wissen-fish-photo {
+  display: block;
+  width: min(100%, 360px);
+  height: 10rem;
+  object-fit: contain;
+  border-radius: 0.45rem;
+  background: #101015;
+}
+.wissen-fish-visual:not(.has-photo) .wissen-fish-photo,
+.wissen-fish-visual.has-photo .wissen-fish-fallback { display: none; }
 
 .calc-result {
   margin-top: 0.85rem;
