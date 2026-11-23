@@ -1,7 +1,7 @@
 footer.app-legal-footer {
   width: min(100%, 1120px);
   box-sizing: border-box;
-  margin: 0 auto;
+  margin: clamp(2rem, 5vw, 3.5rem) auto 0;
   padding: 0 var(--content-inset, 1rem) calc(1rem + env(safe-area-inset, 0px));
   border: 0;
   background: transparent;
@@ -9,7 +9,7 @@ footer.app-legal-footer {
 /* Die frühere Startseiten-Kachelregel darf den gemeinsamen Footer nicht mehr umschließen. */
 .app-shell > footer.app-legal-footer {
   width: min(100%, 1120px);
-  margin: 0 auto;
+  margin: clamp(2rem, 5vw, 3.5rem) auto 0;
   border: 0;
   background: transparent;
 }
@@ -17,7 +17,7 @@ footer.app-legal-footer {
 .app-shell:has(#view-start.active) > footer.app-legal-footer:hover,
 .app-shell:has(#view-start.active) > footer.app-legal-footer:focus-within {
   width: min(100%, 1120px);
-  margin: 0 auto;
+  margin: clamp(2rem, 5vw, 3.5rem) auto 0;
   border: 0;
   background: transparent;
 }
