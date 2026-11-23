@@ -1308,14 +1308,14 @@ details[open] > summary::after {
 #wissen-knoten .knot-gallery svg [stroke="#976039"],
 #wissen-knoten .knot-gallery svg [stroke="#96613d"],
 #wissen-knoten .knot-gallery svg [stroke="#65442b"] {
-  stroke: #f06a24 !important;
+  stroke: #d92727 !important;
 }
 #wissen-knoten .knot-gallery svg [fill="#c07842"],
 #wissen-knoten .knot-gallery svg [fill="#b36b32"],
 #wissen-knoten .knot-gallery svg [fill="#976039"],
 #wissen-knoten .knot-gallery svg [fill="#96613d"],
 #wissen-knoten .knot-gallery svg [fill="#65442b"] {
-  fill: #f06a24 !important;
+  fill: #d92727 !important;
 }
 #wissen-knoten .knot-gallery figcaption {
   margin: 0.65rem 0.1rem 0.1rem;
@@ -1357,7 +1357,7 @@ details[open] > summary::after {
   stroke-width: 4.5;
 }
 #wissen-knoten .knot-gallery svg .motion {
-  stroke: #f06a24;
+  stroke: #d92727;
   stroke-width: 3.5;
 }
 #wissen-knoten .knot-gallery svg .legend-text {
@@ -1376,9 +1376,17 @@ details[open] > summary::after {
   font-weight: 700;
 }
 #wissen-knoten .knot-legend span:nth-child(2) {
-  color: #d95c1b;
+  color: #d92727;
   font-weight: 700;
 }
+
+/* Nachbindbare Knotenbilder: Blau bleibt fest, Rot ist stets das geführte Ende. */
+#wissen-knoten .knot-gallery svg .fixed { fill: none; stroke: #1268c4; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+#wissen-knoten .knot-gallery svg .moving { fill: none; stroke: #d92727; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+#wissen-knoten .knot-gallery svg .loop { fill: none; stroke: #d92727; stroke-width: 2.5; stroke-dasharray: 5 4; }
+#wissen-knoten .knot-gallery svg .arrow { fill: none; stroke: #d92727; stroke-width: 2.8; marker-end: url(#arrow-red); }
+#wissen-knoten .knot-gallery svg .hardware { fill: none; stroke: #263746; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+#wissen-knoten .knot-gallery svg .diagram-label { fill: #263746; font: 700 11px/1.2 DM Sans, sans-serif; text-anchor: middle; }
 
 .hourly-strip {
   display: grid;
