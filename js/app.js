@@ -401,6 +401,7 @@ window.STERNI_APP = (() => {
     "Barsch": "assets/fish/barsch.jpg",
     "Hecht": "assets/fish/hecht.jpg",
     "Karpfen": "assets/fish/karpfen.jpg",
+    "Brasse": "assets/fish/brasse.jpg",
     "Aal": "assets/fish/aal.jpg",
     "Forelle": "assets/fish/forelle.jpg",
     "Wels": "assets/fish/wels.jpg",
@@ -411,6 +412,7 @@ window.STERNI_APP = (() => {
     "Nase": "assets/fish/nase.jpg",
     "Rapfen": "assets/fish/rapfen.jpg",
     "Quappe": "assets/fish/quappe.jpg",
+    "Stör": "assets/fish/stoer.jpg",
     "Äsche": "assets/fish/aesche.jpg",
   };
 
