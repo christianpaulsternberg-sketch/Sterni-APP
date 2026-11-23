@@ -748,15 +748,6 @@ window.STERNI_DATA = (() => {
     "Wetter, Kleidung, Getränke und Sonnenschutz geprüft"
   ];
 
-  const BOOTSCHECK_ITEMS = [
-    "Wetter und aktuelle Revierhinweise geprüft",
-    "Passende Rettungswesten für alle an Bord",
-    "Rumpf, Lenzung und Verschlüsse kontrolliert",
-    "Motor, Kraftstoff beziehungsweise Akku geprüft",
-    "Anker, Leinen und vorgeschriebene Ausrüstung dabei",
-    "Telefon geladen und Rückkehr mitgeteilt"
-  ];
-
   const WARTUNG_GUIDES = [
     { title: "Rollenpflege nach dem Angeln", body: "Schmutz mit feuchtem Tuch abwischen. Nach Salzwasserkontakt bei geschlossener Bremse sanft mit klarem Wasser abbrausen – niemals mit Hochdruck oder untertauchen. Danach trocken lagern." },
     { title: "Stationär- und Freilaufrollen", body: "Schnurlaufröllchen regelmäßig auf leichten Lauf prüfen und mit einem Tropfen Rollenöl pflegen. Bremse nach dem Angeln zur Entlastung der Bremsscheiben leicht lösen." },
@@ -1088,7 +1079,6 @@ window.STERNI_DATA = (() => {
     FISH_GUIDE_DATA,
     GRUNDLAGEN_GUIDES,
     ANGELCHECK_ITEMS,
-    BOOTSCHECK_ITEMS,
     WARTUNG_GUIDES,
     REEL_TYPES,
     LINE_TYPES,

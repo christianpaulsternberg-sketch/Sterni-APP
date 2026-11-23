@@ -128,18 +128,17 @@
             <span class="quick-sub">Abhaken, was in die Tasche muss</span>
           </a>
 
-          <!-- Bootscheck -->
-          <a href="#boot" class="quick-link" data-route="boot">
+          <!-- Angelknoten-Lexikon -->
+          <a href="#knoten" class="quick-link" data-route="knoten">
             <div class="tile-top">
               <svg class="tile-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M6 29h36l-4 9H10l-4-9Z"/>
-                <path d="M24 9v20"/>
-                <path d="M24 11l13 13H24"/>
-                <path d="M8 42c4-2 8-2 12 0s8 2 12 0 8-2 8 0"/>
+                <path d="M8 25c8-12 17-12 25-4l7-5-2 9 2 9-7-5c-8 8-17 8-25-4Z"/>
+                <circle cx="17" cy="24" r="1.5" fill="currentColor" stroke="none"/>
+                <path d="M3 39c8-5 14 5 22 0s14 5 20 0"/>
               </svg>
             </div>
-            <span class="quick-label">BOOTSCHECK</span>
-            <span class="quick-sub">Kurz-Check vor dem Ablegen</span>
+            <span class="quick-label">KNOTEN</span>
+            <span class="quick-sub">30 Angelknoten Schritt für Schritt</span>
           </a>
         </div>
 
@@ -994,22 +993,9 @@
         </div>
       </section>
 
-      <!-- ==================== #BOOT VIEW ==================== -->
-      <section id="view-boot" class="app-view" aria-labelledby="boot-heading" hidden>
-        <div class="section-head">
-          <p class="eyebrow">BEVOR DU ABLEGST</p>
-          <h1 id="boot-heading">Dein Bootscheck</h1>
-        </div>
-        <div class="panel">
-          <div class="checklist-header">
-            <span id="boot-counter" class="quiz-counter">0 / 6 Vorbereitungen erledigt</span>
-            <button type="button" class="btn-outline btn-sm" id="boot-reset-btn">Für den nächsten Trip zurücksetzen</button>
-          </div>
-          <div class="progress-track">
-            <div class="progress-fill" id="boot-progress" style="width: 0%"></div>
-          </div>
-          <ul id="boot-list" class="checklist"></ul>
-        </div>
+      <!-- ==================== #KNOTEN VIEW ==================== -->
+      <section id="view-knoten" class="app-view" aria-labelledby="knoten-heading" hidden>
+        <div id="knoten-lexikon-root"></div>
       </section>
 
       <!-- ==================== #WETTER VIEW ==================== -->
@@ -1328,7 +1314,7 @@
         <option value="wetter">Wetter &amp; Fisch</option>
         <option value="spots">Meine Angelspots</option>
         <option value="angeln">Angelcheck</option>
-        <option value="boot">Bootscheck</option>
+        <option value="knoten">Knoten-Lexikon</option>
         <option value="navigation">Bootsposition &amp; Fahrt</option>
         <option value="journal">Fangtagebuch</option>
         <option value="wartung">Wartung &amp; Pflege</option>
@@ -1365,6 +1351,7 @@
   <script src="js/quiz-live.js?v=duell-status-1"></script>
   <script src="js/maps.js"></script>
   <script src="js/knot-illustrations.js?v=neu-gezeichnet-1"></script>
+  <script src="js/knot-lexikon.js?v=30-knoten-1"></script>
   <script src="js/app.js?v=quiz-kachel-1"></script>
 </body>
 </html>

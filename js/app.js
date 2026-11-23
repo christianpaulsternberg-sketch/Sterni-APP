@@ -4,7 +4,6 @@ window.STERNI_APP = (() => {
     journal: "sterni_journal_v1",
     wartung: "sterni_wartung_v1",
     angelnCheck: "sterni_angeln_check_v1",
-    bootCheck: "sterni_boot_check_v1",
     equip: "sterni_equip_v1",
     kitchen: "sterni_kitchen_v1",
     treffPosts: "sterni_treff_posts_v1",
@@ -15,7 +14,7 @@ window.STERNI_APP = (() => {
 
   const VALID_VIEWS = [
     "start", "quiz", "anglertreff", "spots", "wissen",
-    "angeln", "boot", "wetter", "navigation", "journal", "wartung", "hinweise", "installation"
+    "angeln", "knoten", "wetter", "navigation", "journal", "wartung", "hinweise", "installation"
   ];
 
   let toastTimer = null;
@@ -109,12 +108,19 @@ window.STERNI_APP = (() => {
       requestAnimationFrame(() => knowledgeGroup.scrollIntoView({ block: "start" }));
       return;
     }
+    if (hash === "knoten" || hash.startsWith("knoten-kat-") || hash.startsWith("knoten-knot-")) {
+      navigateTo("knoten");
+      window.STERNI_KNOTS?.route(hash);
+      return;
+    }
     navigateTo(hash || "start");
   }
 
   function initRouting() {
     // Ein Quiz-Link muss beim Öffnen und Neuladen dieselbe Ansicht behalten.
-    if (location.hash !== "#start" && location.hash !== "#quiz") {
+    const initialHash = location.hash || "#start";
+    const isKnotHash = initialHash === "#knoten" || initialHash.startsWith("#knoten-kat-") || initialHash.startsWith("#knoten-knot-");
+    if (initialHash !== "#start" && initialHash !== "#quiz" && !isKnotHash) {
       history.replaceState(null, "", `${location.pathname}${location.search}#start`);
     }
     window.addEventListener("hashchange", handleHash);
@@ -1494,7 +1500,7 @@ window.STERNI_APP = (() => {
     initSpots();
     initWissen();
     setupChecklist("angeln-list", "angeln-counter", "angeln-progress", "angeln-reset-btn", KEYS.angelnCheck, window.STERNI_DATA.ANGELCHECK_ITEMS);
-    setupChecklist("boot-list", "boot-counter", "boot-progress", "boot-reset-btn", KEYS.bootCheck, window.STERNI_DATA.BOOTSCHECK_ITEMS);
+    window.STERNI_KNOTS?.init();
     initWetter();
     initJournal();
     initWartung();
