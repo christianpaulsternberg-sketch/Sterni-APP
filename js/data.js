@@ -1052,6 +1052,14 @@ window.STERNI_DATA = (() => {
       { name: "Elbe bei Wittenberge", type: "Flussabschnitt", lat: 52.991, lon: 11.745 },
       { name: "Elbe bei Bleckede / Boizenburg", type: "Buhnenstrecke", lat: 53.294, lon: 10.731 },
       { name: "Unterelbe bei Hamburg", type: "Tideelbe", lat: 53.541, lon: 9.967 }
+    ],
+    "rhein": [
+      { name: "Alpenrhein", type: "Geografischer Hauptabschnitt", lat: 47.425, lon: 9.510 },
+      { name: "Hochrhein", type: "Geografischer Hauptabschnitt", lat: 47.610, lon: 8.620 },
+      { name: "Oberrhein", type: "Geografischer Hauptabschnitt", lat: 48.570, lon: 8.270 },
+      { name: "Mittelrhein", type: "Geografischer Hauptabschnitt", lat: 50.380, lon: 7.600 },
+      { name: "Niederrhein", type: "Geografischer Hauptabschnitt", lat: 51.700, lon: 6.650 },
+      { name: "Deltarhein", type: "Geografischer Hauptabschnitt", lat: 51.900, lon: 4.450 }
     ]
   };
 

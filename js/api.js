@@ -297,7 +297,7 @@ window.STERNI_API = (() => {
     const nameWords = waterName.toLowerCase().split(/[^\p{L}\p{N}]+/u);
     for (const [key, list] of Object.entries(knownWaters)) {
       if (nameWords.includes(key) || waterName.toLowerCase().includes(key) || (key === "spree" && nameWords.includes("müggelspree"))) {
-        list.forEach((s) => addSection(s.name, s.type, s.lat, s.lon, "Regionale Gewässerdaten"));
+        list.forEach((s) => addSection(s.name, s.type, s.lat, s.lon, s.type === "Geografischer Hauptabschnitt" ? "Geografische Hauptabschnitte" : "Regionale Gewässerdaten"));
       }
     }
 
