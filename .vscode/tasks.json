@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Sterni-APP: Browser-Vorschau starten",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "tools/local-server.mjs"
+      ],
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": {
+        "owner": "sterni-local-server",
+        "pattern": [],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Lokale Vorschau bereit unter",
+          "endsPattern": "^$"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "detail": "Startet die Sterni-APP lokal unter http://localhost:4173"
+    }
+  ]
+}

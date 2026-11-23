@@ -1,5 +1,19 @@
 # Sterni-APP
 
+## Lokale Browser-Vorschau in Visual Studio Code
+
+### Täglicher Ablauf
+
+1. Mit `Strg+L` den lokalen **Continue-Chat** im selben VS-Code-Fenster öffnen. Das ist die bereits installierte Erweiterung „Continue“.
+2. Mit `Strg+Umschalt+B` die lokale Vorschau starten. Das ist der direkte Standard-Build-Befehl für dieses Projekt; kein Menü ist nötig.
+3. Einmalig in VS Code `Strg+Umschalt+P` drücken, **„Simple Browser: Show“** wählen und `http://localhost:4173` eingeben. Der eingebaute Browser erscheint als Editor-Registerkarte neben dem Code und kann offen bleiben.
+
+Der Server läuft ausschließlich auf diesem Rechner und liefert die Dateien ohne Build-Schritt direkt aus. Änderungen nach dem Speichern im Simple Browser neu laden; mit `Strg+F5` wird auch ein eventuell zwischengespeicherter Stand umgangen.
+
+Zum Beenden im VS-Code-Terminal `Strg+C` drücken. Voraussetzung ist nur eine lokale Node.js-Installation; es werden keine npm-Pakete installiert und keine Cloud-Dienste genutzt.
+
+VS Code kann mit seinen Bordmitteln den Simple Browser nicht verlässlich zusammen mit einem Hintergrund-Task beim Öffnen des Projekts automatisch aufrufen. Deshalb ist die Vorschau nicht als fragiler Autostart eingerichtet: Nach dem ersten Öffnen des Simple Browsers genügt künftig `Strg+Umschalt+B`, um den Server wieder bereitzustellen.
+
 ## Betrieb und Wiederherstellung
 
 GitHub Pages stellt die Webdateien aus dem Sterni-APP-Repository bereit. Der Einstieg ist [Sterni-App](https://christianpaulsternberg-sketch.github.io/Sterni-APP/#start). Die öffentliche Supabase-Verbindungskonfiguration steht in `anglertreff-config.js`. Der Anglertreff verwendet zusätzlich das Supabase-Projekt für Anmeldung, Mitgliedschaften, Beiträge, Fotos und die Verwaltungsfunktion `anglertreff-admin`.
