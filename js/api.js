@@ -217,6 +217,7 @@ window.STERNI_API = (() => {
   }
 
   const wikiCache = new Map();
+  const waterSectionCache = new Map();
 
   async function fetchWikiSummary(lang, title) {
     const slug = encodeURIComponent(title.replace(/\s+/g, "_"));
@@ -272,8 +273,10 @@ window.STERNI_API = (() => {
   }
 
   async function fetchWaterSections(lat, lon, waterName = "") {
+    const cacheKey = `${String(waterName).trim().toLowerCase()}|${Number(lat).toFixed(3)}|${Number(lon).toFixed(3)}`;
+    if (waterSectionCache.has(cacheKey)) return waterSectionCache.get(cacheKey);
     const seen = new Map();
-    const addSection = (name, type, sLat, sLon) => {
+    const addSection = (name, type, sLat, sLon, source = "OpenStreetMap") => {
       if (!name) return;
       const distKm = haversineKm(lat, lon, sLat, sLon);
       const prev = seen.get(name);
@@ -283,7 +286,8 @@ window.STERNI_API = (() => {
           type,
           lat: +Number(sLat).toFixed(5),
           lon: +Number(sLon).toFixed(5),
-          distKm
+          distKm,
+          source
         });
       }
     };
@@ -292,28 +296,29 @@ window.STERNI_API = (() => {
     const knownWaters = window.STERNI_DATA?.KNOWN_WATER_SECTIONS || {};
     const nameWords = waterName.toLowerCase().split(/[^\p{L}\p{N}]+/u);
     for (const [key, list] of Object.entries(knownWaters)) {
-      if (nameWords.includes(key) || (key === "spree" && nameWords.includes("müggelspree"))) {
-        list.forEach((s) => addSection(s.name, s.type, s.lat, s.lon));
+      if (nameWords.includes(key) || waterName.toLowerCase().includes(key) || (key === "spree" && nameWords.includes("müggelspree"))) {
+        list.forEach((s) => addSection(s.name, s.type, s.lat, s.lon, "Regionale Gewässerdaten"));
       }
     }
 
-    // 2. Nominatim Bounded Search für umliegende Teilgewässer (einzelne Abfrage zur Vermeidung von Rate-Limits)
+    // 2. Weltweite OSM-Suche: benannte Wasserobjekte und Wasserwege im Umfeld.
     if (seen.size === 0) {
-      const dLat = 0.12;
-      const dLon = 0.18;
-      const viewbox = `${(lon - dLon).toFixed(4)},${(lat + dLat).toFixed(4)},${(lon + dLon).toFixed(4)},${(lat - dLat).toFixed(4)}`;
-      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&bounded=1&viewbox=${viewbox}&limit=15&accept-language=de&q=${encodeURIComponent("See")}`;
+      const query = waterName || "waterway";
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=20&accept-language=de&q=${encodeURIComponent(query)}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Gewässersuche derzeit nicht erreichbar.");
       const hits = await res.json();
       for (const h of hits) {
-        if (h.class !== "waterway" && !(h.class === "natural" && h.type === "water")) continue;
+        const hClass = h.class || h.category || "";
+        if (hClass !== "waterway" && hClass !== "natural" && h.type !== "water") continue;
         const n = h.name || h.display_name?.split(",")[0];
-        addSection(n, "Gewässer in der Nähe", h.lat, h.lon);
+        const type = h.type === "river" ? "Fluss / Abschnitt" : h.type === "canal" ? "Kanal / Abschnitt" : h.type === "reservoir" ? "Stausee / Becken" : h.type === "bay" ? "Bucht / Küste" : "Gewässerbereich";
+        addSection(n, type, h.lat, h.lon, "OpenStreetMap / Nominatim");
       }
     }
-
-    return [...seen.values()].sort((a, b) => a.distKm - b.distKm);
+    const result = [...seen.values()].sort((a, b) => a.distKm - b.distKm);
+    waterSectionCache.set(cacheKey, result);
+    return result;
   }
 
   function degToCompass(deg) {

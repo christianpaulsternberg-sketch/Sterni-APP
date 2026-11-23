@@ -1552,6 +1552,14 @@ details[open] > summary::after {
   grid-template-columns: repeat(auto-fill, minmax(98px, 1fr));
   gap: 0.5rem;
 }
+.nav-water-panel { margin: 1rem 0; padding: 1rem; border: 1px solid #2f6d9f; border-radius: .85rem; background: #0b2743; }
+.nav-water-panel h2 { margin: 0 0 .35rem; color: #fff; font-size: 1.15rem; }
+.inline-form { display: flex; gap: .55rem; flex-wrap: wrap; margin: .8rem 0; }
+.inline-form input { flex: 1 1 16rem; min-width: 0; }
+.section-chip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: .55rem; margin-top: .8rem; }
+.section-chip-btn { display: block; width: 100%; padding: .7rem; text-align: left; border: 1px solid #397eaf; border-radius: .65rem; background: #0e3a5e; color: #eef8ff; cursor: pointer; }
+.section-chip-btn:hover, .section-chip-btn:focus-visible, .section-chip-btn.active { border-color: #72caff; background: #15517d; }
+.section-chip-type { display: block; color: #9ed8ff; font-size: .75rem; font-weight: 700; text-transform: uppercase; }
 .hourly-cell {
   background: #101015;
   border: 1px solid #2c2c35;

@@ -376,9 +376,66 @@ window.STERNI_MAPS = (() => {
     navPolyline = L.polyline([], { color: "#ff4549", weight: 4 }).addTo(navMap);
   }
 
+  async function selectNavWater(hit) {
+    const name = hit.name || hit.display_name?.split(",")[0] || "Gewässer";
+    const lat = Number(hit.lat); const lon = Number(hit.lon);
+    const selected = document.getElementById("nav-water-selected");
+    const list = document.getElementById("nav-water-sections");
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    selected.textContent = `${name} · ${hit.address?.country || hit.address?.state || "Geografischer Treffer"} · ${lat.toFixed(4)}° N, ${lon.toFixed(4)}° O`;
+    list.innerHTML = "<p class=\"muted small-meta\">Suche benannte Teilabschnitte …</p>";
+    if (navMap) {
+      if (!navMarker) navMarker = L.marker([lat, lon]).addTo(navMap);
+      else navMarker.setLatLng([lat, lon]);
+      navMarker.bindPopup(`<strong>${name}</strong>`).openPopup();
+      navMap.setView([lat, lon], 11);
+    }
+    try {
+      const sections = await window.STERNI_API.fetchWaterSections(lat, lon, name);
+      list.innerHTML = "";
+      if (!sections.length) {
+        list.innerHTML = '<p class="muted small-meta">Für diesen Treffer sind aktuell keine benannten Teilabschnitte in den Datenquellen erfasst.</p>';
+        return;
+      }
+      sections.forEach((section) => {
+        const button = document.createElement("button");
+        button.type = "button"; button.className = "section-chip-btn";
+        button.innerHTML = '<span class="section-chip-type"></span><strong></strong><span class="small-meta muted"></span>';
+        button.querySelector(".section-chip-type").textContent = section.type;
+        button.querySelector("strong").textContent = section.name;
+        button.querySelector(".muted").textContent = `${section.distKm.toFixed(1)} km · ${section.source}`;
+        button.addEventListener("click", () => selectNavWater({ name: section.name, display_name: `${section.name} (${section.type})`, lat: section.lat, lon: section.lon, address: hit.address || {} }));
+        list.appendChild(button);
+      });
+    } catch {
+      list.innerHTML = '<p class="muted small-meta">Die Gewässerdatenquelle ist momentan nicht erreichbar.</p>';
+    }
+  }
+
   function bindNavEvents() {
     const gpsBtn = document.getElementById("nav-gps-toggle-btn");
     const recBtn = document.getElementById("nav-record-btn");
+
+    document.getElementById("nav-water-search-form")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const query = document.getElementById("nav-water-search").value.trim();
+      const results = document.getElementById("nav-water-results");
+      if (!query) return;
+      results.hidden = false; results.innerHTML = '<div class="disambig-item">Suche weltweit …</div>';
+      try {
+        const hits = (await window.STERNI_API.geocodeSearch(query)).filter((hit) => {
+          const hitClass = hit.class || hit.category || "";
+          return hitClass === "waterway" || hitClass === "natural" || hit.type === "water";
+        });
+        if (!hits.length) { results.innerHTML = '<div class="disambig-item">Kein benanntes Gewässer gefunden.</div>'; return; }
+        results.innerHTML = "";
+        hits.slice(0, 8).forEach((hit) => {
+          const button = document.createElement("button"); button.type = "button"; button.className = "disambig-item"; button.textContent = hit.display_name;
+          button.addEventListener("click", () => { results.hidden = true; selectNavWater(hit); });
+          results.appendChild(button);
+        });
+      } catch { results.innerHTML = '<div class="disambig-item">Gewässersuche derzeit nicht erreichbar.</div>'; }
+    });
 
     gpsBtn?.addEventListener("click", () => {
       if (watchId !== null) {

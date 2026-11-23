@@ -120,7 +120,8 @@ window.STERNI_APP = (() => {
     // Ein Quiz-Link muss beim Öffnen und Neuladen dieselbe Ansicht behalten.
     const initialHash = location.hash || "#start";
     const isKnotHash = initialHash === "#knoten" || initialHash.startsWith("#knoten-kat-") || initialHash.startsWith("#knoten-knot-");
-    if (initialHash !== "#start" && initialHash !== "#quiz" && !isKnotHash) {
+    const isKnownView = VALID_VIEWS.includes(initialHash.slice(1));
+    if (initialHash !== "#start" && initialHash !== "#quiz" && !isKnownView && !isKnotHash) {
       history.replaceState(null, "", `${location.pathname}${location.search}#start`);
     }
     window.addEventListener("hashchange", handleHash);

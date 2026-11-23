@@ -1106,6 +1106,19 @@
             <button type="button" class="btn-outline btn-sm" id="nav-export-gpx-btn">Fahrt als GPX sichern</button>
           </div>
 
+          <div class="nav-water-panel panel-soft" aria-labelledby="nav-water-heading">
+            <h2 id="nav-water-heading">Gewässer und Teilabschnitt</h2>
+            <p class="muted small-meta">Suche weltweit nach einem Gewässer. Die Treffer und Abschnitte stammen aus OpenStreetMap; nicht benannte Bereiche werden nicht erfunden.</p>
+            <form id="nav-water-search-form" class="inline-form">
+              <label class="sr-only" for="nav-water-search">Gewässer suchen</label>
+              <input type="search" id="nav-water-search" placeholder="z. B. Elbe, Rhein, Müggelsee …" autocomplete="off">
+              <button type="submit" class="btn-primary btn-sm">Suchen</button>
+            </form>
+            <div id="nav-water-results" class="disambig-list" hidden></div>
+            <div id="nav-water-selected" class="small-meta muted">Noch kein Gewässer ausgewählt.</div>
+            <div id="nav-water-sections" class="section-chip-grid" aria-live="polite"></div>
+          </div>
+
           <div id="nav-map" class="leaflet-box" aria-label="Seekarte und Bootsposition"></div>
 
           <details class="sub-details">
@@ -1343,15 +1356,15 @@
   <script src="js/data.js?v=gewaesser-check-1"></script>
   <script src="js/quiz-data.js"></script>
   <script src="js/quiz-history.js?v=server-history-1"></script>
-  <script src="js/api.js?v=gewaesser-check-1"></script>
+  <script src="js/api.js?v=gewaesser-abschnitte-2"></script>
   <script src="./anglertreff-config.js"></script>
   <script src="js/quiz.js?v=duell-anfrage-1"></script>
   <script src="js/quiz-online.js?v=anglertreff-foto-1"></script>
   <script src="./anglertreff-hinweis.js?v=anglertreff-foto-1"></script>
   <script src="js/quiz-live.js?v=duell-status-1"></script>
-  <script src="js/maps.js"></script>
+  <script src="js/maps.js?v=bootsposition-abschnitte-1"></script>
   <script src="js/knot-illustrations.js?v=neu-gezeichnet-1"></script>
   <script src="js/knot-lexikon.js?v=30-knoten-3"></script>
-  <script src="js/app.js?v=quiz-kachel-1"></script>
+  <script src="js/app.js?v=bootsposition-route-1"></script>
 </body>
 </html>
