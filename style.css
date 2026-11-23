@@ -1461,7 +1461,7 @@ details[open] > summary::after {
 .knot-step-image { max-width:760px; margin:0 auto; padding:.5rem; border:1px solid #397eaf; border-radius:1rem; background:#071a2d; cursor:zoom-in; }
 .knot-diagram { display:block; width:100%; height:auto; }
 .knot-paper { fill:#eaf5ff; }
-.knot-svg-step { fill:#fff; font:800 14px/1 sans-serif; letter-spacing:.12em; text-anchor:middle; }
+.knot-svg-step { fill:#12375f; font:800 14px/1 sans-serif; letter-spacing:.12em; text-anchor:middle; }
 .knot-fixed { fill:none; stroke:#1268c4; stroke-width:6; stroke-linecap:round; stroke-linejoin:round; }
 .knot-moving { fill:none; stroke:#d92727; stroke-width:6; stroke-linecap:round; stroke-linejoin:round; }
 .knot-hardware { fill:none; stroke:#263746; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; }
@@ -1469,7 +1469,7 @@ details[open] > summary::after {
 .knot-shadow { fill:#8dbde1; opacity:.35; stroke:#1268c4; stroke-width:5; }
 .knot-start,.knot-end { fill:#1268c4; }
 .knot-point-label { fill:#12375f; font:800 10px/1 sans-serif; letter-spacing:.08em; }
-.knot-svg-hint { fill:#12375f; font:700 12px/1.2 sans-serif; }
+.knot-svg-hint { fill:#12375f; font:800 11px/1.2 sans-serif; letter-spacing:.1em; }
 .knot-step-text { max-width:760px; margin:1rem auto 0; padding:1rem 1.1rem; border-left:4px solid #ff635f; border-radius:.2rem .7rem .7rem .2rem; background:#102f4d; }
 .knot-step-title { display:block; color:#fff; font-size:1.2rem; }
 .knot-step-copy { margin:.4rem 0 0; color:#cde7fa; line-height:1.55; }
