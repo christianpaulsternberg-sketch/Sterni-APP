@@ -683,14 +683,17 @@ window.STERNI_APP = (() => {
       const d = document.createElement("details");
       d.className = "wissen-item";
       d.dataset.search = `${f.name} ${f.method} ${f.bait} ${f.tip}`.toLowerCase();
+      const photoUrl = FISH_IMAGE_URLS[f.name] || "";
+      const photoMarkup = photoUrl
+        ? `<img class="wissen-fish-photo" src="${photoUrl}" alt="${f.name}" loading="lazy">`
+        : `<div class="wissen-fish-fallback">${makeFishSvg(f.name, "large")}</div>`;
       d.innerHTML = `
         <summary>${f.name}</summary>
         <div class="details-body">
           <div class="wissen-fish-visual" role="img" aria-label="Bild von ${f.name}">
-            <img class="wissen-fish-photo" src="${FISH_IMAGE_URLS[f.name] || ""}" alt="${f.name}" loading="lazy" onload="this.closest('.wissen-fish-visual').classList.add('has-photo')" onerror="this.hidden=true">
-            <div class="wissen-fish-fallback">${makeFishSvg(f.name, "large")}</div>
+            ${photoMarkup}
           </div>
-          <p class="small-meta muted">Fischfoto: Wikimedia Commons, sofern geladen. Die lokale Zeichnung dient als Fallback; typische Merkmale können je nach Alter und Gewässer variieren.</p>
+          <p class="small-meta muted">${photoUrl ? "Fischfoto aus Wikimedia Commons; Bildnachweis siehe assets/fish/credits.json." : "Illustrative lokale Darstellung; typische Merkmale können je nach Alter und Gewässer variieren."}</p>
           <p><strong>Methode:</strong> ${f.method}</p>
           <p><strong>Köder:</strong> ${f.bait}</p>
           <p><strong>Praxis-Tipp:</strong> ${f.tip}</p>
