@@ -1241,8 +1241,7 @@ details[open] > summary::after {
   border-radius: 0.45rem;
   background: #101015;
 }
-.wissen-fish-visual:not(.has-photo) .wissen-fish-photo,
-.wissen-fish-visual.has-photo .wissen-fish-fallback { display: none; }
+.wissen-fish-fallback { display: block; }
 
 .calc-result {
   margin-top: 0.85rem;
