@@ -33,7 +33,7 @@
         text: caption?.querySelector('span')?.textContent || 'Schnurverlauf kontrollieren und erst dann weitergehen.' };
     });
     const knotName = item.querySelector('summary')?.textContent.trim() || `Knoten ${knotIndex + 1}`;
-    let current = 0; let timer = null;
+    let current = 0; let timer = null; let threeD = false; let dragStart = null; let moved = false;
     const player = document.createElement('section');
     player.className = 'knot-player';
     player.setAttribute('aria-label', `${knotName}: interaktive Knotenschule`);
@@ -45,10 +45,12 @@
     const play = makeButton('▶ Ablauf', 'play', 'Automatischen Ablauf starten');
     const next = makeButton('Weiter ›', 'next', 'Nächster Schritt');
     const zoom = makeButton('⌕ Vergrößern', 'zoom', 'Zeichnung vergrößern');
-    controls.append(back, play, next, zoom);
+    const rotate = makeButton('◈ 3D drehen', '3d', 'Drehbare 3D-Ansicht einschalten');
+    controls.append(back, play, next, zoom, rotate);
     const render = () => {
       stage.replaceChildren(decorateSvg(cloneSvg(steps[current].svg), knotIndex));
       stage.querySelector('svg').setAttribute('aria-label', `${knotName}: ${steps[current].title}`);
+      stage.classList.toggle('is-3d', threeD);
       count.textContent = `Schritt ${current + 1} von ${steps.length}`;
       title.textContent = steps[current].title; description.textContent = steps[current].text;
       back.disabled = current === 0; next.disabled = current === steps.length - 1;
@@ -70,8 +72,24 @@
       if (action === 'back' && current > 0) { stop(); current -= 1; render(); }
       if (action === 'next' && current < steps.length - 1) { stop(); current += 1; render(); }
       if (action === 'play') auto(); if (action === 'zoom') openZoom();
+      if (action === '3d') {
+        threeD = !threeD; moved = false;
+        stage.classList.toggle('is-3d', threeD);
+        stage.style.removeProperty('--knot-rotate-x'); stage.style.removeProperty('--knot-rotate-y');
+        rotate.textContent = threeD ? '◈ 3D an · ziehen' : '◈ 3D drehen';
+        rotate.setAttribute('aria-label', threeD ? 'Drehbare 3D-Ansicht ausschalten' : 'Drehbare 3D-Ansicht einschalten');
+      }
     });
-    stage.addEventListener('click', openZoom);
+    stage.addEventListener('pointerdown', event => { if (threeD) { dragStart = { x: event.clientX, y: event.clientY }; moved = false; stage.setPointerCapture?.(event.pointerId); } });
+    stage.addEventListener('pointermove', event => {
+      if (!threeD || !dragStart) return;
+      const dx = event.clientX - dragStart.x; const dy = event.clientY - dragStart.y;
+      if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
+      stage.style.setProperty('--knot-rotate-x', `${Math.max(-18, Math.min(18, -dy / 4))}deg`);
+      stage.style.setProperty('--knot-rotate-y', `${Math.max(-22, Math.min(22, dx / 4))}deg`);
+    });
+    stage.addEventListener('pointerup', () => { dragStart = null; });
+    stage.addEventListener('click', () => { if (!moved) openZoom(); moved = false; });
     stage.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openZoom(); } });
     item.addEventListener('toggle', () => { if (!item.open) stop(); });
     gallery.hidden = true; gallery.before(player); render();
