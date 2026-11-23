@@ -1,4 +1,5 @@
 window.STERNI_DAILY_JOKES = {
+  "2026-11-23": "„Warum hast du einen Spiegel im Angelkoffer?“ – „Falls ich wieder nichts fange, kann ich wenigstens sehen, wer schuld ist.“ – „Und, hilft das?“ – „Ja. Seitdem beschimpfe ich nicht mehr das Wetter.“",
   "2026-11-21": "„Warum hast du auf deinem Angelkoffer ein Zahlenschloss?“ – „Damit keiner meine Geheimköder klaut.“ – „Und warum sitzt du seit einer Stunde davor?“ – „Die Kombination war das Datum meines letzten großen Fangs. Jetzt streiten wir, ob das noch vierstellig war.“",
   "2026-11-20": "Ein Angler zeigt stolz seine neue Unterwasserkamera. „Jetzt sehe ich endlich, warum nichts beißt!“ – „Und?“ – „Seit drei Stunden gucke ich einem Karpfen zu, der meinen Köder anstupst und wieder wegschwimmt. Mein Kumpel sagt, ich habe mir für vierhundert Euro einen Fernseher gekauft, auf dem nur Niederlagen laufen.“",
   "2026-11-18": "„Warum flüsterst du beim Angeln in dein Handy?“ – „Ich nehme eine Sprachnachricht für den Verein auf.“ – „Und warum schon zum fünften Mal?“ – „Das Handy macht aus jedem Wels ein W-LAN. So langsam klingt mein Fangbericht wie eine Störungsmeldung.“",
