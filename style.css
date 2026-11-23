@@ -1451,6 +1451,12 @@ details[open] > summary::after {
 .legend-fixed { color:#65b7ff; font-weight:700; }
 .legend-moving { color:#ff706d; font-weight:700; }
 .legend-arrow { color:#ffb36d; font-weight:700; }
+.palomar-board-wrap { max-width:1100px; margin:0 auto 1rem; padding:.65rem; border:2px solid #b8c5d2; border-radius:1rem; background:#071d34; box-shadow:0 10px 26px rgba(0,10,24,.35); }
+.palomar-board { display:block; width:100%; height:auto; border-radius:.65rem; }
+.palomar-board-wrap .palomar-zoom { display:block; margin:.7rem auto .1rem; }
+.palomar-board-large { max-width:1200px; width:100%; height:auto; }
+.knot-step-number { display:grid; place-items:center; width:2rem; height:2rem; margin:.8rem .8rem 0; border-radius:50%; background:#0d5ab4; color:#fff; font-weight:900; box-shadow:0 2px 5px rgba(0,0,0,.2); }
+.knot-step-card .knot-step-number + .knot-step-text { border-top:0; }
 .knot-step-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.9rem; }
 .knot-step-card { min-width:0; overflow:hidden; border:1px solid #9fc9e6; border-radius:.9rem; background:linear-gradient(145deg,#f5fbff,#dceefd); box-shadow:0 8px 18px rgba(0,12,28,.26); }
 .knot-step-card .knot-step-image { border:0; border-radius:0; padding:.45rem; background:#e9f5ff; }
