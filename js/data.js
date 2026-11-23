@@ -346,7 +346,7 @@ window.STERNI_DATA = (() => {
         "Erst auf dem offenen See nachsehen, ob der Tank voll ist"
       ],
       correct: 0,
-      explanation: "Ein kurzer systematischer Bootscheck vor dem Ablegen verhindert die häufigsten Pannen und Notfälle auf dem Wasser."
+      explanation: "Ein kurzer systematischer Sicherheitscheck vor dem Ablegen verhindert die häufigsten Pannen und Notfälle auf dem Wasser."
     },
     {
       id: "bt2",
