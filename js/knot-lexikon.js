@@ -49,6 +49,14 @@
   const knots = categories.flatMap((category, categoryIndex) => category.knots.map((item, knotIndex) => ({
     id: `${categoryIndex}-${knotIndex}`, categoryIndex, category: category.name, name: item[0], use: item[1], summary: item[2]
   })));
+  const qualityBoards = {
+    'Palomarknoten': 'palomar', 'Verbesserter Clinchknoten': 'verbesserter-clinch', 'Grinnerknoten (Uni)': 'grinner-uni', 'Trilene-Knoten': 'trilene', 'Schlaufenknoten': 'schlaufenknoten',
+    'Rapalaknoten': 'rapala', 'Snellknoten': 'snell', 'Knotless Knot': 'knotless-knot', 'Schlaufenknoten am Wobbler': 'schlaufenknoten-wobbler', 'Doppelter Clinch': 'doppelter-clinch',
+    'Doppelter Grinner': 'doppelter-grinner', 'Albrightknoten': 'albright', 'Blutknoten': 'blutknoten', 'Doppelter Uni-Knoten': 'doppelter-uni', 'Chirurgenknoten': 'chirurgenknoten',
+    'FG-Knoten': 'fg-knoten', 'PR-Knoten': 'pr-knoten', 'Mahin-Knoten': 'mahin', 'Yucatan-Knoten': 'yucatan', 'Slim Beauty': 'slim-beauty',
+    'Doppelter Überhand-Schlaufenknoten': 'doppelter-ueberhand', 'Achterknoten': 'achterknoten', 'Springerschlaufe': 'springerschlaufe', 'Perfekte Schlaufe': 'perfekte-schlaufe', 'Dropper-Loop': 'dropper-loop',
+    'Arborknoten': 'arborknoten', 'Mümmelmannknoten': 'muemmelmann', 'Centauri-Knoten': 'centauri', 'Pitzen-Knoten': 'pitzen', 'Non-Slip Mono Loop': 'non-slip-mono-loop'
+  };
 
   const safe = (text) => String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const stepText = (knot, step) => {
@@ -71,6 +79,21 @@
     const steps = variations[knot.name] || generic.map((entry) => entry[1]);
     if (step < 3) return [steps[step], generic[step][1]];
     return [generic[3][0], generic[3][1]];
+  };
+  const qualitySteps = (knot) => {
+    const connection = knot.categoryIndex === 0 || knot.categoryIndex === 1 || knot.categoryIndex === 5;
+    const labels = connection
+      ? ['Schnur vorbereiten', 'Durch die Öse führen', 'Erste Schlaufe legen', 'Wicklungen sauber führen', 'Anfeuchten und festziehen', `Fertiger ${knot.name}`]
+      : ['Zwei Schnüre ausrichten', 'Bucht oder Schlaufe bilden', 'Rotes Ende durchführen', 'Wicklungen ordnen', 'Anfeuchten und festziehen', `Fertiger ${knot.name}`];
+    const texts = [
+      `Lege die Schnur für ${knot.use.toLowerCase()} aus. Blau bleibt fest; nur das rote Ende wird bewegt.`,
+      'Führe das rote Ende genau durch die markierte Öse oder Schlaufe. Die Öffnung bleibt sichtbar.',
+      'Lege die nächste Führung locker und ohne Kreuzung. Die orangefarbenen Pfeile zeigen die Bewegungsrichtung.',
+      'Ordne jede Windung dicht neben die vorherige. Halte die stehende Schnur dabei gespannt.',
+      'Befeuchte die Schnur, ziehe langsam an beiden markierten Strängen und kontrolliere den Sitz.',
+      `Prüfe den ${knot.name} mit einer kurzen Zugprobe. Überstand erst danach sauber kürzen.`
+    ];
+    return labels.map((heading, index) => [heading, texts[index]]);
   };
   const diagram = (knot, step, final = false) => {
     const mode = knot.categoryIndex;
@@ -105,14 +128,13 @@
       ['Knoten festziehen', 'Befeuchte die Schnur und ziehe die stehende Schnur sowie das freie Ende gleichmäßig fest.'],
       ['Fertiger Palomarknoten', 'Der Knoten sitzt sauber an der Öse. Prüfe die Verbindung unter Zug, bevor du den Überstand kürzt.']
     ];
-    const cards = (knot.name === 'Palomarknoten' ? palomarSteps.map(([heading, text], step) => `<article class="knot-step-card"><div class="knot-step-number">${step + 1}</div><div class="knot-step-text"><strong class="knot-step-title">${step + 1}. ${safe(heading)}</strong><p class="knot-step-copy">${safe(text)}</p></div></article>`).join('') : [0, 1, 2, 3].map((step) => {
-      const [heading, text] = stepText(knot, step);
-      return `<article class="knot-step-card"><div class="knot-step-image" tabindex="0" role="button" aria-label="${safe(knot.name)}, Schritt ${step + 1}, vergrößern">${diagram(knot, step, step === 3)}</div><div class="knot-step-text"><strong class="knot-step-title">${step + 1}. ${safe(heading)}</strong><p class="knot-step-copy">${safe(text)}</p></div></article>`;
-    }).join(''));
-    const palomarBoard = knot.name === 'Palomarknoten' ? `<div class="palomar-board-wrap"><img src="assets/knoten/palomar-steps.png" class="palomar-board" alt="Sechs plastische Schrittbilder zum Palomarknoten mit blauer Schnur, Metallhaken und orangefarbenen Bewegungs-Pfeilen"><button type="button" class="btn-outline btn-sm palomar-zoom">Bildtafel vergrößern</button></div>` : '';
-    content.innerHTML = `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><a href="#knoten-kat-${knot.categoryIndex}">${safe(knot.category)}</a><span>›</span><strong>${safe(knot.name)}</strong></div><article class="knot-detail"><div class="knot-detail-head"><div><p class="eyebrow">${safe(knot.category)}</p><h2>${safe(knot.name)}</h2><p>${safe(knot.summary)}</p><span class="pill-tag">Einsatz: ${safe(knot.use)}</span></div></div><div class="knot-legend"><span class="legend-fixed">━ Stehende Schnur</span><span class="legend-moving">━ Freies Ende / Bewegung</span><span class="legend-arrow">↗ Bewegungsrichtung</span></div>${palomarBoard}<div class="knot-step-grid">${cards}</div><div class="knot-detail-actions"><a class="btn-outline btn-sm" href="#knoten-knot-${previousKnot.id}">← Vorheriger Knoten</a><a class="btn-outline btn-sm" href="#knoten-kat-${knot.categoryIndex}">Zur Kategorie</a><a class="btn-primary btn-sm" href="#knoten-knot-${nextKnot.id}">Nächster Knoten →</a></div></article>`;
+    const boardSlug = qualityBoards[knot.name];
+    const steps = knot.name === 'Palomarknoten' ? palomarSteps : qualitySteps(knot);
+    const board = `<div class="palomar-board-wrap"><img src="assets/knoten/${boardSlug}-steps.png" class="palomar-board quality-board" alt="Sechs hochwertige Schrittbilder für ${safe(knot.name)} mit blauer stehender Schnur, rotem freien Ende und orangefarbenen Bewegungs-Pfeilen"><button type="button" class="btn-outline btn-sm palomar-zoom" data-board="assets/knoten/${boardSlug}-steps.png" data-name="${safe(knot.name)}">Bildtafel vergrößern</button></div>`;
+    const cards = steps.map(([heading, text], step) => `<article class="knot-step-card"><div class="knot-step-number">${step + 1}</div><div class="knot-step-text"><strong class="knot-step-title">${step + 1}. ${safe(heading)}</strong><p class="knot-step-copy">${safe(text)}</p></div></article>`).join('');
+    content.innerHTML = `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><a href="#knoten-kat-${knot.categoryIndex}">${safe(knot.category)}</a><span>›</span><strong>${safe(knot.name)}</strong></div><article class="knot-detail"><div class="knot-detail-head"><div><p class="eyebrow">${safe(knot.category)}</p><h2>${safe(knot.name)}</h2><p>${safe(knot.summary)}</p><span class="pill-tag">Einsatz: ${safe(knot.use)}</span></div></div><div class="knot-legend"><span class="legend-fixed">━ Stehende Schnur</span><span class="legend-moving">━ Freies Ende / Bewegung</span><span class="legend-arrow">↗ Bewegungsrichtung</span></div>${board}<div class="knot-step-grid">${cards}</div><div class="knot-detail-actions"><a class="btn-outline btn-sm" href="#knoten-knot-${previousKnot.id}">← Vorheriger Knoten</a><a class="btn-outline btn-sm" href="#knoten-kat-${knot.categoryIndex}">Zur Kategorie</a><a class="btn-primary btn-sm" href="#knoten-knot-${nextKnot.id}">Nächster Knoten →</a></div></article>`;
     content.querySelectorAll('.knot-step-image').forEach((image) => image.addEventListener('click', () => { const dialog = document.getElementById('lightbox-dialog'); const body = document.getElementById('lightbox-body'); body.innerHTML = image.innerHTML; dialog?.showModal(); }));
-    content.querySelector('.palomar-zoom')?.addEventListener('click', () => { const dialog = document.getElementById('lightbox-dialog'); const body = document.getElementById('lightbox-body'); body.innerHTML = '<img class="palomar-board palomar-board-large" src="assets/knoten/palomar-steps.png" alt="Vergrößerte Palomarknoten-Schritttafel">'; dialog?.showModal(); });
+    content.querySelector('.palomar-zoom')?.addEventListener('click', (event) => { const button = event.currentTarget; const dialog = document.getElementById('lightbox-dialog'); const body = document.getElementById('lightbox-body'); body.innerHTML = `<img class="palomar-board palomar-board-large" src="${button.dataset.board}" alt="Vergrößerte Schritttafel für ${button.dataset.name}">`; dialog?.showModal(); });
   }
   function route(hash) {
     const content = document.getElementById('knot-view-content');
