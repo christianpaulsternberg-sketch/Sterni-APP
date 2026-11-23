@@ -33,7 +33,7 @@
         text: caption?.querySelector('span')?.textContent || 'Schnurverlauf kontrollieren und erst dann weitergehen.' };
     });
     const knotName = item.querySelector('summary')?.textContent.trim() || `Knoten ${knotIndex + 1}`;
-    let current = 0; let timer = null; let threeD = false; let dragStart = null; let moved = false;
+    let current = 0; let timer = null; let threeD = false; let slow = false; let dragStart = null; let moved = false;
     const player = document.createElement('section');
     player.className = 'knot-player';
     player.setAttribute('aria-label', `${knotName}: interaktive Knotenschule`);
@@ -43,10 +43,11 @@
     const controls = player.querySelector('.knot-controls');
     const back = makeButton('‹ Zurück', 'back', 'Vorheriger Schritt');
     const play = makeButton('▶ Ablauf', 'play', 'Automatischen Ablauf starten');
+    const slowButton = makeButton('◔ Zeitlupe', 'slow', 'Zeitlupe einschalten');
     const next = makeButton('Weiter ›', 'next', 'Nächster Schritt');
     const zoom = makeButton('⌕ Vergrößern', 'zoom', 'Zeichnung vergrößern');
     const rotate = makeButton('◈ 3D drehen', '3d', 'Drehbare 3D-Ansicht einschalten');
-    controls.append(back, play, next, zoom, rotate);
+    controls.append(back, play, slowButton, next, zoom, rotate);
     const render = () => {
       stage.replaceChildren(decorateSvg(cloneSvg(steps[current].svg), knotIndex));
       stage.querySelector('svg').setAttribute('aria-label', `${knotName}: ${steps[current].title}`);
@@ -59,7 +60,7 @@
     const auto = () => {
       if (timer) return stop();
       play.textContent = 'Ⅱ Pause'; play.setAttribute('aria-label', 'Automatischen Ablauf pausieren');
-      timer = window.setInterval(() => { if (current >= steps.length - 1) return stop(); current += 1; render(); }, 2600);
+      timer = window.setInterval(() => { if (current >= steps.length - 1) return stop(); current += 1; render(); }, slow ? 5200 : 2600);
     };
     const openZoom = () => {
       const dialog = document.createElement('dialog'); dialog.className = 'knot-zoom-dialog';
@@ -72,6 +73,13 @@
       if (action === 'back' && current > 0) { stop(); current -= 1; render(); }
       if (action === 'next' && current < steps.length - 1) { stop(); current += 1; render(); }
       if (action === 'play') auto(); if (action === 'zoom') openZoom();
+      if (action === 'slow') {
+        const wasPlaying = Boolean(timer); stop(); slow = !slow;
+        slowButton.textContent = slow ? '◔ Zeitlupe an' : '◔ Zeitlupe';
+        slowButton.setAttribute('aria-label', slow ? 'Zeitlupe ausschalten' : 'Zeitlupe einschalten');
+        slowButton.setAttribute('aria-pressed', String(slow));
+        if (wasPlaying) auto();
+      }
       if (action === '3d') {
         threeD = !threeD; moved = false;
         stage.classList.toggle('is-3d', threeD);

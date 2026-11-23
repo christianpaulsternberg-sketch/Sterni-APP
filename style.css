@@ -1421,7 +1421,8 @@ details[open] > summary::after {
 .knot-zoom-close { width:42px; height:42px; border:0; border-radius:50%; background:#f06a24; color:#fff; font-size:1.75rem; cursor:pointer; }
 .knot-zoom-art svg { display:block; width:100%; max-height:72vh; padding:.5rem; border-radius:.7rem; background:#f6fcff; }
 .knot-zoom-dialog p { margin:.7rem .2rem 0; font-weight:700; }
-@media (min-width:620px) { #wissen-knoten .knot-controls { grid-template-columns:repeat(5,minmax(0,1fr)); } }
+@media (min-width:620px) { #wissen-knoten .knot-controls { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (min-width:900px) { #wissen-knoten .knot-controls { grid-template-columns:repeat(6,minmax(0,1fr)); } }
 
 .hourly-strip {
   display: grid;
