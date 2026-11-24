@@ -1,150 +1,79 @@
-/* Interaktives Angelknoten-Lexikon: 30 Einträge, lokal und ohne externe Bilder. */
+/* Sterni-Knoten-Engine: lokale SVG-Schrittanimation fuer alle 30 Knoten. */
 (() => {
-  const blue = '#65b7ff';
-  const red = '#ff635f';
-  const categories = [
-    { name: 'Grundknoten', icon: '◉', knots: [
-      ['Palomarknoten', 'Öhrhaken, Wirbel und Snaps', 'Sehr tragfähig; besonders einfach mit geflochtener Schnur.'],
-      ['Verbesserter Clinchknoten', 'Öhrhaken und kleine Wirbel', 'Klassischer Knoten für monofile Schnur.'],
-      ['Grinnerknoten (Uni)', 'Öhrhaken und Wirbel', 'Universeller Knoten für Mono und Geflecht.'],
-      ['Trilene-Knoten', 'Öhrhaken und Wirbel', 'Doppelte Führung durch die Öse erhöht die Sicherheit.'],
-      ['Schlaufenknoten', 'Bewegliche Verbindung am Köder', 'Lässt dem Köder mehr Spiel.']
-    ]},
-    { name: 'Haken & Köder', icon: '⌁', knots: [
-      ['Rapalaknoten', 'Kunstköder mit freier Schlaufe', 'Bewegliche Schlaufe vor dem Köder.'],
-      ['Snellknoten', 'Öhrhaken mit langem Schenkel', 'Die Wicklung liegt am Hakenschenkel.'],
-      ['Knotless Knot', 'Karpfenhaken und Haarmontage', 'Grundlage für eine Haarmontage.'],
-      ['Schlaufenknoten am Wobbler', 'Wobbler und harte Köder', 'Köder kann in der Schlaufe arbeiten.'],
-      ['Doppelter Clinch', 'Kleine Ösen und dünnes Mono', 'Zusätzliche Sicherung bei glatter Schnur.']
-    ]},
-    { name: 'Schnüre verbinden', icon: '∞', knots: [
-      ['Doppelter Grinner', 'Geflecht mit Fluorocarbon', 'Schlanke Verbindung für unterschiedliche Schnüre.'],
-      ['Albrightknoten', 'Deutlich unterschiedliche Durchmesser', 'Bucht der dicken Schnur mit Wicklungen.'],
-      ['Blutknoten', 'Ähnlich starke monofile Schnüre', 'Schlanke Verbindung für Mono.'],
-      ['Doppelter Uni-Knoten', 'Mono mit Geflecht', 'Zwei spiegelbildliche Uni-Knoten.'],
-      ['Chirurgenknoten', 'Schnelle Verbindung und Schlaufe', 'Einfacher Knoten mit doppelter Schnur.']
-    ]},
-    { name: 'Geflochtene & Vorfächer', icon: '≋', knots: [
-      ['FG-Knoten', 'Geflecht an Fluorocarbon', 'Sehr schlanke Wickelverbindung; sorgfältig festziehen.'],
-      ['PR-Knoten', 'Geflecht an Fluorocarbon', 'Aufwendige Wicklung für hohe Belastung.'],
-      ['Mahin-Knoten', 'Geflecht an Schlagschnur', 'Konische Verbindung für Ringe.'],
-      ['Yucatan-Knoten', 'Geflecht an Mono', 'Doppelte Schnur wird um das Vorfach gewickelt.'],
-      ['Slim Beauty', 'Geflecht und starkes Vorfach', 'Kompakte Verbindung mit zwei Wickelpaketen.']
-    ]},
-    { name: 'Schlaufen & Montagen', icon: '◌', knots: [
-      ['Doppelter Überhand-Schlaufenknoten', 'Feste Endschlaufe', 'Einfacher, stabiler Schlaufenabschluss.'],
-      ['Achterknoten', 'Schnurstopper und Schlaufen', 'Gut kontrollierbarer Grundknoten.'],
-      ['Springerschlaufe', 'Seitenarm im Vorfach', 'Erzeugt eine seitliche Köderschlaufe.'],
-      ['Perfekte Schlaufe', 'Kleine Endschlaufe', 'Kompakte Schlaufe für Vorfächer.'],
-      ['Dropper-Loop', 'Seitenarm an einer Schnur', 'Stabile Schlaufe für mehrere Köder.']
-    ]},
-    { name: 'Spezialknoten', icon: '★', knots: [
-      ['Arborknoten', 'Schnur auf der Rollenspule', 'Stopperknoten am Spulenkern.'],
-      ['Mümmelmannknoten', 'Kleine Haken und Ösen', 'Kompakter Knoten für feine Montagen.'],
-      ['Centauri-Knoten', 'Geflecht und Öhr', 'Knoten mit doppelter Ösenführung.'],
-      ['Pitzen-Knoten', 'Feine Vorfächer und Fliegen', 'Kleine, belastbare Verbindung.'],
-      ['Non-Slip Mono Loop', 'Freie Schlaufe am Kunstköder', 'Schlaufe bleibt beweglich und rutscht nicht zu.']
-    ]}
+  'use strict';
+  const C = { blue: '#38bdf8', orange: '#fb923c', metal: '#cbd5e1', edge: '#334155' };
+  const groups = [
+    ['Grundknoten', '◉', 'Öhrhaken, Wirbel und Snaps', 'Monofil, Fluorocarbon, Geflochtene', '90–95 %', 'Vor dem Festziehen immer anfeuchten.', 'eye', ['Palomarknoten', 'Verbesserter Clinchknoten', 'Grinnerknoten (Uni)', 'Trilene-Knoten', 'Schlaufenknoten']],
+    ['Haken & Köder', '⌁', 'Haken, Wobbler und Kunstköder', 'Monofil oder Fluorocarbon', '85–95 %', 'Der Köder braucht ausreichend Spiel.', 'eye', ['Rapalaknoten', 'Snellknoten', 'Knotless Knot', 'Schlaufenknoten am Wobbler', 'Doppelter Clinch']],
+    ['Schnüre verbinden', '∞', 'Hauptschnur und Vorfach verbinden', 'Mono, Fluorocarbon, Geflochtene', '80–95 %', 'Beide Schnüre gleichmäßig belasten.', 'join', ['Doppelter Grinner', 'Albrightknoten', 'Blutknoten', 'Doppelter Uni-Knoten', 'Chirurgenknoten']],
+    ['Geflochtene & Vorfächer', '≋', 'Geflecht mit starkem Vorfach verbinden', 'Geflochtene mit Fluorocarbon', '85–95 %', 'Wicklungen eng und parallel legen.', 'braid', ['FG-Knoten', 'PR-Knoten', 'Mahin-Knoten', 'Yucatan-Knoten', 'Slim Beauty']],
+    ['Schlaufen & Montagen', '◌', 'Schlaufen, Seitenarme und Montagen', 'Monofil und Fluorocarbon', '80–90 %', 'Schlaufe vor dem Festziehen ausrichten.', 'loop', ['Doppelter Überhand-Schlaufenknoten', 'Achterknoten', 'Springerschlaufe', 'Perfekte Schlaufe', 'Dropper-Loop']],
+    ['Spezialknoten', '★', 'Spezielle Verbindungen und Rollenspulen', 'Je nach Einsatz Mono, Fluorocarbon oder Geflecht', '80–95 %', 'Zugprobe machen, dann Überstand kürzen.', 'special', ['Arborknoten', 'Mümmelmannknoten', 'Centauri-Knoten', 'Pitzen-Knoten', 'Non-Slip Mono Loop']]
   ];
-  const knots = categories.flatMap((category, categoryIndex) => category.knots.map((item, knotIndex) => ({
-    id: `${categoryIndex}-${knotIndex}`, categoryIndex, category: category.name, name: item[0], use: item[1], summary: item[2]
-  })));
-  const qualityBoards = {
-    'Palomarknoten': 'palomar', 'Verbesserter Clinchknoten': 'verbesserter-clinch', 'Grinnerknoten (Uni)': 'grinner-uni', 'Trilene-Knoten': 'trilene', 'Schlaufenknoten': 'schlaufenknoten',
-    'Rapalaknoten': 'rapala', 'Snellknoten': 'snell', 'Knotless Knot': 'knotless-knot', 'Schlaufenknoten am Wobbler': 'schlaufenknoten-wobbler', 'Doppelter Clinch': 'doppelter-clinch',
-    'Doppelter Grinner': 'doppelter-grinner', 'Albrightknoten': 'albright', 'Blutknoten': 'blutknoten', 'Doppelter Uni-Knoten': 'doppelter-uni', 'Chirurgenknoten': 'chirurgenknoten',
-    'FG-Knoten': 'fg-knoten', 'PR-Knoten': 'pr-knoten', 'Mahin-Knoten': 'mahin', 'Yucatan-Knoten': 'yucatan', 'Slim Beauty': 'slim-beauty',
-    'Doppelter Überhand-Schlaufenknoten': 'doppelter-ueberhand', 'Achterknoten': 'achterknoten', 'Springerschlaufe': 'springerschlaufe', 'Perfekte Schlaufe': 'perfekte-schlaufe', 'Dropper-Loop': 'dropper-loop',
-    'Arborknoten': 'arborknoten', 'Mümmelmannknoten': 'muemmelmann', 'Centauri-Knoten': 'centauri', 'Pitzen-Knoten': 'pitzen', 'Non-Slip Mono Loop': 'non-slip-mono-loop'
+  const details = {
+    'Palomarknoten': ['Doppelte Schnur durch die Öse führen.', 'Mit der doppelten Schnur einen lockeren Überhandknoten legen.', 'Die große Schlaufe vollständig über den Haken führen.', 'Schnur anfeuchten und beide Stränge gleichmäßig zuziehen.', 'Sitz an der Öse prüfen und erst dann kürzen.'],
+    'Verbesserter Clinchknoten': ['Arbeitsende durch die Öse führen.', 'Das orange Ende fünf- bis siebenmal um die blaue Hauptschnur wickeln.', 'Durch die kleine Schlaufe an der Öse zurückführen.', 'Durch die große Schlaufe führen und anfeuchten.', 'Windungen zur Öse schieben und langsam festziehen.'],
+    'Grinnerknoten (Uni)': ['Arbeitsende durch die Öse und parallel zurücklegen.', 'Eine offene Schlaufe über beide Stränge bilden.', 'Orange fünf- bis sechsmal durch die Schlaufe wickeln.', 'Wicklung am Arbeitsende schließen.', 'Knoten anfeuchten und bis zur Öse schieben.'],
+    'Trilene-Knoten': ['Arbeitsende zweimal durch die Öse führen.', 'Eine Schlaufe neben der Öse offen halten.', 'Orange fünfmal um Blau wickeln.', 'Durch beide Schlaufen an der Öse zurückführen.', 'Anfeuchten und gleichmäßig festziehen.'],
+    'Schlaufenknoten': ['Eine ausreichend große Schnurschlaufe legen.', 'Schlaufe über die Hauptschnur führen.', 'Schlaufenende durch die Öffnung führen.', 'Schlaufe auf die gewünschte Größe einstellen.', 'Anfeuchten und sorgfältig festziehen.'],
+    'Rapalaknoten': ['Zehn Zentimeter vor dem Ende einen lockeren Überhandknoten legen.', 'Arbeitsende durch die Köderöse und zurück durch den Knoten führen.', 'Orange dreimal um Blau wickeln.', 'Durch die erste und die neue Schlaufe führen.', 'Freie Köderschlaufe einstellen und festziehen.'],
+    'Snellknoten': ['Schnur durch die Öse bis zum Schenkel führen.', 'Eine Schlaufe entlang des Hakenschenkels legen.', 'Orange sechsmal um Schenkel und Schnur wickeln.', 'Arbeitsende durch die Schlaufe an der Öse führen.', 'Wicklungen zum Öhr schieben und festziehen.'],
+    'Knotless Knot': ['Vorfach durch die Öse führen und Haarlänge festlegen.', 'Vorfach am Hakenschenkel zurücklegen.', 'Orange sieben- bis achtmal um den Schenkel wickeln.', 'Ende von außen zurück durch die Öse führen.', 'Wicklungen ausrichten und festziehen.'],
+    'Schlaufenknoten am Wobbler': ['Lockere Schlaufe vor dem Arbeitsende legen.', 'Arbeitsende durch die Wobbleröse führen.', 'Ende zurück durch die vorbereitete Schlaufe führen.', 'Dreimal um Blau wickeln und zurückführen.', 'Bewegliche Schlaufe vor dem Wobbler einstellen.'],
+    'Doppelter Clinch': ['Arbeitsende doppelt durch die Öse führen.', 'Kleine Schlaufe offen halten.', 'Orange fünfmal um Blau wickeln.', 'Durch beide Schlaufen zurückführen.', 'Anfeuchten und die doppelte Führung festziehen.'],
+    'Doppelter Grinner': ['Beide Schnüre dreißig Zentimeter überlappen lassen.', 'Orange als Uni-Knoten um Blau legen.', 'Blaues Ende spiegelbildlich um Orange legen.', 'Beide Knoten einzeln anfeuchten und schließen.', 'An Hauptschnüren gegeneinander schieben.'],
+    'Albrightknoten': ['In Blau eine Bucht legen.', 'Orange durch die Bucht führen.', 'Orange acht- bis zehnmal um beide Bucht-Schenkel wickeln.', 'Auf derselben Seite durch die Bucht zurückführen.', 'Beide Schnüre anfeuchten und gleichmäßig anziehen.'],
+    'Blutknoten': ['Beide Schnüre überlappend gegeneinander legen.', 'Orange fünfmal um Blau wickeln und durch die Mitte führen.', 'Blau fünfmal gegensinnig um Orange wickeln.', 'Enden in der Mitte sauber ausrichten.', 'Anfeuchten und alle vier Stränge zuziehen.'],
+    'Doppelter Uni-Knoten': ['Schnüre parallel mit Überlappung ausrichten.', 'Orange als doppelten Uni-Knoten um Blau legen.', 'Blau als doppelten Uni-Knoten um Orange legen.', 'Beide Knoten einzeln schließen.', 'Knoten gegeneinander schieben und prüfen.'],
+    'Chirurgenknoten': ['Beide Schnurenden parallel doppelt legen.', 'Mit der doppelten Schlaufe eine große Öffnung bilden.', 'Enden zweimal vollständig durch die Öffnung führen.', 'Schlaufen sauber nebeneinander legen.', 'Anfeuchten und an allen Enden festziehen.'],
+    'FG-Knoten': ['Geflecht und Fluorocarbon straff ausrichten.', 'Orange abwechselnd über und unter Blau führen.', 'Weitere Wicklungen sehr eng und abwechselnd legen.', 'Wicklung mit halben Schlägen sichern.', 'Unter Zug festziehen.'],
+    'PR-Knoten': ['Geflecht und Vorfach unter Spannung halten.', 'Orange in engen Wicklungen um Blau legen.', 'Wicklungen dicht zusammenschieben.', 'Mit halben Schlägen am Vorfach sichern.', 'Unter Zug festziehen und Abschluss prüfen.'],
+    'Mahin-Knoten': ['Eine Bucht im Vorfach legen.', 'Geflecht durch die Bucht führen.', 'Orange mehrfach um beide Vorfachstränge wickeln.', 'Auf derselben Seite durch die Bucht zurückführen.', 'Konisch festziehen und Spitze prüfen.'],
+    'Yucatan-Knoten': ['Fluorocarbon doppelt legen.', 'Geflecht durch die doppelte Schlaufe führen.', 'Orange acht- bis zehnmal um beide Stränge wickeln.', 'Durch die offene Schlaufe zurückführen.', 'Anfeuchten und gemeinsam zuziehen.'],
+    'Slim Beauty': ['In das dickere Vorfach eine kleine Schlaufe legen.', 'Geflecht durch die Schlaufe führen und erstes Wickelpaket bilden.', 'Orange Ende zurück über die erste Wicklung führen.', 'Zweites Wickelpaket eng anlegen und sichern.', 'Anfeuchten und konisch festziehen.'],
+    'Doppelter Überhand-Schlaufenknoten': ['Schnur doppelt legen und Schlaufenlänge bestimmen.', 'Mit der doppelten Schnur einen Überhandknoten legen.', 'Doppelte Schlaufe ein zweites Mal durch die Öffnung führen.', 'Schlaufe in Form ziehen.', 'Anfeuchten und gleichmäßig festziehen.'],
+    'Achterknoten': ['Eine Schnurschlaufe legen.', 'Orange über die Hauptschnur führen.', 'Von unten durch die erste Schlaufe zurückführen.', 'Acht sauber flach ausrichten.', 'Anfeuchten und festziehen.'],
+    'Springerschlaufe': ['Große Schlaufe nach oben legen.', 'Schlaufe zweimal um den Strang drehen.', 'Schlaufenmitte durch die Öffnung führen.', 'Seitenarm auf gewünschte Länge einstellen.', 'Anfeuchten und Knoten festziehen.'],
+    'Perfekte Schlaufe': ['Eine Schlaufe bilden.', 'Schlaufe über die stehende Schnur klappen.', 'Orange durch die untere Öffnung führen.', 'Schlaufe gleichmäßig ausrichten.', 'Kompakt und fest zuziehen.'],
+    'Dropper-Loop': ['Große Schlaufe bilden.', 'Schlaufe mehrfach verdrillen.', 'Schlaufe durch die verdrillte Öffnung führen.', 'Seitenarm in die gewünschte Richtung ziehen.', 'Anfeuchten und beide Hauptstränge festziehen.'],
+    'Arborknoten': ['Schnur einmal um den Spulenkern legen.', 'Mit Orange einen Überhandknoten um Blau legen.', 'Am Arbeitsende zweiten kleinen Stopperknoten setzen.', 'Beide Knoten bis zum Kern ziehen.', 'Sitz am Kern prüfen und aufspulen.'],
+    'Mümmelmannknoten': ['Arbeitsende durch die kleine Öse führen.', 'Kleine offene Schlaufe direkt vor der Öse legen.', 'Orange mehrfach durch die Schlaufe führen.', 'Wicklungen nah an der Öse ordnen.', 'Anfeuchten und kompakt festziehen.'],
+    'Centauri-Knoten': ['Schnur doppelt durch die Öse führen.', 'Große Schlaufe entlang der Hauptschnur legen.', 'Orange mehrfach um die doppelten Stränge wickeln.', 'Durch die Schlaufe an der Öse zurückführen.', 'Anfeuchten und gleichmäßig festziehen.'],
+    'Pitzen-Knoten': ['Vorfach durch die Öse führen und Schlaufe bilden.', 'Arbeitsende neben die Hauptschnur zurücklegen.', 'Orange mehrfach um beide Stränge wickeln.', 'Durch die kleine Schlaufe zurückführen.', 'Wicklungen ordnen, anfeuchten und festziehen.'],
+    'Non-Slip Mono Loop': ['Lockeren Überhandknoten vor dem Ende legen.', 'Arbeitsende durch Köderöse und zurück durch Knoten führen.', 'Orange viermal um Blau wickeln.', 'Durch die erste und die neue Schlaufe führen.', 'Bewegliche Schlaufe einstellen und festziehen.']
   };
+  const knots = groups.flatMap((group, categoryIndex) => group[7].map((name, knotIndex) => ({ id: `${categoryIndex}-${knotIndex}`, categoryIndex, knotIndex, name, category: group[0], icon: group[1], use: group[2], line: group[3], strength: group[4], tip: group[5], type: group[6], steps: details[name] })));
+  const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-  const safe = (text) => String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const stepText = (knot, step) => {
-    const generic = [
-      ['Material ausrichten', `Lege die Schnur vor dir aus. Der feste Abschnitt bleibt blau; das zu führende Ende ist rot markiert. Bei ${knot.use.toLowerCase()} zunächst die Öse bzw. Schnurverbindung prüfen.`],
-      ['Schlaufe bilden', 'Führe nur das rote Ende. Halte die blaue Schnur mit Daumen und Zeigefinger fest, damit die Schlaufe offen und sichtbar bleibt.'],
-      ['Wicklungen ordnen', 'Lege jede Wicklung dicht neben die vorige. Nichts überkreuzen: Die Wicklungen müssen sauber parallel liegen.'],
-      ['Anfeuchten und prüfen', 'Anfeuchten, langsam festziehen und den Knoten mit einer kontrollierten Zugprobe prüfen. Überstand erst danach kürzen.']
-    ];
-    const variations = {
-      'Palomarknoten': ['Doppelte Schnur durch die Öse führen.', 'Einen lockeren Überhandknoten mit der doppelten Schnur legen.', 'Die große Bucht vollständig über den Haken führen.'],
-      'Verbesserter Clinchknoten': ['Das freie Ende durch die Öse führen.', 'Das rote Ende 5–7-mal um die blaue Hauptschnur wickeln.', 'Durch kleine und danach große Schlaufe zurückführen.'],
-      'Grinnerknoten (Uni)': ['Schnur durch die Öse und parallel zurücklegen.', 'Das rote Ende 5–6-mal durch die Schlaufe um beide Stränge führen.', 'Wicklung schließen und an die Öse schieben.'],
-      'Rapalaknoten': ['Etwa 10 cm vor dem Ende einen lockeren Überhandknoten legen.', 'Durch Köderöse und zurück durch den offenen Knoten führen.', 'Dreimal um die Hauptschnur wickeln und Schlaufe einstellen.'],
-      'Albrightknoten': ['In der dicken blauen Schnur eine Bucht legen.', 'Das rote dünne Ende 8–10-mal um beide Bucht-Schenkel wickeln.', 'Auf derselben Seite zurück durch die Bucht führen.'],
-      'Doppelter Grinner': ['Beide Schnüre 20–30 cm parallel überlappen lassen.', 'Mit dem roten Ende einen Uni-Knoten um die blaue Schnur binden.', 'Mit dem blauen Ende spiegelbildlich wiederholen.'],
-      'Blutknoten': ['Beide Schnüre parallel gegeneinander legen.', 'Rotes Ende fünfmal um blau wickeln und durch die Mitte zurückführen.', 'Blaues Ende in Gegenrichtung fünfmal um rot wickeln.'],
-      'Arborknoten': ['Schnur einmal um den Spulenkern legen.', 'Roten Überhandknoten um die blaue Hauptschnur legen.', 'Zweiten kleinen roten Stopperknoten setzen.']
-    };
-    const steps = variations[knot.name] || generic.map((entry) => entry[1]);
-    if (step < 3) return [steps[step], generic[step][1]];
-    return [generic[3][0], generic[3][1]];
-  };
-  const qualitySteps = (knot) => {
-    const connection = knot.categoryIndex === 0 || knot.categoryIndex === 1 || knot.categoryIndex === 5;
-    const labels = connection
-      ? ['Schnur vorbereiten', 'Durch die Öse führen', 'Erste Schlaufe legen', 'Wicklungen sauber führen', 'Anfeuchten und festziehen', `Fertiger ${knot.name}`]
-      : ['Zwei Schnüre ausrichten', 'Bucht oder Schlaufe bilden', 'Rotes Ende durchführen', 'Wicklungen ordnen', 'Anfeuchten und festziehen', `Fertiger ${knot.name}`];
-    const texts = [
-      `Lege die Schnur für ${knot.use.toLowerCase()} aus. Blau bleibt fest; nur das rote Ende wird bewegt.`,
-      'Führe das rote Ende genau durch die markierte Öse oder Schlaufe. Die Öffnung bleibt sichtbar.',
-      'Lege die nächste Führung locker und ohne Kreuzung. Die orangefarbenen Pfeile zeigen die Bewegungsrichtung.',
-      'Ordne jede Windung dicht neben die vorherige. Halte die stehende Schnur dabei gespannt.',
-      'Befeuchte die Schnur, ziehe langsam an beiden markierten Strängen und kontrolliere den Sitz.',
-      `Prüfe den ${knot.name} mit einer kurzen Zugprobe. Überstand erst danach sauber kürzen.`
-    ];
-    return labels.map((heading, index) => [heading, texts[index]]);
-  };
-  const diagram = (knot, step, final = false) => {
-    const mode = knot.categoryIndex;
-    const fixed = `M30 116 H142 ${mode === 2 || mode === 3 ? 'M158 116 H270' : ''}`;
-    const moving = step === 0 ? 'M168 116 H270' : step === 1 ? 'M168 116 C232 55 260 164 185 147 C150 139 160 82 204 83' : step === 2 ? 'M168 116 C220 73 260 103 237 145 C216 181 174 159 186 122' : 'M168 116 C181 95 202 96 213 116 C202 136 181 136 168 116';
-    const hardware = (mode === 0 || mode === 1 || mode === 5) ? '<g class="knot-hardware"><ellipse cx="150" cy="116" rx="14" ry="9"/><path d="M150 125v42q0 22 20 22t20-22v-11l-8 11"/></g>' : '';
-    const shadow = final ? '<path d="M92 123 C135 73 195 76 224 116 C195 156 135 159 92 123Z" class="knot-shadow"/>' : '';
-    const shortHint = final ? 'ZUGPROBE' : ['AUSRICHTEN', 'FÜHREN', 'WICKLUNGEN', 'FESTZIEHEN'][step];
-    return `<svg class="knot-diagram" viewBox="0 0 300 220" role="img" aria-label="${safe(knot.name)}, Schritt ${step + 1}"><defs><marker id="knot-arrow-${knot.id}-${step}" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="${red}"/></marker></defs><rect width="300" height="220" rx="18" class="knot-paper"/><text x="150" y="31" class="knot-svg-step">SCHRITT ${step + 1}</text>${shadow}${hardware}<path d="${fixed}" class="knot-fixed"/><path d="${moving}" class="knot-moving"/><path d="M238 73 C224 79 213 88 204 99" class="knot-arrow" marker-end="url(#knot-arrow-${knot.id}-${step})"/><circle cx="30" cy="116" r="6" class="knot-start"/><circle cx="270" cy="116" r="6" class="knot-end"/><text x="30" y="102" class="knot-point-label">START</text><text x="270" y="102" text-anchor="end" class="knot-point-label">ENDE</text><text x="150" y="197" text-anchor="middle" class="knot-svg-hint">${shortHint}</text></svg>`;
-  };
-
-  function render() {
-    const root = document.getElementById('knoten-lexikon-root');
-    if (!root) return;
-    root.innerHTML = `<div class="knot-hero"><p class="eyebrow">STERNI-APP · ANGELKNOTEN-LEXIKON</p><h1 id="knoten-heading">30 Knoten – Schritt für Schritt</h1><p>Wähle eine Kategorie und öffne einen Knoten. Blau bleibt stehen, Rot wird geführt.</p></div><div id="knot-view-content"></div>`;
-    route(location.hash.replace(/^#/, '') || 'knoten');
+  function drawing(knot, step) {
+    const p = step / (knot.steps.length - 1), arrowId = `ka-${knot.id}`;
+    const defs = `<defs><marker id="${arrowId}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 10 5 0 10Z" fill="${C.orange}"/></marker></defs>`;
+    const arrow = path => `<path class="ka-arrow" d="${path}" marker-end="url(#${arrowId})"/>`;
+    if (knot.type === 'join' || knot.type === 'braid') {
+      const coils = Array.from({ length: 3 + Math.round(p * 6) }, (_, i) => `<path class="ka-work" d="M${250 + i * 19} 128c-18 18-18 46 0 64"/>`).join('');
+      return `${defs}<path class="ka-main" d="M40 146H276M324 146H560"/><path class="ka-secondary" d="M40 174H276M324 174H560"/>${coils}${arrow(`M${510 - p * 100} 98C${455 - p * 62} 105 ${406 - p * 44} 126 ${350 + p * 4} 148`)}`;
+    }
+    if (knot.type === 'loop') {
+      const loop = p < .4 ? 'M435 158c0-85-180-85-180 0s180 85 180 0' : p < .8 ? 'M414 158c0-62-135-62-135 0s135 62 135 0' : 'M390 158c0-42-85-42-85 0s85 42 85 0';
+      return `${defs}<path class="ka-main" d="M40 158H280M392 158H560"/><path class="ka-work" d="${loop}"/>${arrow('M500 98C455 104 425 122 397 142')}`;
+    }
+    if (knot.name === 'Arborknoten') return `${defs}<ellipse class="ka-spool" cx="320" cy="157" rx="94" ry="57"/><path class="ka-main" d="M40 157H226M414 157H560"/><path class="ka-work" d="M455 157C431 87 230 91 227 157c-4 68 178 66 188 19"/>${arrow('M470 98C423 104 392 122 365 145')}`;
+    const orange = p < .25 ? 'M560 156H357' : p < .55 ? 'M560 156C491 82 400 87 385 143c-14 54-90 62-110 13' : p < .82 ? 'M560 156C484 65 364 78 348 152c-15 68-132 65-132 0' : 'M560 156C469 142 407 145 357 156';
+    return `${defs}<g class="ka-metal"><ellipse cx="330" cy="156" rx="27" ry="17"/><path d="M330 173v63q0 36 34 36t34-36v-14l-15 18"/></g><path class="ka-main" d="M40 151H302M40 164H302"/><path class="ka-work" d="${orange}"/>${arrow('M515 94C466 103 415 122 367 147')}`;
   }
-  function categoryView(index) {
-    const category = categories[index];
-    return `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><strong>Knoten</strong></div><div class="knot-section-head"><button class="btn-outline btn-sm" data-knot-back="#knoten">← Alle Kategorien</button><h2>${safe(category.name)} <span>(${category.knots.length})</span></h2></div><div class="knot-card-grid">${category.knots.map((item, i) => { const knot = knots.find((entry) => entry.categoryIndex === index && entry.name === item[0]); return `<a class="knot-card" href="#knoten-knot-${knot.id}"><span class="knot-card-icon">${category.icon}</span><span><strong>${safe(knot.name)}</strong><small>${safe(knot.use)}</small></span><span class="knot-card-arrow">›</span></a>`; }).join('')}</div>`;
+  function player(knot) { return `<section class="knot-animator" aria-label="${esc(knot.name)} Schritt-für-Schritt-Anleitung"><div class="knot-animator-top"><span>INTERAKTIVE KNOTENSCHULE</span><strong class="knot-step-count" aria-live="polite"></strong></div><div class="knot-stage"><svg viewBox="0 0 600 320" preserveAspectRatio="xMidYMid meet"></svg></div><div class="knot-copy"><strong class="knot-step-title"></strong><p class="knot-step-text"></p></div><div class="knot-dots" role="group" aria-label="Schritt direkt auswählen">${knot.steps.map((_, i) => `<button class="knot-dot" type="button" data-step="${i}" aria-label="Schritt ${i + 1} wählen">${i + 1}</button>`).join('')}</div><div class="knot-controls" role="group" aria-label="Animation steuern"><button type="button" data-action="back">⏮ Zurück</button><button type="button" class="knot-play" data-action="play">▶ Abspielen</button><button type="button" data-action="next">Weiter ⏭</button><button type="button" data-action="restart">🔁 Neu starten</button></div><div class="knot-speed"><span>Tempo</span><button type="button" data-action="normal" aria-pressed="true">Normal</button><button type="button" data-action="slow" aria-pressed="false">Langsam</button></div><p class="knot-colour-key"><span><i class="key-blue"></i>Hauptschnur</span><span><i class="key-orange"></i>Arbeitsende</span><span><i class="key-metal"></i>Haken, Öse oder Spule</span><span>↗ Bewegungsrichtung</span></p></section>`; }
+  function mount(element, knot) {
+    let current = 0, timer = null, duration = 3000;
+    const svg = element.querySelector('svg'), count = element.querySelector('.knot-step-count'), title = element.querySelector('.knot-step-title'), text = element.querySelector('.knot-step-text'), play = element.querySelector('[data-action="play"]'), dots = [...element.querySelectorAll('.knot-dot')];
+    const stop = () => { if (timer) clearInterval(timer); timer = null; play.textContent = '▶ Abspielen'; };
+    const render = () => { const last = current === knot.steps.length - 1; svg.innerHTML = `<rect width="600" height="320" rx="18" class="ka-bg"/><text x="28" y="38" class="ka-name">${esc(knot.name.toUpperCase())}</text>${drawing(knot, current)}<text x="300" y="292" class="ka-state">${last ? 'SITZ PRÜFEN' : 'BEWEGUNG FOLGEN'}</text>`; count.textContent = `Schritt ${current + 1} von ${knot.steps.length}`; title.textContent = `Schritt ${current + 1}: ${knot.steps[current]}`; text.textContent = last ? 'Prüfe die Verbindung mit einer kurzen Zugprobe. Erst danach den Überstand sauber kürzen.' : 'Folge dem orangefarbenen Ende. Die blaue Hauptschnur bleibt fixiert.'; dots.forEach((dot, i) => { dot.classList.toggle('active', i === current); dot.classList.toggle('passed', i < current); }); element.querySelector('[data-action="back"]').disabled = current === 0; element.querySelector('[data-action="next"]').disabled = last; };
+    const next = () => { if (current < knot.steps.length - 1) { current += 1; render(); } else stop(); };
+    element.addEventListener('click', event => { const button = event.target.closest('button'); if (!button) return; if (button.dataset.step !== undefined) { stop(); current = Number(button.dataset.step); return render(); } switch (button.dataset.action) { case 'back': stop(); current = Math.max(0, current - 1); render(); break; case 'next': stop(); next(); break; case 'restart': stop(); current = 0; render(); break; case 'play': if (timer) stop(); else { play.textContent = '⏸ Pause'; timer = setInterval(next, duration); } break; case 'normal': case 'slow': { const wasPlaying = Boolean(timer); stop(); duration = button.dataset.action === 'slow' ? 5200 : 3000; element.querySelector('[data-action="normal"]').setAttribute('aria-pressed', String(duration === 3000)); element.querySelector('[data-action="slow"]').setAttribute('aria-pressed', String(duration === 5200)); if (wasPlaying) { play.textContent = '⏸ Pause'; timer = setInterval(next, duration); } break; } } });
+    render();
   }
-  function knotView(knot) {
-    const content = document.getElementById('knot-view-content');
-    const knotPosition = knots.indexOf(knot);
-    const previousKnot = knots[(knotPosition - 1 + knots.length) % knots.length];
-    const nextKnot = knots[(knotPosition + 1) % knots.length];
-    const palomarSteps = [
-      ['Schnur doppelt legen', 'Lege die Angelschnur doppelt, sodass eine ausreichend große Schlaufe entsteht.'],
-      ['Durch die Öse führen', 'Führe die doppelt gelegte Schnur von vorn durch die Öse des Angelhakens.'],
-      ['Überhandknoten binden', 'Binde mit der doppelten Schnur einen lockeren Überhandknoten. Die große Schlaufe bleibt geöffnet.'],
-      ['Schlaufe über den Haken', 'Führe die große Schlaufe vollständig über Öse, Schenkel und Spitze des Hakens.'],
-      ['Knoten festziehen', 'Befeuchte die Schnur und ziehe die stehende Schnur sowie das freie Ende gleichmäßig fest.'],
-      ['Fertiger Palomarknoten', 'Der Knoten sitzt sauber an der Öse. Prüfe die Verbindung unter Zug, bevor du den Überstand kürzt.']
-    ];
-    const boardSlug = qualityBoards[knot.name];
-    const steps = knot.name === 'Palomarknoten' ? palomarSteps : qualitySteps(knot);
-    const board = `<div class="palomar-board-wrap"><img src="assets/knoten/${boardSlug}-steps.png" class="palomar-board quality-board" alt="Sechs hochwertige Schrittbilder für ${safe(knot.name)} mit blauer stehender Schnur, rotem freien Ende und orangefarbenen Bewegungs-Pfeilen"><button type="button" class="btn-outline btn-sm palomar-zoom" data-board="assets/knoten/${boardSlug}-steps.png" data-name="${safe(knot.name)}">Bildtafel vergrößern</button></div>`;
-    const cards = steps.map(([heading, text], step) => `<article class="knot-step-card"><div class="knot-step-number">${step + 1}</div><div class="knot-step-text"><strong class="knot-step-title">${step + 1}. ${safe(heading)}</strong><p class="knot-step-copy">${safe(text)}</p></div></article>`).join('');
-    content.innerHTML = `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><a href="#knoten-kat-${knot.categoryIndex}">${safe(knot.category)}</a><span>›</span><strong>${safe(knot.name)}</strong></div><article class="knot-detail"><div class="knot-detail-head"><div><p class="eyebrow">${safe(knot.category)}</p><h2>${safe(knot.name)}</h2><p>${safe(knot.summary)}</p><span class="pill-tag">Einsatz: ${safe(knot.use)}</span></div></div><div class="knot-legend"><span class="legend-fixed">━ Stehende Schnur</span><span class="legend-moving">━ Freies Ende / Bewegung</span><span class="legend-arrow">↗ Bewegungsrichtung</span></div>${board}<div class="knot-step-grid">${cards}</div><div class="knot-detail-actions"><a class="btn-outline btn-sm" href="#knoten-knot-${previousKnot.id}">← Vorheriger Knoten</a><a class="btn-outline btn-sm" href="#knoten-kat-${knot.categoryIndex}">Zur Kategorie</a><a class="btn-primary btn-sm" href="#knoten-knot-${nextKnot.id}">Nächster Knoten →</a></div></article>`;
-    content.querySelectorAll('.knot-step-image').forEach((image) => image.addEventListener('click', () => { const dialog = document.getElementById('lightbox-dialog'); const body = document.getElementById('lightbox-body'); body.innerHTML = image.innerHTML; dialog?.showModal(); }));
-    content.querySelector('.palomar-zoom')?.addEventListener('click', (event) => { const button = event.currentTarget; const dialog = document.getElementById('lightbox-dialog'); const body = document.getElementById('lightbox-body'); body.innerHTML = `<img class="palomar-board palomar-board-large" src="${button.dataset.board}" alt="Vergrößerte Schritttafel für ${button.dataset.name}">`; dialog?.showModal(); });
-  }
-  function route(hash) {
-    const content = document.getElementById('knot-view-content');
-    if (!content) return;
-    const knotMatch = hash.match(/^knoten-knot-(\d+)-(\d+)$/);
-    const catMatch = hash.match(/^knoten-kat-(\d+)$/);
-    if (knotMatch) { const knot = knots.find((item) => item.id === `${knotMatch[1]}-${knotMatch[2]}`); if (knot) return knotView(knot); }
-    if (catMatch && categories[Number(catMatch[1])]) return void (content.innerHTML = categoryView(Number(catMatch[1])));
-    content.innerHTML = `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><strong>Alle Kategorien</strong></div><div class="knot-card-grid knot-category-grid">${categories.map((category, index) => `<a class="knot-card knot-category-card" href="#knoten-kat-${index}"><span class="knot-card-icon">${category.icon}</span><span><strong>${safe(category.name)}</strong><small>5 Angelknoten</small></span><span class="knot-card-arrow">›</span></a>`).join('')}</div>`;
-  }
-  function init() { render(); window.addEventListener('hashchange', () => { if (location.hash.startsWith('#knoten')) route(location.hash.slice(1)); }); }
-  window.STERNI_KNOTS = { init, route, categories, knots };
+  function category(index) { const group = groups[index]; return `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><strong>Knoten</strong></div><header class="knot-section-head"><a class="btn-outline btn-sm" href="#knoten">Alle Kategorien</a><h2>${group[0]} <span>(5)</span></h2></header><div class="knot-card-grid">${knots.filter(k => k.categoryIndex === index).map(k => `<a class="knot-card" href="#knoten-knot-${k.id}"><span class="knot-card-icon">${k.icon}</span><span><strong>${esc(k.name)}</strong><small>${esc(k.use)}</small></span></a>`).join('')}</div>`; }
+  function detail(knot) { const root = document.getElementById('knot-view-content'), at = knots.indexOf(knot), previous = knots[(at + 29) % 30], next = knots[(at + 1) % 30]; root.innerHTML = `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><a href="#knoten-kat-${knot.categoryIndex}">${esc(knot.category)}</a><span>›</span><strong>${esc(knot.name)}</strong></div><article class="knot-detail"><header class="knot-detail-head"><p class="eyebrow">${esc(knot.category)}</p><h2>${esc(knot.name)}</h2><p>${esc(knot.use)}</p></header>${player(knot)}<section class="knot-facts" aria-label="Knoten-Steckbrief"><div><b>EINSATZZWECK</b><span>${esc(knot.use)}</span></div><div><b>GEEIGNETE SCHNUR</b><span>${esc(knot.line)}</span></div><div><b>TRAGKRAFT</b><span>ca. ${esc(knot.strength)}</span></div><div><b>PRAXIS-TIPP</b><span>${esc(knot.tip)}</span></div></section><nav class="knot-detail-actions"><a class="btn-outline btn-sm" href="#knoten-knot-${previous.id}">Vorheriger Knoten</a><a class="btn-outline btn-sm" href="#knoten-kat-${knot.categoryIndex}">Zur Kategorie</a><a class="btn-primary btn-sm" href="#knoten-knot-${next.id}">Nächster Knoten</a></nav></article>`; mount(root.querySelector('.knot-animator'), knot); }
+  function route(hash = 'knoten') { const root = document.getElementById('knot-view-content'); if (!root) return; const match = hash.match(/^knoten-knot-(\d+)-(\d+)$/), cat = hash.match(/^knoten-kat-(\d+)$/); if (match) { const knot = knots.find(k => k.id === `${match[1]}-${match[2]}`); if (knot) return detail(knot); } if (cat && groups[Number(cat[1])]) { root.innerHTML = category(Number(cat[1])); return; } root.innerHTML = `<div class="knot-breadcrumb"><a href="#start">Start</a><span>›</span><strong>Alle Kategorien</strong></div><header class="knot-hero"><p class="eyebrow">STERNI-APP · ANGELKNOTEN-LEXIKON</p><h1 id="knoten-heading">30 Knoten – Schritt für Schritt</h1><p>Blau ist die Hauptschnur, Orange das geführte Arbeitsende. Jeder Knoten läuft in derselben lokalen Animations-Engine.</p></header><div class="knot-card-grid knot-category-grid">${groups.map((g, i) => `<a class="knot-card knot-category-card" href="#knoten-kat-${i}"><span class="knot-card-icon">${g[1]}</span><span><strong>${g[0]}</strong><small>5 Angelknoten</small></span></a>`).join('')}</div>`; }
+  function init() { route(location.hash.replace(/^#/, '') || 'knoten'); window.addEventListener('hashchange', () => { if (location.hash.startsWith('#knoten')) route(location.hash.slice(1)); }); }
+  window.STERNI_KNOTS = { init, route, knots, version: 2 };
 })();
