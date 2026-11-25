@@ -14,7 +14,7 @@
  * WICHTIG: Bei jeder Veröffentlichung APP_VERSION erhöhen (und version.json anpassen).
  * Dadurch ändert sich diese Datei, der Browser erkennt die neue Version automatisch.
  */
-const APP_VERSION = '1.0.3';
+const APP_VERSION = '1.0.4';
 const CACHE_NAME = `sterni-app-${APP_VERSION}`;
 const CACHE_PREFIX = 'sterni-app-';
 const NETWORK_TIMEOUT_MS = 6000;
@@ -43,8 +43,9 @@ const PRECACHE_ASSETS = [
   './js/quiz-live.js',
   './js/maps.js',
   './js/knot-lexikon.js',
-  './js/knot-animator.js',
-  './js/knots/palomar.js',
+  './js/three.min.js',
+  './js/knot-animator-3d.js',
+  './js/knots/palomar-3d.js',
   './knoten-vorschau.html',
   './js/app.js',
   './js/app-update.js',

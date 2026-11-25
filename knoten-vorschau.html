@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0d0d10">
-  <title>Palomarknoten · Interaktive Musteranimation (Sterni-App)</title>
+  <title>Palomarknoten · Interaktive 3D-Musteranimation (Sterni-App)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -19,7 +19,6 @@
       --blue: #38bdf8;
       --orange: #fb923c;
       --metal: #cbd5e1;
-      --metal-dark: #334155;
       --accent: #0284c7;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,7 +48,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      padding: 0.25rem 0.6rem;
+      padding: 0.25rem 0.65rem;
       border-radius: 999px;
       background: rgba(56, 189, 248, 0.15);
       color: var(--blue);
@@ -68,34 +67,52 @@
       margin-top: 0.25rem;
     }
 
-    /* Player Box */
+    /* 3D Player Card */
     .player-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
     }
     .ka-stage {
       position: relative;
       width: 100%;
       aspect-ratio: 600 / 320;
-      background: #090d13;
+      background: #0c1017;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
     }
-    .ka-stage svg {
-      width: 100%;
-      height: 100%;
+    .ka-stage canvas {
+      width: 100% !important;
+      height: 100% !important;
       display: block;
+    }
+
+    /* 3D Hint */
+    .camera-hint {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
     }
 
     /* Caption */
     .ka-caption {
       padding: 1rem 1.25rem;
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.7);
       border-top: 1px solid var(--card-border);
       border-bottom: 1px solid var(--card-border);
     }
@@ -252,7 +269,7 @@
     }
     .legend-blue { background: var(--blue); border: 1px solid #0284c7; }
     .legend-orange { background: var(--orange); border: 1px solid #ea580c; }
-    .legend-metal { background: var(--metal); border: 1px solid var(--metal-dark); }
+    .legend-metal { background: var(--metal); border: 1px solid #475569; }
 
     /* Profile / Steckbrief */
     .profile-card {
@@ -325,9 +342,9 @@
 <body>
   <div class="container">
     <header>
-      <span class="badge">Musteranimation zur Sichtprüfung</span>
+      <span class="badge">Musteranimation zur Sichtprüfung · 3D WebGL</span>
       <h1>Palomarknoten</h1>
-      <p class="subtitle">Interaktive Schritt-für-Schritt-Animation nach dem Prinzip von „Animated Knots“</p>
+      <p class="subtitle">Kontinuierliche 3D-Schnursimulation · Frei im Raum drehbar</p>
     </header>
 
     <div class="player-card">
@@ -335,7 +352,7 @@
       <div class="legend">
         <div class="legend-item"><span class="legend-dot legend-blue"></span> Hauptschnur (fest)</div>
         <div class="legend-item"><span class="legend-dot legend-orange"></span> Arbeitsende (geführt)</div>
-        <div class="legend-item"><span class="legend-dot legend-metal"></span> Haken / Öse</div>
+        <div class="legend-item"><span class="legend-dot legend-metal"></span> Haken / Öse (polierter Stahl)</div>
       </div>
     </div>
 
@@ -369,17 +386,18 @@
     </div>
 
     <footer>
-      Sterni-App · Eigenständige Vektor-Animations-Engine · Keine externen Bibliotheken oder Tracker
+      Sterni-App · Kontinuierliche 3D-Vektor-Engine · Vollständig offlinefähig ohne externe CDNs
     </footer>
   </div>
 
-  <script src="js/knot-animator.js"></script>
-  <script src="js/knots/palomar.js"></script>
+  <script src="js/three.min.js"></script>
+  <script src="js/knot-animator-3d.js"></script>
+  <script src="js/knots/palomar-3d.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const container = document.getElementById('knot-player');
-      if (window.STERNI_KNOT_ANIMATOR && window.STERNI_KNOT_PALOMAR) {
-        window.player = window.STERNI_KNOT_ANIMATOR.mount(container, window.STERNI_KNOT_PALOMAR);
+      if (window.STERNI_KNOT_ANIMATOR_3D && window.STERNI_KNOT_PALOMAR_3D) {
+        window.player = window.STERNI_KNOT_ANIMATOR_3D.mount(container, window.STERNI_KNOT_PALOMAR_3D);
       }
     });
   </script>
