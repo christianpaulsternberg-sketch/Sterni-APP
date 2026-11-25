@@ -37,9 +37,9 @@ $('#treff-admin-shortcut a').onclick=event=>{event.preventDefault();if(!isAdmin)
 document.querySelectorAll('[data-compose]').forEach(button=>button.onclick=()=>{if(editing)return;setComposeKind(button.dataset.compose);});
 document.querySelectorAll('[data-filter]').forEach(button=>button.onclick=()=>{feedFilter=button.dataset.filter;render(generation);});
 function close(retainSession=false){
- $('#treff-admin-shortcut').hidden=true;
+ $('#treff-admin-shortcut').hidden=true;$('#treff-stats-shortcut').hidden=true;
  if(!retainSession){try{localStorage.removeItem(sessionKey);sessionStorage.removeItem(sessionKey);window.dispatchEvent(new Event('sterni-session-changed'));}catch{}}
-generation++;invitationRecipient=null;clearPictures();isAdmin=false;pendingLink=null;$('#treff-admin').hidden=true;$('#treff-accept').hidden=true;$('#treff-link-value').value='';$('#treff-admin-link').hidden=true;$('#treff-admin-members').replaceChildren();session=null;user=null;posts=[];comments=[];likes=[];members=[];test.posts=[];test.comments=[];test.likes=[];$('#treff-feed').replaceChildren();$('#treff-content').hidden=true;$('#treff-session').hidden=true;$('#treff-password').hidden=true;$('#treff-register-form').hidden=true;$('#treff-forgot-form').hidden=true;$('#treff-entry').hidden=false;$('#treff-login').reset();resetForm();}
+generation++;invitationRecipient=null;clearPictures();isAdmin=false;pendingLink=null;$('#treff-admin').hidden=true;$('#treff-stats').hidden=true;$('#treff-accept').hidden=true;$('#treff-link-value').value='';$('#treff-admin-link').hidden=true;$('#treff-admin-members').replaceChildren();session=null;user=null;posts=[];comments=[];likes=[];members=[];test.posts=[];test.comments=[];test.likes=[];$('#treff-feed').replaceChildren();$('#treff-content').hidden=true;$('#treff-session').hidden=true;$('#treff-password').hidden=true;$('#treff-register-form').hidden=true;$('#treff-forgot-form').hidden=true;$('#treff-entry').hidden=false;$('#treff-login').reset();resetForm();}
 async function request(path,{method='GET',body,token=session?.access_token,raw=false,headers={},retried=false}={}){
  let response;try{response=await fetch(config.url+path,{method,signal:AbortSignal.timeout(20000),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',headers:{apikey:config.publishableKey,...(token?{Authorization:'Bearer '+token}:{}),...(!raw&&body?{'Content-Type':'application/json'}:{}),...headers},body:body===undefined?undefined:raw?body:JSON.stringify(body)});}catch{throw Error('Keine Verbindung zum Anglertreff. Bitte Internet prüfen und erneut versuchen.');}
  if(response.status===401&&session?.refresh_token&&!retried&&token){
@@ -75,7 +75,7 @@ async function enter(){
   }
   const admins=await request('/rest/v1/treff_admins?select=id&id=eq.'+user.id);isAdmin=!!admins?.length;
  }
- $('#treff-admin').hidden=!isAdmin;$('#treff-admin-shortcut').hidden=!isAdmin;$('#treff-change-password').hidden=demo;$('#treff-delete-account').hidden=demo;
+ $('#treff-admin').hidden=!isAdmin;$('#treff-admin-shortcut').hidden=!isAdmin;$('#treff-stats').hidden=!isAdmin;$('#treff-stats-shortcut').hidden=!isAdmin;$('#treff-change-password').hidden=demo;$('#treff-delete-account').hidden=demo;initConsentCheck();if(isAdmin)await loadStats();
  $('#treff-entry').hidden=true;$('#treff-password').hidden=true;$('#treff-session').hidden=false;$('#treff-content').hidden=false;$('#treff-demo-switch').hidden=!demo;
  $('#treff-user').textContent='Angemeldet als '+(demo?(user.id==='christian'?'Christian (Test)':'Angelfreund (Test)'):user.email);
  await refresh();
@@ -226,7 +226,7 @@ $('#treff-password').onsubmit=e=>{e.preventDefault();guard(e.target.querySelecto
  if(String(data.get('password')).length<8)throw Error('Bitte mindestens 8 Zeichen verwenden.');
  await request('/auth/v1/user',{method:'PUT',body:{password:data.get('password')}});e.target.reset();await enter();status('Dein Passwort wurde gespeichert. Willkommen im Anglertreff!');
 });};
-function showPassword(flow){$('#treff-entry').hidden=true;$('#treff-accept').hidden=true;$('#treff-content').hidden=true;$('#treff-admin').hidden=true;$('#treff-password').reset();$('#treff-password-title').textContent=flow==='invite'?'Registrierung abschließen':flow==='recovery'?'Neues Passwort festlegen':'Passwort ändern';$('#treff-password').hidden=false;}
+function showPassword(flow){$('#treff-entry').hidden=true;$('#treff-accept').hidden=true;$('#treff-content').hidden=true;$('#treff-admin').hidden=true;$('#treff-stats').hidden=true;$('#treff-password').reset();$('#treff-password-title').textContent=flow==='invite'?'Registrierung abschließen':flow==='recovery'?'Neues Passwort festlegen':'Passwort ändern';$('#treff-password').hidden=false;}
 $('#treff-change-password').onclick=()=>showPassword('change');
 function linkParts(hash,query){
  const type=hash.get('type')||query.get('type')||'invite',token_hash=hash.get('token_hash')||query.get('token_hash'),access_token=hash.get('access_token');
@@ -341,6 +341,195 @@ $('#treff-whatsapp-link').onclick=()=>{const text=invitationText();window.open('
 $('#treff-email-link').onclick=()=>{const text=invitationText();location.href='mailto:'+encodeURIComponent(invitationRecipient?.email||'')+'?subject='+encodeURIComponent('Deine Einladung zum Anglertreff')+'&body='+encodeURIComponent(text);status('E-Mail vorbereitet. Bitte in deiner E-Mail-App auf Senden drücken. Falls sie sich nicht öffnet, nutze Link kopieren.');};
 function clearAdminLink(){invitationRecipient=null;adminLinkType='invite';$('#treff-link-value').value='';$('#treff-admin-link').hidden=true;}
 $('#treff-clear-link').onclick=clearAdminLink;
+
+// ==================== BESUCHERSTATISTIK & DATENSCHUTZ ====================
+let statsData = [];
+
+function initConsentCheck(){
+  const box = $('#treff-consent-container');
+  if (box) box.hidden = demo;
+  const check = $('#treff-analytics-consent-check');
+  if (check) {
+    check.checked = window.SterniTracker ? window.SterniTracker.hasConsent() : false;
+    check.onchange = async () => {
+      const val = check.checked;
+      if (window.SterniTracker) await window.SterniTracker.setConsent(val);
+      const st = $('#treff-consent-status');
+      if (st) {
+        st.textContent = val
+          ? 'Einwilligung gespeichert: Deine Besuche werden dem Administrator mit deinem Namen angezeigt.'
+          : 'Einwilligung widerrufen: Deine zukünftigen Besuche werden ausschließlich anonym gezählt.';
+      }
+    };
+  }
+}
+
+$('#treff-stats-shortcut a').onclick = event => {
+  event.preventDefault();
+  if (!isAdmin) return;
+  $('#treff-stats-details').open = true;
+  $('#treff-stats-details summary').focus();
+  $('#treff-stats').scrollIntoView({ block: 'start' });
+  loadStats();
+};
+
+async function loadStats(){
+  if (!isAdmin || !user) return;
+  const statusEl = $('#stats-action-status');
+  if (statusEl) statusEl.textContent = 'Statistik wird geladen …';
+  try {
+    const visits = await request('/rest/v1/app_visits?select=id,visited_at,session_id,page_area,user_id,display_name&order=visited_at.desc&limit=2000');
+    statsData = visits || [];
+    renderStats();
+    if (statusEl) statusEl.textContent = `Aktualisiert: ${statsData.length} Aufrufe geladen.`;
+  } catch (err) {
+    if (statusEl) statusEl.textContent = 'Fehler beim Laden: ' + (err.message || err);
+  }
+}
+
+function renderStats(){
+  if (!isAdmin) return;
+  const now = new Date();
+  const todayStr = now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toDateString();
+
+  let countToday = 0, countYesterday = 0;
+  const allAreas = new Set();
+
+  statsData.forEach(v => {
+    const d = new Date(v.visited_at);
+    if (d.toDateString() === todayStr) countToday++;
+    if (d.toDateString() === yesterdayStr) countYesterday++;
+    if (v.page_area) allAreas.add(v.page_area);
+  });
+
+  if ($('#stats-kpi-today')) $('#stats-kpi-today').textContent = countToday;
+  if ($('#stats-kpi-yesterday')) $('#stats-kpi-yesterday').textContent = countYesterday;
+  if ($('#stats-kpi-total')) $('#stats-kpi-total').textContent = statsData.length;
+  if ($('#stats-kpi-areas')) $('#stats-kpi-areas').textContent = allAreas.size;
+
+  const areaSelect = $('#stats-filter-area');
+  if (areaSelect && areaSelect.options.length <= 1) {
+    const cur = areaSelect.value;
+    Array.from(allAreas).sort().forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a; opt.textContent = a;
+      areaSelect.appendChild(opt);
+    });
+    areaSelect.value = cur || 'all';
+  }
+
+  const periodFilter = $('#stats-filter-period')?.value || 'week';
+  const areaFilter = $('#stats-filter-area')?.value || 'all';
+  const userFilter = $('#stats-filter-user')?.value || 'all';
+
+  const sevenDaysAgo = now.getTime() - (7 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgo = now.getTime() - (30 * 24 * 60 * 60 * 1000);
+
+  const filtered = statsData.filter(v => {
+    const time = new Date(v.visited_at).getTime();
+    const dStr = new Date(v.visited_at).toDateString();
+    if (periodFilter === 'today' && dStr !== todayStr) return false;
+    if (periodFilter === 'yesterday' && dStr !== yesterdayStr) return false;
+    if (periodFilter === 'week' && time < sevenDaysAgo) return false;
+    if (periodFilter === 'month' && time < thirtyDaysAgo) return false;
+    if (areaFilter !== 'all' && v.page_area !== areaFilter) return false;
+    if (userFilter === 'consented' && !v.display_name && !v.user_id) return false;
+    if (userFilter === 'anonymous' && (v.display_name || v.user_id)) return false;
+    return true;
+  });
+
+  const areaCounts = {};
+  filtered.forEach(v => {
+    const a = v.page_area || 'Unbekannt';
+    areaCounts[a] = (areaCounts[a] || 0) + 1;
+  });
+  const sortedAreas = Object.entries(areaCounts).sort((a, b) => b[1] - a[1]);
+  const breakdownRoot = $('#stats-area-breakdown');
+  if (breakdownRoot) {
+    breakdownRoot.replaceChildren();
+    if (!sortedAreas.length) {
+      breakdownRoot.append(node('p', 'Keine Aufrufe im gewählten Filterzeitraum.'));
+    } else {
+      const maxCount = sortedAreas[0][1] || 1;
+      const totalFiltered = filtered.length || 1;
+      sortedAreas.forEach(([area, count]) => {
+        const row = document.createElement('div');
+        row.className = 'stats-area-row';
+        const header = document.createElement('div');
+        header.className = 'stats-area-header';
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'stats-area-name';
+        nameSpan.textContent = area;
+        const countSpan = document.createElement('span');
+        countSpan.className = 'stats-area-count';
+        const pct = Math.round((count / totalFiltered) * 100);
+        countSpan.innerHTML = '<strong>' + count + '</strong> (' + pct + '%)';
+        header.append(nameSpan, countSpan);
+        const track = document.createElement('div');
+        track.className = 'stats-bar-track';
+        const fill = document.createElement('div');
+        fill.className = 'stats-bar-fill';
+        fill.style.width = Math.round((count / maxCount) * 100) + '%';
+        track.append(fill);
+        row.append(header, track);
+        breakdownRoot.append(row);
+      });
+    }
+  }
+
+  const logRoot = $('#stats-log-list');
+  const logInfo = $('#stats-log-info');
+  if (logInfo) logInfo.textContent = `Zeigt ${filtered.length} Aufrufe im gewählten Filter (neueste zuerst).`;
+  if (logRoot) {
+    logRoot.replaceChildren();
+    if (!filtered.length) {
+      logRoot.append(node('p', 'Keine Einträge für diese Filterkombination vorhanden.'));
+    } else {
+      filtered.slice(0, 100).forEach(v => {
+        const item = document.createElement('div');
+        item.className = 'stats-log-item';
+        const leftDiv = document.createElement('div');
+        const areaEl = document.createElement('div');
+        areaEl.className = 'stats-log-area';
+        areaEl.textContent = v.page_area || 'Bereich';
+        const timeEl = document.createElement('div');
+        timeEl.className = 'stats-log-time';
+        const dateObj = new Date(v.visited_at);
+        timeEl.textContent = dateObj.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) + (v.session_id ? ` · Sitzung: …${v.session_id.slice(-6)}` : '');
+        leftDiv.append(areaEl, timeEl);
+        const rightDiv = document.createElement('div');
+        const badge = document.createElement('span');
+        badge.className = 'stats-user-badge ' + (v.display_name ? 'stats-user-consented' : 'stats-user-anon');
+        badge.textContent = v.display_name ? `👤 ${v.display_name}` : '🔒 Anonym';
+        rightDiv.append(badge);
+        item.append(leftDiv, rightDiv);
+        logRoot.append(item);
+      });
+    }
+  }
+}
+
+$('#stats-filter-period')?.addEventListener('change', renderStats);
+$('#stats-filter-area')?.addEventListener('change', renderStats);
+$('#stats-filter-user')?.addEventListener('change', renderStats);
+$('#stats-refresh-btn')?.addEventListener('click', () => guard($('#stats-refresh-btn'), () => loadStats()));
+$('#stats-cleanup-btn')?.addEventListener('click', () => guard($('#stats-cleanup-btn'), async () => {
+  if (!confirm('Statistikdaten, die älter als 90 Tage sind, dauerhaft löschen?')) return;
+  const statusEl = $('#stats-action-status');
+  if (statusEl) statusEl.textContent = 'Bereinigung wird durchgeführt …';
+  try {
+    const res = await request('/rest/v1/rpc/cleanup_old_app_visits', { method: 'POST', body: { days_to_keep: 90 } });
+    if (statusEl) statusEl.textContent = `Bereinigung abgeschlossen: ${res || 0} Einträge älter als 90 Tage gelöscht.`;
+    await loadStats();
+  } catch (err) {
+    if (statusEl) statusEl.textContent = 'Hinweis: ' + (err.message || 'Bereinigung nicht verfügbar.');
+  }
+}));
+
+
 async function init(){
  resetForm();$('#treff-login').hidden=!configured;$('#treff-demo').hidden=hasConfig;
  $('#treff-mode').className='treff-badge';$('#treff-mode').textContent=configured?'Anglertreff · Registrierung mit bestätigter E-Mail':'Testversion · Gemeinsamer Dienst noch nicht eingerichtet';

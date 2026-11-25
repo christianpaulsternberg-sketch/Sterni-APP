@@ -19,3 +19,34 @@
 /* Rückweg wie in der Sterni-App: Fisch links, App-Name und Petri Heil rechts. */
 .treff-page .treff-topbar .treff-return-brand{display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:11px!important;width:auto!important;min-height:44px;padding:8px 0!important;color:#f4f4f0;text-decoration:none}.treff-page .treff-topbar .treff-return-brand:hover{color:#fff;text-decoration:none}.treff-page .treff-return-brand svg{display:block;flex:0 0 auto;width:32px;height:22px;color:#ff5559}.treff-page .treff-return-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important;line-height:1}.treff-page .treff-return-copy b{display:block!important;font-family:Impact,"Arial Narrow",sans-serif!important;font-size:27px!important;letter-spacing:1.6px!important;line-height:1!important;color:#f4f4f0}.treff-page .treff-return-copy small{display:block!important;margin:0!important;font:8px Arial,sans-serif!important;letter-spacing:3px!important;line-height:1!important;color:#ff5559}
 .treff-page .treff-topbar{position:sticky!important;top:0!important;z-index:1100!important}
+
+/* Besucherstatistik */
+#treff-stats{border-top:3px solid #ff7a00;margin:16px 0}
+#treff-stats summary{font-weight:700;font-size:18px;color:#ffaa55}
+.stats-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+.stats-kpi-card{background:#141419;border:1px solid #383842;border-top:3px solid #ff7a00;border-radius:8px;padding:14px 12px;text-align:center}
+.stats-kpi-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#9494a0;margin-bottom:6px}
+.stats-kpi-value{display:block;font-size:28px;font-weight:700;color:#fff;line-height:1.1}
+.stats-kpi-card small{display:block;font-size:11px;color:#9494a0;margin-top:4px}
+.stats-filter-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0 20px;padding:14px;background:#16171d;border:1px solid #383842;border-radius:8px}
+.stats-filter-group label{font-size:12px;font-weight:600;color:#cfd0d8;margin-bottom:4px;display:block}
+.stats-filter-group select{width:100%;margin:0;padding:8px 10px;background:#20212a;color:#fff;border:1px solid #444552;border-radius:6px;font-size:13px}
+.stats-breakdown-list{display:grid;gap:10px;margin:14px 0 24px}
+.stats-area-row{background:#141419;border:1px solid #2e2f3a;border-radius:6px;padding:10px 14px}
+.stats-area-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px}
+.stats-area-name{font-weight:600;color:#f0f0f5}
+.stats-area-count{color:#ffaa55}
+.stats-bar-track{width:100%;height:8px;background:#22232d;border-radius:4px;overflow:hidden}
+.stats-bar-fill{height:100%;background:linear-gradient(90deg,#ff7a00,#ffb366);border-radius:4px;transition:width .3s ease}
+.stats-log-container{display:grid;gap:8px;max-height:480px;overflow-y:auto;margin:14px 0;padding-right:4px}
+.stats-log-item{background:#141419;border:1px solid #2a2b36;border-radius:6px;padding:10px 12px;font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.stats-log-time{color:#9494a0;font-size:11px}
+.stats-log-area{font-weight:600;color:#f2f2f8}
+.stats-user-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.stats-user-consented{background:#1e3a2f;color:#72e0a8;border:1px solid #2f5d4a}
+.stats-user-anon{background:#22232c;color:#a4a5b2;border:1px solid #363744}
+.stats-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.treff-consent-box{background:#16171d;border:1px solid #363744;border-left:3px solid #ff7a00;border-radius:8px;padding:14px 16px;margin:14px 0}
+.treff-consent-box h3{font-size:16px;margin:0 0 10px;color:#f2f2f8}
+@media (max-width:768px){.stats-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats-filter-bar{grid-template-columns:1fr}}
+@media (max-width:420px){.stats-kpi-grid{grid-template-columns:1fr}}
