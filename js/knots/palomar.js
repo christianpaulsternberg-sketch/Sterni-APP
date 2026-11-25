@@ -1,235 +1,318 @@
-/* Sterni-App – Palomarknoten (Musteranimation)
+/* Sterni-App – Palomarknoten v2 (palomar.js)
  *
- * Fachliche Referenz:
- * - Geeignet für: Monofil, Fluorocarbon und Geflochtene (bei Geflochtener oft bester Allroundknoten).
- * - Tragkraft: ca. 90–95 % der linearen Schnurtragkraft.
- * - Ablauf in 6 präzisen Schritten mit kontinuierlicher Schnurbewegung:
- *   1. Schnur doppeln & Bucht durch das Hakenöhr führen
- *   2. Einfachen Überhandknoten mit der Doppelschnur schlagen (locker lassen)
- *   3. Schlaufe öffnen & über die Hakenspitze klappen
- *   4. Schlaufe über den gesamten Hakenbogen nach oben ziehen
- *   5. Schnur anfeuchten & an beiden Enden gleichmäßig festziehen
- *   6. Fertiger Knoten – überstehendes Arbeitsende sauber kürzen
+ * Fachlich exakter, physikalisch plausibler Bewegungsablauf:
+ * 1. Schnur doppeln (15 cm Bucht)
+ * 2. Doppelte Schnur durch das Hakenöhr führen
+ * 3. Lockeren Überhandknoten mit der doppelten Schnur schlagen
+ * 4. Die Schlaufe vollständig ÜBER den Haken führen (Front- & Back-Layering)
+ * 5. Schlaufe nach oben über das Öhr führen & Schnur befeuchten
+ * 6. Gleichmäßig festziehen (Knoten schließt bündig am Öhr) & Arbeitsende kürzen
  */
 (function (global) {
   'use strict';
 
-  // Hakenposition: Öhr bei (300, 150)
-  // z-Ebenen:
-  //   Haken-Körper: 20
-  //   Öhr-Rückseite: 15
-  //   Öhr-Vorderseite: 25
-  // Schnüre:
-  //   z < 15: hinter dem Haken
-  //   15 < z < 25: durch das Öhr
-  //   z > 25: vor dem Haken
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
 
   const PALOMAR_DEF = {
     id: 'palomar',
     title: 'Palomarknoten',
     category: 'grundknoten',
     viewBox: '0 0 600 320',
-    props: [
-      { id: 'hook1', type: 'hook', x: 300, y: 150, zBody: 20, zEyeBack: 15, zEyeFront: 25, eyeFront: 'right' }
-    ],
-    ropes: [
-      {
-        id: 'main',
-        width: 4.8,
-        length: 560,
-        samples: 280,
-        split: 170 // die letzten 170 px stellen das Arbeitsende (Orange) dar
-      }
-    ],
+
     steps: [
       {
-        title: 'Schnur doppeln & durchs Öhr führen',
-        from: 1, to: 1,
-        text: 'Lege ca. 15 cm Schnur zu einer doppelten Bucht und führe die Schlaufenspitze von vorne nach hinten durch das Hakenöhr.'
+        title: 'Schnur doppeln',
+        text: 'Lege ca. 15 cm Angelschnur zu einer doppelten Bucht. Die Hauptschnur (blau) und das Arbeitsende (orange) liegen parallel nebeneinander.'
       },
       {
-        title: 'Überhandknoten schlagen',
-        from: 2, to: 3,
-        text: 'Binde mit der durchgezogenen Doppelschnur einen einfachen, lockeren Überhandknoten um die beiden Schnurstränge. Den Knoten noch nicht festziehen.'
+        title: 'Doppelte Schnur durchs Hakenöhr führen',
+        text: 'Führe die gelegte Schlaufenspitze (beide Stränge zusammen) von vorne nach hinten sauber durch das Hakenöhr.'
       },
       {
-        title: 'Schlaufe über den Haken klappen',
-        from: 4, to: 4,
-        text: 'Weite die entstandene Schlaufe und führe den gesamten Haken komplett durch die herabhängende Schlaufe.'
+        title: 'Lockeren Überhandknoten bilden',
+        text: 'Schlage mit der durchgezogenen Schlaufe einen einfachen Überhandknoten um die beiden Schnüre. Den Knoten noch nicht festziehen!'
       },
       {
-        title: 'Schlaufe nach oben führen',
-        from: 5, to: 5,
-        text: 'Ziehe die Schlaufe über die Hakenspitze und den Bogen nach oben, sodass sie sich oberhalb des Hakenöhrs um die Schnüre legt.'
+        title: 'Schlaufe vollständig über den Haken führen',
+        text: 'Weite die aus dem Knoten ragende Schlaufe und führe den gesamten Haken komplett durch diese Schlaufe hindurch.'
       },
       {
-        title: 'Befeuchten & gleichmäßig festziehen',
-        from: 6, to: 6,
-        text: 'Knoten vor dem Zuziehen mit Speichel oder Wasser befeuchten (vermeidet Reibungshitze). Gleichmäßig an Hauptschnur und Arbeitsende anziehen.'
+        title: 'Schlaufe über das Öhr führen & anfeuchten',
+        text: 'Ziehe die Schlaufe nach oben über das Hakenöhr. Befeuchte die Schnur gründlich mit Speichel oder Wasser vor dem Festziehen.'
       },
       {
-        title: 'Fertiger Knoten & Ende kürzen',
-        from: 7, to: 7,
-        text: 'Der Palomarknoten sitzt kompakt direkt am Öhr. Schneide das überstehende Arbeitsende auf ca. 2–3 mm ab.'
+        title: 'Gleichmäßig festziehen & Ende kürzen',
+        text: 'Halte den Haken fest und ziehe gleichmäßig an Hauptschnur und Arbeitsende. Der Knoten schließt bündig am Öhr. Arbeitsende auf ca. 2–3 mm abschneiden.'
       }
     ],
-    keyframes: [
-      // 0: Anfangslage vor Schritt 1 (Schnur gedoppelt links vom Öhr)
-      {
-        duration: 0,
-        props: { hook1: { x: 300, y: 150 } },
-        arrow: null,
-        ropes: {
-          main: {
-            cps: [
-              [50, 146, 18], [120, 146, 18], [190, 146, 18], [220, 146, 18],
-              // Bucht (Schlaufenspitze) bei (235, 148)
-              [235, 148, 18],
-              // Rückweg (unterer Schenkel = Arbeitsende)
-              [220, 154, 18], [190, 154, 18], [120, 154, 18], [50, 158, 18]
-            ]
-          }
+
+    /**
+     * Haupt-Renderfunktion für jeden Schritt und Fortschritt t (0.0 bis 1.0).
+     */
+    render(container, ctx, stepIdx, t) {
+      const p = ctx.easeInOut(Math.max(0, Math.min(1, t)));
+
+      // -------------------------------------------------------------
+      // SCHRITT 0: SCHNUR DOPPELN
+      // -------------------------------------------------------------
+      if (stepIdx === 0) {
+        const hx = 380, hy = 110;
+        // Haken ruht rechts
+        ctx.drawHook(container, hx, hy, 'all');
+
+        // Bucht-Spitze wandert von x=80 nach x=230
+        const tipX = lerp(80, 230, p);
+        const yTop = 106, yBot = 116;
+
+        // Hauptschnur (Blau, oben)
+        ctx.drawRope(container, `M 40 ${yTop} L ${tipX} ${yTop}`, 'standing', 5.5);
+        // Bucht-Umlenkung
+        ctx.drawRope(container, `M ${tipX} ${yTop} A 5 5 0 0 1 ${tipX} ${yBot}`, 'standing', 5.5);
+        // Arbeitsende (Orange, unten)
+        ctx.drawRope(container, `M ${tipX} ${yBot} L 40 ${yBot}`, 'working', 5.5);
+
+        // Bewegungspfeil nach rechts
+        ctx.drawArrow(container, `M ${tipX - 45} 85 L ${tipX + 15} 85`, '', Math.sin(p * Math.PI) * 0.95);
+      }
+
+      // -------------------------------------------------------------
+      // SCHRITT 1: DURCH DAS HAKENÖHR FÜHREN
+      // -------------------------------------------------------------
+      else if (stepIdx === 1) {
+        const hx = 360, hy = 110;
+        const tipX = lerp(230, 460, p);
+        const yTop = 106, yBot = 114;
+
+        // 1. Öhr-Rückseite (Layer hinter der Schnur)
+        ctx.drawHook(container, hx, hy, 'back');
+
+        // 2. Schnüre (Hauptschnur Blau, Arbeitsende Orange)
+        ctx.drawRope(container, `M 40 ${yTop} L ${tipX} ${yTop}`, 'standing', 5.5);
+        ctx.drawRope(container, `M ${tipX} ${yTop} A 4 4 0 0 1 ${tipX} ${yBot}`, 'standing', 5.5);
+        ctx.drawRope(container, `M ${tipX} ${yBot} L 40 ${yBot}`, 'working', 5.5);
+
+        // 3. Haken-Körper (Schenkel, Bogen, Spitze)
+        ctx.drawHook(container, hx, hy, 'body');
+
+        // 4. Öhr-Vorderseite (Layer VOR der Schnur -> umschließt die Schnur echt)
+        ctx.drawHook(container, hx, hy, 'front');
+
+        // Bewegungspfeil durch das Öhr
+        const arrowX = lerp(260, 420, p);
+        ctx.drawArrow(container, `M ${arrowX - 40} 85 L ${arrowX + 20} 85`, '', Math.sin(p * Math.PI) * 0.95);
+      }
+
+      // -------------------------------------------------------------
+      // SCHRITT 2: LOCKEREN ÜBERHANDKNOTEN BILDEN
+      // -------------------------------------------------------------
+      else if (stepIdx === 2) {
+        const hx = 360, hy = 160; // Haken hängt tiefer
+
+        // Öhr-Rückseite
+        ctx.drawHook(container, hx, hy, 'back');
+
+        // Schnüre vom Haken nach links oben zum Überhandknoten
+        const knotX = 260, knotY = 110;
+
+        // Ankommende Stränge von links (x=40..210)
+        ctx.drawRope(container, `M 40 106 L 210 106`, 'standing', 5.5);
+        ctx.drawRope(container, `M 40 114 L 210 114`, 'working', 5.5);
+
+        // Stränge vom Knoten zum Haken
+        ctx.drawRope(container, `M 280 112 C 320 112, 330 145, 360 156`, 'standing', 5.2);
+        ctx.drawRope(container, `M 280 118 C 320 118, 330 150, 360 164`, 'working', 5.2);
+
+        // Der Überhandknoten im Werden
+        if (p < 0.45) {
+          // Phase A: Schlaufe biegt nach oben und links über die Schnüre
+          const subP = p / 0.45;
+          const tipX = lerp(460, 240, subP);
+          const tipY = lerp(110, 50, Math.sin(subP * Math.PI));
+
+          // Schlaufenbogen
+          const dLoop = `M 360 156 C 440 150, ${tipX + 60} ${tipY - 30}, ${tipX} ${tipY}`;
+          ctx.drawRope(container, dLoop, 'standing', 5.5);
+          ctx.drawArrow(container, `M 420 100 C 390 50, 320 40, 270 55`, '', 0.9);
+        } else if (p < 0.8) {
+          // Phase B: Schlaufe taucht links nach unten ab
+          const subP = (p - 0.45) / 0.35;
+          const tipX = lerp(240, 230, subP);
+          const tipY = lerp(50, 165, subP);
+
+          // Große Schleife über die Stränge (Z > 50)
+          const dOver = `M 360 156 C 430 150, 380 40, 280 45 C 240 48, 220 90, ${tipX} ${tipY}`;
+          ctx.drawRope(container, dOver, 'standing', 5.5);
+          ctx.drawArrow(container, `M 260 55 C 220 80, 210 120, 235 155`, '', 0.9);
+        } else {
+          // Phase C: Schlaufenspitze taucht durch das Auge von unten nach oben durch
+          const subP = (p - 0.8) / 0.2;
+          const tipX = lerp(230, 275, subP);
+          const tipY = lerp(165, 120, subP);
+
+          // Hinterer Teil des Knotens (Z < 40)
+          ctx.drawRope(container, `M 230 155 C 245 175, 270 160, ${tipX} ${tipY}`, 'standing', 5.5);
+
+          // Vorderer Bogen des Überhandknotens (Z > 60)
+          ctx.drawRope(container, `M 360 156 C 430 150, 380 40, 280 45 C 230 48, 215 90, 230 155`, 'standing', 5.5);
+          ctx.drawArrow(container, `M 240 170 C 260 165, 275 145, 280 125`, '', 0.9);
         }
-      },
-      // 1: Schritt 1 – Bucht gleitet durchs Öhr nach rechts (300, 150)
-      {
-        duration: 1500,
-        props: { hook1: { x: 300, y: 150 } },
-        arrow: 'M250 135 L330 135',
-        ropes: {
-          main: {
-            cps: [
-              [60, 146, 18], [160, 146, 18], [260, 148, 18],
-              // Durchs Öhr (z=20, zwischen Rück- und Vorderseite)
-              [296, 149, 20], [304, 149, 20],
-              // Spitze ragt rechts heraus
-              [380, 149, 18], [420, 150, 18], [435, 150, 18],
-              [420, 155, 18], [380, 155, 18],
-              [304, 152, 20], [296, 152, 20],
-              [260, 154, 18], [160, 155, 18], [80, 160, 18]
-            ]
-          }
+
+        // Haken-Körper & Öhr-Vorderseite
+        ctx.drawHook(container, hx, hy, 'body');
+        ctx.drawHook(container, hx, hy, 'front');
+      }
+
+      // -------------------------------------------------------------
+      // SCHRITT 3: SCHLAUFE VOLLSTÄNDIG ÜBER DEN HAKEN FÜHREN
+      // -------------------------------------------------------------
+      else if (stepIdx === 3) {
+        const hx = 360, hy = 160;
+
+        // Basis-Überhandknoten bei (260, 110)
+        ctx.drawRope(container, `M 40 106 L 240 106`, 'standing', 5.5);
+        ctx.drawRope(container, `M 40 114 L 240 114`, 'working', 5.5);
+        // Feste Windung des Knotens
+        ctx.drawRope(container, `M 240 106 C 265 95, 280 105, 280 115 C 280 125, 255 130, 240 114`, 'standing', 5.5);
+        // Stränge zum Öhr
+        ctx.drawRope(container, `M 280 115 C 310 115, 330 145, 360 156`, 'standing', 5.2);
+        ctx.drawRope(container, `M 270 122 C 310 122, 330 152, 360 164`, 'working', 5.2);
+
+        // Die große Schlaufe weitet sich und wandert nach unten über den Haken
+        // Loop-Zentrum wandert von y=120 bis y=275 (unter den Hakenbogen bei y=255)
+        const loopY = lerp(120, 275, p);
+        const loopW = lerp(30, 85, Math.sin(p * Math.PI * 0.75 + 0.25));
+
+        // 1. Öhr-Rückseite
+        ctx.drawHook(container, hx, hy, 'back');
+
+        // 2. HINTERER STRANG DER SCHLAUFE (Z = 30 -> läuft HINTER dem Hakenschenkel)
+        const dLoopBack = `M 275 115 C 270 ${loopY - 30}, ${hx - loopW * 0.5} ${loopY}, ${hx} ${loopY + 25}`;
+        ctx.drawRope(container, dLoopBack, 'standing', 5.2);
+
+        // 3. HAKEN-KÖRPER (Z = 50 -> Hakenschenkel liegt VOR dem hinteren Strang)
+        ctx.drawHook(container, hx, hy, 'body');
+
+        // 4. VORDERER STRANG DER SCHLAUFE (Z = 70 -> läuft VOR dem Hakenschenkel und Bogen)
+        const dLoopFront = `M ${hx} ${loopY + 25} C ${hx + loopW * 0.65} ${loopY}, ${hx + 30} ${loopY - 40}, 280 115`;
+        ctx.drawRope(container, dLoopFront, 'standing', 5.2);
+
+        // 5. Öhr-Vorderseite
+        ctx.drawHook(container, hx, hy, 'front');
+
+        // Bewegungspfeil nach unten über den Haken
+        const arrowY = lerp(140, 250, p);
+        ctx.drawArrow(container, `M 395 ${arrowY - 30} C 415 ${arrowY}, 410 ${arrowY + 25}, 375 ${arrowY + 35}`, '', Math.sin(p * Math.PI) * 0.95);
+      }
+
+      // -------------------------------------------------------------
+      // SCHRITT 4: SCHLAUFE ÜBER DAS ÖHR FÜHREN & ANFEUCHTEN
+      // -------------------------------------------------------------
+      else if (stepIdx === 4) {
+        const hx = 360, hy = 160;
+
+        // Basis-Überhandknoten
+        ctx.drawRope(container, `M 40 106 L 250 106`, 'standing', 5.5);
+        ctx.drawRope(container, `M 40 114 L 250 114`, 'working', 5.5);
+        ctx.drawRope(container, `M 250 106 C 275 95, 290 105, 290 115 C 290 125, 265 130, 250 114`, 'standing', 5.5);
+
+        // Öhr-Rückseite
+        ctx.drawHook(container, hx, hy, 'back');
+
+        // Schlaufe wird von unten (y=275) nach oben über das Öhr gezogen (y=98)
+        const loopUpY = lerp(275, 98, Math.min(1, p * 1.4));
+
+        if (p < 0.7) {
+          // Schlaufe wandert am Haken nach oben
+          const dLoopBack = `M 280 115 C 310 ${loopUpY + 40}, ${hx - 25} ${loopUpY + 20}, ${hx} ${loopUpY}`;
+          const dLoopFront = `M ${hx} ${loopUpY} C ${hx + 35} ${loopUpY + 20}, 330 ${loopUpY + 50}, 290 115`;
+          ctx.drawRope(container, dLoopBack, 'standing', 5.2);
+          ctx.drawHook(container, hx, hy, 'body');
+          ctx.drawRope(container, dLoopFront, 'standing', 5.2);
+          ctx.drawArrow(container, `M 385 ${loopUpY + 40} L 385 ${loopUpY - 10}`, '', 0.9);
+        } else {
+          // Schlaufe sitzt bereits oben über dem Knoten
+          ctx.drawHook(container, hx, hy, 'body');
+          // Schlaufe schmiegt sich eng um die Hauptschnüre direkt am Öhr
+          const dCollar = `M 290 115 C 320 85, 360 90, 360 110 C 360 130, 315 135, 285 115`;
+          ctx.drawRope(container, dCollar, 'standing', 5.5);
+
+          // Wassertropfen animieren (Anfeuchten)
+          const dropP = (p - 0.7) / 0.3;
+          ctx.drawWaterDroplets(container, 335, 110, Math.sin(dropP * Math.PI) * 0.95);
         }
-      },
-      // 2: Schritt 2a – Schlaufe biegt nach oben und bildet das Auge des Überhandknotens
-      {
-        duration: 1400,
-        props: { hook1: { x: 300, y: 150 } },
-        arrow: 'M380 140 C380 90 280 80 250 110',
-        ropes: {
-          main: {
-            cps: [
-              [60, 146, 18], [180, 146, 18], [280, 148, 18],
-              [296, 149, 20], [304, 149, 20],
-              // Schlaufe biegt nach oben und links über die Schnüre
-              [360, 130, 22], [350, 80, 28], [280, 70, 28], [230, 95, 28],
-              [210, 130, 28], [230, 155, 28],
-              [280, 152, 22],
-              [296, 152, 20], [304, 152, 20],
-              [260, 160, 18], [180, 165, 18], [90, 175, 18]
-            ]
-          }
+
+        // Stränge zum Öhr
+        ctx.drawRope(container, `M 290 115 C 320 120, 340 145, 360 156`, 'standing', 5.2);
+        ctx.drawRope(container, `M 285 122 C 320 128, 340 152, 360 164`, 'working', 5.2);
+
+        // Öhr-Vorderseite
+        ctx.drawHook(container, hx, hy, 'front');
+      }
+
+      // -------------------------------------------------------------
+      // SCHRITT 5: GLEICHMÄSSIG FESTZIEHEN & ENDE KÜRZEN
+      // -------------------------------------------------------------
+      else if (stepIdx === 5) {
+        // Cinching: Haken wandert von hy=160 nach hy=110 hoch
+        const cinchP = Math.min(1, p * 1.8);
+        const hy = lerp(160, 110, cinchP);
+        const hx = 360;
+
+        // Öhr-Rückseite
+        ctx.drawHook(container, hx, hy, 'back');
+
+        // Knoten zieht sich zu einem kompakten Paket bei (hx - 15, hy) zusammen
+        const kx = lerp(290, hx - 12, cinchP);
+        const ky = lerp(115, hy, cinchP);
+
+        // Hauptschnur (straff gezogen)
+        ctx.drawRope(container, `M 40 106 L ${kx} ${ky - 3}`, 'standing', 5.5);
+
+        // Schlaufenkragen fest um die Schnur direkt am Öhr
+        const collarW = lerp(25, 12, cinchP);
+        const dCollarTight = `M ${kx - 5} ${ky - 6} C ${kx + collarW} ${ky - 8}, ${kx + collarW} ${ky + 8}, ${kx - 5} ${ky + 6} Z`;
+        ctx.drawRope(container, dCollarTight, 'standing', 5.5);
+
+        // Arbeitsende (Orange)
+        if (p < 0.65) {
+          // Noch lang vor dem Schnitt
+          ctx.drawRope(container, `M ${kx} ${ky + 3} C ${kx - 30} ${ky + 25}, 180 180, 120 200`, 'working', 5.5);
+        } else {
+          // Sauber auf ca. 2–3 mm (18 px) gekürzt
+          ctx.drawRope(container, `M ${kx} ${ky + 3} L ${kx - 16} ${ky + 15}`, 'working', 5.5);
         }
-      },
-      // 3: Schritt 2b – Schlaufe taucht durch das Auge (Überhandknoten geformt, aber locker)
-      {
-        duration: 1600,
-        props: { hook1: { x: 300, y: 150 } },
-        arrow: 'M230 110 C260 110 270 125 285 140',
-        ropes: {
-          main: {
-            cps: [
-              [60, 146, 18], [190, 146, 18], [265, 142, 18],
-              // Knotenwindung locker um die Stränge
-              [275, 120, 28], [255, 95, 28], [230, 105, 28], [225, 135, 16],
-              // Schlaufenspitze taucht hindurch und hängt rechts/unten heraus
-              [255, 150, 16], [290, 160, 30], [350, 175, 30], [380, 195, 30],
-              [370, 215, 30], [330, 205, 30], [285, 170, 30],
-              [296, 152, 20], [304, 152, 20],
-              [270, 162, 18], [190, 168, 18], [100, 180, 18]
-            ]
-          }
+
+        // Haken-Körper & Öhr-Vorderseite
+        ctx.drawHook(container, hx, hy, 'body');
+        ctx.drawHook(container, hx, hy, 'front');
+
+        // Spannungs-Pfeile während des Zuziehens (0.0 bis 0.5)
+        if (p < 0.5) {
+          const arrowAlpha = Math.sin(p / 0.5 * Math.PI);
+          // Zug nach links (Schnüre)
+          ctx.drawArrow(container, `M 180 90 L 110 90`, '', arrowAlpha * 0.9);
+          // Gegenhalt am Haken nach unten
+          ctx.drawArrow(container, `M ${hx} ${hy + 160} L ${hx} ${hy + 210}`, '', arrowAlpha * 0.9);
         }
-      },
-      // 4: Schritt 3 – Schlaufe wird geweitet und nach unten über den Haken geklappt
-      {
-        duration: 1800,
-        props: { hook1: { x: 300, y: 150 } },
-        arrow: 'M370 180 C390 220 370 275 315 280',
-        ropes: {
-          main: {
-            cps: [
-              [60, 146, 18], [200, 145, 18], [270, 138, 28],
-              [260, 122, 28], [245, 135, 16], [260, 148, 16],
-              // Große weite Schlaufe, die unten um den Hakenschenkel (y=240..270) greift
-              [295, 155, 30], [355, 180, 30], [380, 230, 30], [355, 275, 30],
-              [300, 285, 30], [255, 270, 30], [250, 210, 10], [275, 160, 10],
-              [296, 152, 20], [304, 152, 20],
-              [275, 160, 18], [200, 165, 18], [110, 182, 18]
-            ]
-          }
+
+        // Schere schneidet das Ende ab (0.6 bis 0.9)
+        if (p >= 0.55 && p <= 0.95) {
+          const scissorP = (p - 0.55) / 0.4;
+          const sx = kx - 18, sy = ky + 18;
+          ctx.drawScissors(container, sx, sy, scissorP);
         }
-      },
-      // 5: Schritt 4 – Schlaufe gleitet über den Haken nach oben zum Öhr
-      {
-        duration: 1600,
-        props: { hook1: { x: 300, y: 150 } },
-        arrow: 'M300 270 C310 220 310 180 305 160',
-        ropes: {
-          main: {
-            cps: [
-              [60, 146, 18], [210, 146, 18], [278, 140, 28],
-              [270, 132, 28], [262, 140, 16], [270, 146, 16],
-              // Schlaufe liegt jetzt eng über dem Hakenöhr (um die Stränge)
-              [290, 146, 28], [315, 142, 28], [330, 152, 28], [320, 165, 16],
-              [300, 166, 16], [285, 160, 16], [280, 150, 28],
-              [296, 150, 20], [304, 150, 20],
-              [278, 156, 18], [210, 162, 18], [120, 180, 18]
-            ]
-          }
-        }
-      },
-      // 6: Schritt 5 – Zusammenziehen (Schnüre straffen sich, Knoten schrumpft ans Öhr)
-      {
-        duration: 1500,
-        props: { hook1: { x: 300, y: 150 } },
-        arrow: 'M200 150 L100 150',
-        ropes: {
-          main: {
-            cps: [
-              [40, 149, 18], [180, 149, 18], [275, 149, 18],
-              // Kleiner kompakter Knoten direkt am Hakenöhr (288..300)
-              [286, 147, 28], [292, 145, 28], [296, 148, 28], [294, 153, 16],
-              [290, 153, 16], [287, 150, 28],
-              // Durchs Öhr
-              [298, 149, 20], [302, 149, 20], [300, 151, 20],
-              // Arbeitsende läuft nach links unten
-              [288, 153, 18], [250, 165, 18], [180, 180, 18], [110, 195, 18]
-            ]
-          }
-        }
-      },
-      // 7: Schritt 6 – Fertiger Knoten, Arbeitsende wird abgeschnitten
-      {
-        duration: 1200,
-        props: { hook1: { x: 300, y: 150 } },
-        arrow: null,
-        ropes: {
-          main: {
-            trim: 145, // Arbeitsende wird um 145 px gekürzt (nur 25 px Stummel bleibt)
-            cps: [
-              [40, 149, 18], [180, 149, 18], [275, 149, 18],
-              // Fester Knoten direkt über dem Öhr
-              [286, 147, 28], [292, 145, 28], [296, 148, 28], [294, 153, 16],
-              [290, 153, 16], [287, 150, 28],
-              [298, 149, 20], [302, 149, 20], [300, 151, 20],
-              // Sauberes kurzes Ende (nur noch kurzer Stummel)
-              [288, 153, 18], [270, 162, 18]
-            ]
-          }
+
+        // Fertig-Erfolgs-Indikator bei p > 0.9
+        if (p > 0.92) {
+          const badgeG = ctx.el('g', { opacity: lerp(0, 1, (p - 0.92) / 0.08).toFixed(2) }, container);
+          ctx.el('rect', { x: 420, y: 35, width: 155, height: 32, rx: 6, fill: 'rgba(56, 189, 248, 0.15)', stroke: '#38bdf8', 'stroke-width': '1.2' }, badgeG);
+          const txt = ctx.el('text', { x: 497, y: 56, fill: '#38bdf8', 'font-size': '12', 'font-weight': '700', 'text-anchor': 'middle', 'font-family': 'sans-serif' }, badgeG);
+          txt.textContent = '✓ 95 % TRAGKRAFT';
         }
       }
-    ]
+    }
   };
 
   global.STERNI_KNOT_PALOMAR = PALOMAR_DEF;
