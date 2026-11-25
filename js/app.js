@@ -179,20 +179,6 @@ window.STERNI_APP = (() => {
 
   // ==================== ANGLERTREFF ====================
 
-// --- Service Worker registration (added automatically) ---
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js', {scope: './'} )
-      .then(reg => console.log('Service Worker registered with scope:', reg.scope))
-      .catch(err => console.error('Service Worker registration failed:', err));
-  });
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(reg => console.log('Service Worker registered with scope:', reg.scope))
-      .catch(err => console.error('Service Worker registration failed:', err));
-  });
-}
-
   function convertImageFileToWebP(file, maxW = 1024, quality = 0.82) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1551,38 +1537,3 @@ if ('serviceWorker' in navigator) {
 
   return { toast };
 })();
-
-// ==================== VERSION CHECK ====================
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js', {scope: './'} )
-      .then(reg => console.log('Service Worker registered with scope:', reg.scope))
-      .catch(err => console.error('Service Worker registration failed:', err));
-  });
-  // Fetch version manifest and compare with stored version
-  const checkForUpdates = async () => {
-    try {
-      const resp = await fetch('/version.json', {cache: 'no-store'});
-      if (!resp.ok) return;
-      const {version, cacheVersion} = await resp.json();
-      const stored = localStorage.getItem('sterni_app_version');
-      if (stored !== version) {
-        console.log('New app version detected:', version);
-        // Ask SW to skip waiting and then reload when ready
-        if (navigator.serviceWorker.controller) {
-          navigator.serviceWorker.controller.postMessage({type: 'SKIP_WAITING'});
-        }
-        localStorage.setItem('sterni_app_version', version);
-        // Reload after short delay to let new SW activate
-        setTimeout(() => location.reload(), 1500);
-      }
-    } catch (e) {
-      console.warn('Version check failed', e);
-    }
-  };
-  // Run on load and when page becomes visible again
-  window.addEventListener('load', checkForUpdates);
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) checkForUpdates();
-  });
-}
