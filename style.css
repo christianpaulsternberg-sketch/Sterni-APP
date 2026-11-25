@@ -1539,21 +1539,24 @@ details[open] > summary::after {
 #view-knoten .knot-stage svg { display:block; width:100%; min-height:205px; max-height:390px; }
 #view-knoten .ka-bg { fill:#081322; }
 #view-knoten .ka-name { fill:#a8d8fa; font:800 15px/1.2 DM Sans,sans-serif; letter-spacing:1.6px; }
+#view-knoten .ka-step-badge { fill:#38bdf8; font:800 13px/1.2 DM Sans,sans-serif; letter-spacing:1.2px; }
 #view-knoten .ka-state { fill:#93bad5; font:700 13px/1.2 DM Sans,sans-serif; letter-spacing:1.4px; text-anchor:middle; }
 #view-knoten .ka-main,#view-knoten .ka-secondary,#view-knoten .ka-work,#view-knoten .ka-arrow,#view-knoten .ka-metal path,#view-knoten .ka-metal ellipse,#view-knoten .ka-spool { fill:none; stroke-linecap:round; stroke-linejoin:round; }
 #view-knoten .ka-main { stroke:#38bdf8; stroke-width:8; }
 #view-knoten .ka-secondary { stroke:#38bdf8; stroke-width:6; opacity:.68; }
 #view-knoten .ka-work { stroke:#fb923c; stroke-width:8; animation:knot-path-in .48s ease both; }
-#view-knoten .ka-arrow { stroke:#fb923c; stroke-width:4; stroke-dasharray:7 7; animation:knot-arrow-flow 1.1s linear infinite; }
+#view-knoten .ka-arrow { stroke:#facc15; stroke-width:4; stroke-dasharray:7 7; animation:knot-arrow-flow 1.1s linear infinite; filter:drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
 #view-knoten .ka-metal { fill:#cbd5e1; stroke:#334155; stroke-width:8; }
 #view-knoten .ka-spool { fill:#cbd5e1; stroke:#334155; stroke-width:10; }
 #view-knoten .ka-lure { fill:#1e3a5f; stroke:#94a3b8; stroke-width:4; }
 #view-knoten .ka-boilie { fill:#d97706; stroke:#fef3c7; stroke-width:3; }
 #view-knoten .ka-water { fill:#38bdf8; opacity:.85; }
 #view-knoten .ka-tag { fill:#bae6fd; font:700 12px/1.2 DM Sans,sans-serif; letter-spacing:.6px; }
+#view-knoten .ka-drop-tag { fill:#38bdf8; font:800 12px/1.2 DM Sans,sans-serif; letter-spacing:.8px; }
+#view-knoten .ka-trim-tag { fill:#facc15; font:700 12px/1.2 DM Sans,sans-serif; letter-spacing:.6px; }
 @keyframes knot-path-in { from { opacity:.1; stroke-dasharray:900; stroke-dashoffset:900; } to { opacity:1; stroke-dasharray:900; stroke-dashoffset:0; } }
 @keyframes knot-arrow-flow { to { stroke-dashoffset:-28; } }
-#view-knoten .knot-copy { padding:.8rem .15rem .25rem; }
+#view-knoten .knot-copy { padding:.8rem .15rem .25rem; transition:opacity .2s ease; }
 #view-knoten .knot-step-title { display:block; color:#fff; font-size:1.08rem; }
 #view-knoten .knot-step-text { margin:.25rem 0 0; color:#d5eafa; line-height:1.45; }
 #view-knoten .knot-dots { display:flex; justify-content:center; gap:.45rem; overflow-x:auto; padding:.6rem 0; }
@@ -1571,7 +1574,7 @@ details[open] > summary::after {
 #view-knoten .knot-speed button[aria-pressed="true"] { border-color:#ffb27f; background:#e86f2b; }
 #view-knoten .knot-colour-key { display:flex; flex-wrap:wrap; gap:.35rem .9rem; margin:.8rem 0 0; color:#c9e4f5; font-size:.84rem; }
 #view-knoten .knot-colour-key i { display:inline-block; width:17px; height:4px; margin-right:.3rem; border-radius:3px; vertical-align:middle; }
-#view-knoten .key-blue { background:#38bdf8; } #view-knoten .key-orange { background:#fb923c; } #view-knoten .key-metal { background:#cbd5e1; }
+#view-knoten .key-blue { background:#38bdf8; } #view-knoten .key-orange { background:#fb923c; } #view-knoten .key-metal { background:#cbd5e1; } #view-knoten .key-arrow { background:#facc15; }
 #view-knoten .knot-facts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.6rem; margin:1rem 0; }
 #view-knoten .knot-facts div { padding:.75rem; border:1px solid #29516d; border-radius:.75rem; background:#0b2237; }
 #view-knoten .knot-facts b { display:block; margin-bottom:.25rem; color:#8fd1ff; font-size:.72rem; letter-spacing:.06em; }
