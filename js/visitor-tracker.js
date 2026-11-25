@@ -30,16 +30,53 @@
     }
   }
 
+  // Dekodiert die Nutzdaten eines JWT (ohne Signaturprüfung, nur zum Lesen von sub/exp/Metadaten)
+  function decodeJwtPayload(token) {
+    try {
+      const parts = String(token || '').split('.');
+      if (parts.length !== 3) return null;
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+      const binary = atob(padded);
+      const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+      const json = new TextDecoder().decode(bytes);
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
+  }
+
   // Ermittelt die gespeicherte Authentifizierungssitzung aus dem Anglertreff
   function getAuthSession() {
     try {
       const raw = localStorage.getItem(AUTH_STORAGE_KEY) || sessionStorage.getItem(AUTH_STORAGE_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      if (parsed?.access_token && parsed?.user?.id) {
-        return parsed;
-      }
-      return null;
+      if (!parsed?.access_token) return null;
+
+      const jwt = decodeJwtPayload(parsed.access_token);
+      const nowSec = Math.floor(Date.now() / 1000);
+      const exp = Number(parsed.expires_at || jwt?.exp || 0);
+      if (exp && exp <= nowSec + 15) return null;
+
+      const userId = parsed.user?.id || jwt?.sub;
+      if (!userId) return null;
+
+      const displayName =
+        parsed.user?.user_metadata?.display_name ||
+        parsed.display_name ||
+        jwt?.user_metadata?.display_name ||
+        (parsed.user?.email || jwt?.email || '').split('@')[0] ||
+        'Mitglied';
+
+      return {
+        access_token: parsed.access_token,
+        user: {
+          id: userId,
+          email: parsed.user?.email || jwt?.email || '',
+          user_metadata: { display_name: displayName }
+        }
+      };
     } catch {
       return null;
     }
@@ -100,21 +137,37 @@
       display_name: displayName
     };
 
-    try {
-      await fetch(config.url + '/rest/v1/app_visits', {
+    async function sendVisit(visitPayload, bearerToken) {
+      const headers = {
+        'apikey': config.publishableKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      };
+      if (bearerToken) {
+        headers['Authorization'] = 'Bearer ' + bearerToken;
+      }
+      return fetch(config.url + '/rest/v1/app_visits', {
         method: 'POST',
-        headers: {
-          'apikey': config.publishableKey,
-          'Authorization': 'Bearer ' + (token || config.publishableKey),
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify(payload),
+        headers,
+        body: JSON.stringify(visitPayload),
         signal: AbortSignal.timeout(6000),
         cache: 'no-store',
         credentials: 'omit',
         referrerPolicy: 'no-referrer'
       });
+    }
+
+    try {
+      const res = await sendVisit(payload, token);
+      // Falls personenbezogener Eintrag wegen fehlender DB-Einwilligung/Token abgelehnt wird, anonym nachzählen
+      if (!res.ok && token && (res.status === 401 || res.status === 403)) {
+        await sendVisit({
+          session_id: payload.session_id,
+          page_area: payload.page_area,
+          user_id: null,
+          display_name: null
+        }, null);
+      }
     } catch {
       // Fehler still ignorieren, damit die App-Nutzung niemals beeinträchtigt wird
     }

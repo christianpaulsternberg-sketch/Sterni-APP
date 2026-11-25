@@ -351,6 +351,11 @@ function initConsentCheck(){
   const check = $('#treff-analytics-consent-check');
   if (check) {
     check.checked = window.SterniTracker ? window.SterniTracker.hasConsent() : false;
+    if (!demo && window.SterniTracker?.syncConsent) {
+      window.SterniTracker.syncConsent().then(() => {
+        check.checked = window.SterniTracker.hasConsent();
+      }).catch(() => {});
+    }
     check.onchange = async () => {
       const val = check.checked;
       if (window.SterniTracker) await window.SterniTracker.setConsent(val);
@@ -363,6 +368,10 @@ function initConsentCheck(){
     };
   }
 }
+
+$('#treff-stats-details')?.addEventListener('toggle', () => {
+  if ($('#treff-stats-details')?.open && isAdmin) loadStats();
+});
 
 $('#treff-stats-shortcut a').onclick = event => {
   event.preventDefault();

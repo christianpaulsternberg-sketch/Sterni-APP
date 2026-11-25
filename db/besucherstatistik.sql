@@ -23,6 +23,8 @@ create table if not exists public.treff_analytics_consent (
 );
 
 alter table public.treff_analytics_consent enable row level security;
+revoke all on public.treff_analytics_consent from public, anon;
+grant select, insert, update on public.treff_analytics_consent to authenticated;
 
 -- Mitglieder dürfen nur ihre eigene Einwilligung lesen oder Administratoren alle
 drop policy if exists consent_select on public.treff_analytics_consent;
@@ -61,10 +63,17 @@ create index if not exists idx_app_visits_session on public.app_visits (session_
 
 alter table public.app_visits enable row level security;
 
--- INSERT: Aufrufe dürfen anonym oder bei vorliegender Einwilligung namentlich erfasst werden
+-- INSERT: Getrennte Policies für anon (nur anonym, ohne Zugriff auf consent-Tabelle) und authenticated
 drop policy if exists visits_insert_policy on public.app_visits;
-create policy visits_insert_policy on public.app_visits
-  for insert to anon, authenticated
+drop policy if exists visits_insert_anon on public.app_visits;
+drop policy if exists visits_insert_auth on public.app_visits;
+
+create policy visits_insert_anon on public.app_visits
+  for insert to anon
+  with check (user_id is null and display_name is null);
+
+create policy visits_insert_auth on public.app_visits
+  for insert to authenticated
   with check (
     -- Entweder vollständig anonym (keine Nutzerdaten)
     (user_id is null and display_name is null)
@@ -90,8 +99,13 @@ create policy visits_delete_admin on public.app_visits
   for delete to authenticated
   using (treff_private.is_admin());
 
--- Keine manuellen Updates auf Statistikdaten
-revoke update on public.app_visits from anon, authenticated;
+-- Keine manuellen Updates auf Statistikdaten; explizite Rollenrechte setzen
+revoke all on public.app_visits from public;
+revoke select, update, delete on public.app_visits from anon;
+revoke update on public.app_visits from authenticated;
+grant insert on public.app_visits to anon, authenticated;
+grant select, delete on public.app_visits to authenticated;
+grant usage, select on sequence public.app_visits_id_seq to anon, authenticated;
 
 -- 4. Bereinigungsfunktion zur Einhaltung von Speicher- und Löschfristen (Standard: 90 Tage)
 create or replace function public.cleanup_old_app_visits(days_to_keep int default 90)
