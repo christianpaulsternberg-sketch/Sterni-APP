@@ -5,18 +5,18 @@ const CACHE_NAME = `sterni-app-cache-${CACHE_VERSION}`;
 
 // List of resources to precache. Update this list when new assets are added.
 const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/manifest.webmanifest',
-  '/icons/orange-fish-180.png',
-  '/icons/orange-fish-192.png',
+  './',
+  './index.html',
+  './style.css',
+  './manifest.webmanifest',
+  './icons/orange-fish-180.png',
+  './icons/orange-fish-192.png',
   // JS bundles
-  '/js/app.js',
-  '/version.json',
-  '/js/api.js',
-  '/js/knot-lexikon.js',
-  '/js/knot-illustrations.js',
+  './js/app.js',
+  './version.json',
+  './js/api.js',
+  './js/knot-lexikon.js',
+  './js/knot-illustrations.js',
   // Add other essential assets as needed
 ];
 
