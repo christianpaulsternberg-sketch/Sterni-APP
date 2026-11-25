@@ -1547,6 +1547,10 @@ details[open] > summary::after {
 #view-knoten .ka-arrow { stroke:#fb923c; stroke-width:4; stroke-dasharray:7 7; animation:knot-arrow-flow 1.1s linear infinite; }
 #view-knoten .ka-metal { fill:#cbd5e1; stroke:#334155; stroke-width:8; }
 #view-knoten .ka-spool { fill:#cbd5e1; stroke:#334155; stroke-width:10; }
+#view-knoten .ka-lure { fill:#1e3a5f; stroke:#94a3b8; stroke-width:4; }
+#view-knoten .ka-boilie { fill:#d97706; stroke:#fef3c7; stroke-width:3; }
+#view-knoten .ka-water { fill:#38bdf8; opacity:.85; }
+#view-knoten .ka-tag { fill:#bae6fd; font:700 12px/1.2 DM Sans,sans-serif; letter-spacing:.6px; }
 @keyframes knot-path-in { from { opacity:.1; stroke-dasharray:900; stroke-dashoffset:900; } to { opacity:1; stroke-dasharray:900; stroke-dashoffset:0; } }
 @keyframes knot-arrow-flow { to { stroke-dashoffset:-28; } }
 #view-knoten .knot-copy { padding:.8rem .15rem .25rem; }
