@@ -405,18 +405,33 @@ function renderStats(){
   const yesterdayStr = yesterday.toDateString();
 
   let countToday = 0, countYesterday = 0;
+  const sessionsToday = new Set(), sessionsYesterday = new Set(), sessionsTotal = new Set();
   const allAreas = new Set();
 
   statsData.forEach(v => {
     const d = new Date(v.visited_at);
-    if (d.toDateString() === todayStr) countToday++;
-    if (d.toDateString() === yesterdayStr) countYesterday++;
+    const sid = v.session_id || ('id-' + v.id);
+    sessionsTotal.add(sid);
+    if (d.toDateString() === todayStr) { countToday++; sessionsToday.add(sid); }
+    if (d.toDateString() === yesterdayStr) { countYesterday++; sessionsYesterday.add(sid); }
     if (v.page_area) allAreas.add(v.page_area);
   });
 
-  if ($('#stats-kpi-today')) $('#stats-kpi-today').textContent = countToday;
-  if ($('#stats-kpi-yesterday')) $('#stats-kpi-yesterday').textContent = countYesterday;
-  if ($('#stats-kpi-total')) $('#stats-kpi-total').textContent = statsData.length;
+  if ($('#stats-kpi-today')) {
+    $('#stats-kpi-today').textContent = sessionsToday.size;
+    const sub = $('#stats-kpi-today').nextElementSibling;
+    if (sub) sub.textContent = `Besucher (${countToday} Aufrufe)`;
+  }
+  if ($('#stats-kpi-yesterday')) {
+    $('#stats-kpi-yesterday').textContent = sessionsYesterday.size;
+    const sub = $('#stats-kpi-yesterday').nextElementSibling;
+    if (sub) sub.textContent = `Besucher (${countYesterday} Aufrufe)`;
+  }
+  if ($('#stats-kpi-total')) {
+    $('#stats-kpi-total').textContent = sessionsTotal.size;
+    const sub = $('#stats-kpi-total').nextElementSibling;
+    if (sub) sub.textContent = `Besucher (${statsData.length} Aufrufe)`;
+  }
   if ($('#stats-kpi-areas')) $('#stats-kpi-areas').textContent = allAreas.size;
 
   const areaSelect = $('#stats-filter-area');

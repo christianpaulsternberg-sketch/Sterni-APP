@@ -13,6 +13,8 @@
   const SESSION_STORAGE_KEY = 'sterni-visitor-session';
   const CONSENT_STORAGE_KEY = 'sterni-analytics-consent-v1';
   const AUTH_STORAGE_KEY = 'petri-treff-session-v1';
+  const DEDUP_STORAGE_KEY = 'sterni-visitor-last-track';
+  const DEDUP_WINDOW_MS = 30000; // 30 Sekunden Schutz gegen Doppelzählung bei Reload/Update/Hashwechsel
 
   // Flüchtige Sitzungs-ID für zusammenhängende Navigation (nur für die aktuelle Browser-Sitzung)
   function getSessionId() {
@@ -102,16 +104,39 @@
   let lastTrackedArea = '';
   let lastTrackedTime = 0;
 
+  function isDuplicateVisit(areaName, now) {
+    if (areaName === lastTrackedArea && now - lastTrackedTime < DEDUP_WINDOW_MS) {
+      return true;
+    }
+    try {
+      const raw = sessionStorage.getItem(DEDUP_STORAGE_KEY);
+      if (raw) {
+        const prev = JSON.parse(raw);
+        if (prev?.area === areaName && now - Number(prev.time || 0) < DEDUP_WINDOW_MS) {
+          return true;
+        }
+      }
+    } catch {}
+    return false;
+  }
+
+  function rememberTrackedVisit(areaName, now) {
+    lastTrackedArea = areaName;
+    lastTrackedTime = now;
+    try {
+      sessionStorage.setItem(DEDUP_STORAGE_KEY, JSON.stringify({ area: areaName, time: now }));
+    } catch {}
+  }
+
   // Seitenaufruf erfassen
   async function track(areaName) {
     if (!areaName) return;
     const now = Date.now();
-    // Gleiche Seite innerhalb von 4 Sekunden nicht doppelt zählen
-    if (areaName === lastTrackedArea && now - lastTrackedTime < 4000) {
+    // Gleiche Seite innerhalb von 30 Sekunden (auch über Reload/Update hinweg) nicht doppelt zählen
+    if (isDuplicateVisit(areaName, now)) {
       return;
     }
-    lastTrackedArea = areaName;
-    lastTrackedTime = now;
+    rememberTrackedVisit(areaName, now);
 
     const config = getConfig();
     if (!config?.url || !config?.publishableKey) return;

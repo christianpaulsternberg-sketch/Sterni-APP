@@ -14,7 +14,7 @@
  * WICHTIG: Bei jeder Veröffentlichung APP_VERSION erhöhen (und version.json anpassen).
  * Dadurch ändert sich diese Datei, der Browser erkennt die neue Version automatisch.
  */
-const APP_VERSION = '1.0.6';
+const APP_VERSION = '1.0.7';
 const CACHE_NAME = `sterni-app-${APP_VERSION}`;
 const CACHE_PREFIX = 'sterni-app-';
 const NETWORK_TIMEOUT_MS = 6000;
